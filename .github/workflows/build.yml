@@ -40,9 +40,18 @@ jobs:
             msg=$(sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g' "$c")
             echo "::error title=${{ matrix.mc }}::$msg"
           done
-      - name: show InfraCraft warnings
+      - name: report data and mixin warnings
         if: always()
-        run: grep -iE "infracraft|mixin apply|Couldn't parse|Failed to (load|parse)" server.log | grep -iE "warn|error|fail|exception" | head -100 || true
+        run: |
+          [ -f server.log ] || exit 0
+          grep -E "SMOKE|WARN|ERROR" server.log | grep -iE "infracraft|SMOKE|mixin|Couldn't|Failed to|Unknown|registry|tag" \
+            | grep -vE "SMOKE OK" | sed -E 's/^.*\] //' | awk '!seen[$0]++' | head -80 | cut -c1-400 > warnings.txt || true
+          split -l 8 warnings.txt wchunk_ || true
+          for c in wchunk_*; do
+            [ -f "$c" ] || continue
+            msg=$(sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g' "$c")
+            echo "::warning title=${{ matrix.mc }} runtime::$msg"
+          done
       - uses: actions/upload-artifact@v7
         if: always()
         with:

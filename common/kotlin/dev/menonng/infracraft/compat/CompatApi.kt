@@ -10,6 +10,8 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -40,6 +42,10 @@ interface CompatApi {
     fun loadEntity(level: ServerLevel, tag: CompoundTag): Entity?
     fun keepChunkLoaded(level: ServerLevel, pos: BlockPos)
     fun customName(stack: ItemStack): String?
+    /** 서버가 바꾼 속도를 클라이언트에 바로 보내도록 표시한다(옛 hurtMarked). */
+    fun syncVelocity(entity: Entity)
+    fun dropItem(player: Player, stack: ItemStack)
+    val playerType: EntityType<out LivingEntity>
 
     /** 블록과 그 BlockItem 을 함께 등록한다. */
     fun <T : Block> block(name: String, props: BlockBehaviour.Properties, factory: (BlockBehaviour.Properties) -> T): T

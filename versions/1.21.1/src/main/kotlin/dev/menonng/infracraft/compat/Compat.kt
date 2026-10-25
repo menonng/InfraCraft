@@ -68,6 +68,16 @@ object Compat : CompatApi {
         level.chunkSource.addRegionTicket(TicketType.PORTAL, ChunkPos(pos), 2, pos)
     }
 
+    override fun syncVelocity(entity: Entity) {
+        entity.hurtMarked = true
+    }
+
+    override fun dropItem(player: Player, stack: ItemStack) {
+        player.drop(stack, false)
+    }
+
+    override val playerType: EntityType<out net.minecraft.world.entity.LivingEntity> get() = EntityType.PLAYER
+
     override fun customName(stack: ItemStack): String? = stack.get(DataComponents.CUSTOM_NAME)?.string
 
     override fun <T : Block> block(name: String, props: BlockBehaviour.Properties, factory: (BlockBehaviour.Properties) -> T): T {

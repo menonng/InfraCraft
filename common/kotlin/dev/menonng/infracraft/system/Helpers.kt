@@ -62,6 +62,6 @@ object Inventories {
     }
 
     fun give(player: Player, stack: ItemStack) {
-        if (!player.inventory.add(stack)) player.drop(stack, false)
+        if (!player.inventory.add(stack)) dev.menonng.infracraft.compat.Compat.dropItem(player, stack)
     }
 }

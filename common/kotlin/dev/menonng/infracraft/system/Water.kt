@@ -4,6 +4,7 @@ import dev.menonng.infracraft.Config
 import dev.menonng.infracraft.block.CurrentBlock
 import dev.menonng.infracraft.block.TickedBlock
 import dev.menonng.infracraft.compat.BoatEntity
+import dev.menonng.infracraft.compat.Compat
 import dev.menonng.infracraft.content.ModBlocks
 import dev.menonng.infracraft.content.ModTags
 import net.minecraft.core.BlockPos
@@ -31,7 +32,7 @@ object Water {
             val h = Math.sqrt(nx * nx + nz * nz)
             val k = if (h > Config.c.currentMaxSpeed) Config.c.currentMaxSpeed / h else 1.0
             e.deltaMovement = Vec3(nx * k, v.y, nz * k)
-            e.hurtMarked = true
+            Compat.syncVelocity(e)
         }
     }
 
@@ -52,7 +53,7 @@ object Water {
             val sneaking = (e.controllingPassenger as? Player ?: e as? Player)?.isShiftKeyDown == true
             val v = e.deltaMovement
             e.deltaMovement = Vec3(v.x * 0.6, if (sneaking) -Config.c.liftSpeed else Config.c.liftSpeed, v.z * 0.6)
-            e.hurtMarked = true
+            Compat.syncVelocity(e)
         }
     }
 
@@ -82,7 +83,7 @@ object Water {
             val h = v.horizontalDistance()
             if (h > cap) {
                 boat.deltaMovement = Vec3(v.x * cap / h, v.y, v.z * cap / h)
-                boat.hurtMarked = true
+                Compat.syncVelocity(boat)
             }
         }
     }

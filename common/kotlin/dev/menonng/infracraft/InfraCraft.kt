@@ -10,6 +10,9 @@ import dev.menonng.infracraft.content.ModBlocks
 import dev.menonng.infracraft.content.ModComponents
 import dev.menonng.infracraft.content.ModItems
 import dev.menonng.infracraft.content.ModStats
+import dev.menonng.infracraft.content.ModEnchantments
+import dev.menonng.infracraft.content.ModTags
+import dev.menonng.infracraft.system.Enchants
 import dev.menonng.infracraft.system.InfraCommands
 import dev.menonng.infracraft.system.ElytraBan
 import dev.menonng.infracraft.system.Interactions
@@ -31,7 +34,6 @@ import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttribute
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.block.BaseRailBlock
 import net.minecraft.world.level.dimension.DimensionType
@@ -48,7 +50,7 @@ object InfraCraft : ModInitializer {
         ModItems.init()
         ModStats.init()
         ModAttributes.init()
-        FabricDefaultAttributeRegistry.register(EntityType.PLAYER, Player.createAttributes().add(ModAttributes.ROAD_AFFINITY))
+        FabricDefaultAttributeRegistry.register(Compat.playerType, Player.createAttributes().add(ModAttributes.ROAD_AFFINITY))
 
         EntityElytraEvents.ALLOW.register { !Config.c.banElytra }
 
@@ -84,13 +86,34 @@ object InfraCraft : ModInitializer {
                 val scale = DimensionType.getTeleportationScale(overworld.dimensionType(), nether.dimensionType())
                 if (Config.c.netherOneToOne && scale != 1.0) LOGGER.warn("[InfraCraft] 네더 1:1 믹스인이 적용되지 않았습니다 (배율 {})", scale)
             }
-            if (System.getProperty("infracraft.smoke") == "true") {
-                LOGGER.info("[InfraCraft] smoke test passed: {} stations, nether scale ok = {}", Network.data(server).stations.size,
-                    nether == null || DimensionType.getTeleportationScale(overworld.dimensionType(), nether.dimensionType()) == 1.0)
-                Compat.halt(server)
-            }
+            if (System.getProperty("infracraft.smoke") == "true") smokeTest(server)
         }
         LOGGER.info("[InfraCraft] 교통 인프라 모드 로드됨")
+    }
+
+    /** CI 에서 서버를 띄운 뒤 핵심 기능이 실제로 걸렸는지 확인하고 종료한다. */
+    private fun smokeTest(server: net.minecraft.server.MinecraftServer) {
+        val overworld = server.overworld()
+        val failures = ArrayList<String>()
+        fun check(name: String, ok: Boolean) {
+            LOGGER.info("[InfraCraft] SMOKE {} {}", if (ok) "OK  " else "FAIL", name)
+            if (!ok) failures.add(name)
+        }
+        for (key in listOf(ModEnchantments.ROADRUNNER, ModEnchantments.MOMENTUM, ModEnchantments.EQUESTRIAN, ModEnchantments.CONDUCTOR,
+            ModEnchantments.WIDE_PAVING, ModEnchantments.BORE_RADIUS, ModEnchantments.THRIFT)) {
+            check("enchantment ${key.toString()}", Enchants.holder(overworld, key) != null)
+        }
+        val soulSpeed = Enchants.holder(overworld, net.minecraft.world.item.enchantment.Enchantments.SOUL_SPEED)
+        check("soul_speed max level 5 (mixin)", soulSpeed?.value()?.maxLevel == 5)
+        val nether = Compat.level(server, "minecraft:the_nether")
+        check("nether 1:1 (mixin)", nether == null || DimensionType.getTeleportationScale(overworld.dimensionType(), nether.dimensionType()) == 1.0)
+        check("road tag", net.minecraft.world.level.block.Blocks.STONE_BRICKS.defaultBlockState().`is`(ModTags.ROAD_TIER_2))
+        check("asphalt tier 3", ModBlocks.ASPHALT.defaultBlockState().`is`(ModTags.ROAD_TIER_3))
+        check("rails tag", ModBlocks.EXPRESS_RAIL.defaultBlockState().`is`(net.minecraft.tags.BlockTags.RAILS))
+        check("network attachment", Network.data(server).stations.isEmpty())
+        if (failures.isEmpty()) LOGGER.info("[InfraCraft] smoke test passed")
+        else LOGGER.error("[InfraCraft] smoke test FAILED: {}", failures)
+        Compat.halt(server)
     }
 
     private fun tickLevel(level: ServerLevel) {

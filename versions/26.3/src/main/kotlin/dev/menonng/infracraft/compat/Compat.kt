@@ -68,11 +68,21 @@ object Compat : CompatApi {
     }
 
     override fun loadEntity(level: ServerLevel, tag: CompoundTag): Entity? =
-        EntityType.create(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), tag), level, EntitySpawnReason.LOAD).orElse(null)
+        EntityType.create(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), tag), level, net.minecraft.world.entity.EntitySpawnRequest(EntitySpawnReason.LOAD, true)).orElse(null)
 
     override fun keepChunkLoaded(level: ServerLevel, pos: BlockPos) {
         level.chunkSource.addTicketWithRadius(TicketType.ENDER_PEARL, ChunkPos.containing(pos), 2)
     }
+
+    override fun syncVelocity(entity: Entity) {
+        entity.syncVelocity = true
+    }
+
+    override fun dropItem(player: Player, stack: ItemStack) {
+        player.drop(stack, false, false)
+    }
+
+    override val playerType: EntityType<out net.minecraft.world.entity.LivingEntity> get() = net.minecraft.world.entity.EntityTypes.PLAYER
 
     override fun customName(stack: ItemStack): String? = stack.get(DataComponents.CUSTOM_NAME)?.string
 
