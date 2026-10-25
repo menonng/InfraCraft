@@ -42,6 +42,8 @@ interface CompatApi {
     fun loadEntity(level: ServerLevel, tag: CompoundTag): Entity?
     fun keepChunkLoaded(level: ServerLevel, pos: BlockPos)
     fun customName(stack: ItemStack): String?
+    fun keyId(key: net.minecraft.resources.ResourceKey<*>): String
+    fun blockById(namespace: String, path: String): Block?
     /** 서버가 바꾼 속도를 클라이언트에 바로 보내도록 표시한다(옛 hurtMarked). */
     fun syncVelocity(entity: Entity)
     fun dropItem(player: Player, stack: ItemStack)

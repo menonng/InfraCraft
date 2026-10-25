@@ -49,10 +49,6 @@ object Interactions {
                 } else Horses.callHorse(it, stack)
             }
             stack.`is`(ModItems.SURVEYOR) && player.isShiftKeyDown -> handled(player) { Tools.clearSurvey(it, stack) }
-            stack.`is`(ModItems.COUPLER) && player.isShiftKeyDown -> handled(player) {
-                stack.remove(ModComponents.BOUND_ENTITY)
-                Compat.overlay(it, msg("coupler.cleared", Palette.ORANGE))
-            }
             else -> null
         }
     }
@@ -146,7 +142,6 @@ object Interactions {
     fun useEntity(player: Player, hand: InteractionHand, target: Entity): InteractionResult? {
         val stack = player.getItemInHand(hand)
         return when {
-            stack.`is`(ModItems.COUPLER) && (target is Minecart || target is HorseEntity) -> handled(player) { couple(it, stack, target) }
             stack.`is`(ModItems.WHISTLE) && target is HorseEntity -> handled(player) { Horses.bindWhistle(it, stack, target) }
             stack.`is`(ModItems.IRON_HORSESHOE) && target is HorseEntity -> handled(player) { Horses.shoe(it, stack, target, 1) }
             stack.`is`(ModItems.DIAMOND_HORSESHOE) && target is HorseEntity -> handled(player) { Horses.shoe(it, stack, target, 2) }
@@ -161,30 +156,6 @@ object Interactions {
             }
             else -> null
         }
-    }
-
-    /** 연결기: 앞 차량(또는 말)을 먼저, 뒤 마인카트를 나중에 클릭 */
-    private fun couple(player: ServerPlayer, stack: ItemStack, target: Entity) {
-        val first = stack.get(ModComponents.BOUND_ENTITY)
-        if (first == null || first == target.uuid) {
-            stack.set(ModComponents.BOUND_ENTITY, target.uuid)
-            Compat.overlay(player, msg("coupler.first", Palette.SKY, target.name))
-            return
-        }
-        stack.remove(ModComponents.BOUND_ENTITY)
-        if (target !is Minecart) {
-            Compat.overlay(player, msg("coupler.follower_cart", Palette.RED)); return
-        }
-        val leader = (player.level() as ServerLevel).getEntity(first)
-        if (leader == null || leader.distanceTo(target) > 6f) {
-            Compat.overlay(player, msg("coupler.too_far", Palette.RED)); return
-        }
-        if (target.getAttached(ModAttachments.COUPLED_TO) == leader.uuid) {
-            target.removeAttached(ModAttachments.COUPLED_TO)
-            Compat.overlay(player, msg("coupler.uncoupled", Palette.ORANGE)); return
-        }
-        target.setAttached(ModAttachments.COUPLED_TO, leader.uuid)
-        Compat.overlay(player, msg(if (leader is HorseEntity) "coupler.harnessed" else "coupler.coupled", Palette.GREEN, leader.name, target.name))
     }
 
     // ───────────── 블록 파괴 ─────────────

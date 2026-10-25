@@ -5,6 +5,8 @@ import net.minecraft.core.BlockPos
 
 class StationRec {
     var name = ""
+    /** infracraft(역 블록) 또는 create(Create 기차역) */
+    var source = INFRACRAFT
     var dim = ""
     var x = 0
     var y = 0
@@ -12,6 +14,11 @@ class StationRec {
 
     val pos: BlockPos get() = BlockPos(x, y, z)
     val key: String get() = NetworkData.key(dim, x, y, z)
+
+    companion object {
+        const val INFRACRAFT = "infracraft"
+        const val CREATE = "create"
+    }
 }
 
 /** 실제로 탈것이 달려서 증명된 구간. 무방향으로 취급한다. */

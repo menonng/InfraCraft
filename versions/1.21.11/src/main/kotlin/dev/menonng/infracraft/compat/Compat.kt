@@ -84,6 +84,10 @@ object Compat : CompatApi {
 
     override val playerType: EntityType<out net.minecraft.world.entity.LivingEntity> get() = EntityType.PLAYER
 
+    override fun keyId(key: ResourceKey<*>): String = key.identifier().toString()
+
+    override fun blockById(namespace: String, path: String): Block? = BuiltInRegistries.BLOCK.getOptional(id(namespace, path)).orElse(null)
+
     override fun customName(stack: ItemStack): String? = stack.get(DataComponents.CUSTOM_NAME)?.string
 
     override fun <T : Block> block(name: String, props: BlockBehaviour.Properties, factory: (BlockBehaviour.Properties) -> T): T {

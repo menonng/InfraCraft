@@ -295,7 +295,8 @@ object Network {
             }
             it.remove()
             val dest = Compat.level(server, t.target.dim)
-            if (dest == null || !dest.getBlockState(t.target.pos).`is`(ModBlocks.STATION)) {
+            val exists = dest != null && (t.target.source == StationRec.CREATE || dest.getBlockState(t.target.pos).`is`(ModBlocks.STATION))
+            if (dest == null || !exists) {
                 Compat.chat(player, msg("express.station_gone", Palette.RED, t.target.name))
                 continue
             }

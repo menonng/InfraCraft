@@ -24,7 +24,7 @@ D = os.path.join(COMMON, "data")
 
 CUBE_ALL = ["asphalt", "road_line", "street_lamp", "signpost", "tunnel_lining", "tunnel_light", "platform_edge"]
 RAILS = ["high_speed_rail", "express_rail", "blaze_rail"]
-ITEMS = ["ticket", "coupler", "road_paver", "track_layer", "tunnel_borer", "surveyor", "whistle",
+ITEMS = ["ticket", "road_paver", "track_layer", "tunnel_borer", "surveyor", "whistle",
          "iron_horseshoe", "diamond_horseshoe", "ender_rail_core", "subway_shield", "station_blueprint"]
 BLOCKS = CUBE_ALL + RAILS + ["station", "rail_switch", "water_current", "boat_lift", "stable", "station_elevator"]
 
@@ -137,6 +137,25 @@ tag(f"{NS}/tags/item/enchantable/construction.json", TOOLS)
 tag("minecraft/tags/item/enchantable/durability.json", TOOLS)
 tag("minecraft/tags/item/enchantable/mining.json", [f"{NS}:tunnel_borer"])
 
+# Create(Create Fly) 장식 돌: Create 가 없으면 무시되는 선택 항목으로 넣는다
+CREATE_STONES = ["andesite", "asurine", "calcite", "crimsite", "deepslate", "diorite", "dripstone", "granite",
+                 "limestone", "ochrum", "scorchia", "scoria", "tuff", "veridium"]
+def optional(ids):
+    return [{"id": i, "required": False} for i in ids]
+create_road = []
+for st in CREATE_STONES:
+    create_road += [f"create:cut_{st}", f"create:cut_{st}_slab", f"create:polished_cut_{st}", f"create:polished_cut_{st}_slab",
+                    f"create:cut_{st}_bricks", f"create:small_{st}_bricks", f"create:layered_{st}", f"create:{st}_pillar"]
+create_road.append("create:industrial_iron_block")
+with open(os.path.join(D, NS, "tags", "block", "road_tier_2.json"), encoding="utf-8") as f:
+    tier2 = json.load(f)
+tier2["values"] += optional(create_road)
+write(D, f"{NS}/tags/block/road_tier_2.json", tier2)
+with open(os.path.join(D, NS, "tags", "block", "paveable.json"), encoding="utf-8") as f:
+    pave = json.load(f)
+pave["values"] += optional([f"create:{x}" for x in ("asurine", "crimsite", "limestone", "ochrum", "scorchia", "scoria", "veridium")])
+write(D, f"{NS}/tags/block/paveable.json", pave)
+
 # ── 인챈트 ──
 def ench(name, items, slots, max_level, weight, effects=None, primary=None):
     e = {
@@ -187,7 +206,6 @@ RECIPES = [
     ("boat_lift", 1, ["PPP", "SRS", "PPP"], {"P": "minecraft:prismarine_bricks", "S": "minecraft:soul_sand", "R": "minecraft:redstone"}),
     ("stable", 1, ["PHP", "H H", "PHP"], {"P": "#minecraft:planks", "H": "minecraft:hay_block"}),
     ("ticket", 8, ["PPP", "PNP", "PPP"], {"P": "minecraft:paper", "N": "minecraft:gold_nugget"}),
-    ("coupler", 1, ["  I", " C ", "I  "], {"I": "minecraft:iron_ingot", "C": "CHAIN"}),
     ("road_paver", 1, ["III", "SIS", " S "], {"I": "minecraft:iron_ingot", "S": "minecraft:stick"}),
     ("track_layer", 1, ["RRR", "ISI", " S "], {"R": "minecraft:rail", "I": "minecraft:iron_ingot", "S": "minecraft:stick"}),
     ("tunnel_borer", 1, ["DID", "IPI", " S "], {"D": "minecraft:diamond", "I": "minecraft:iron_block", "P": "minecraft:piston", "S": "minecraft:stick"}),
@@ -207,7 +225,7 @@ RECIPES = [
 
 GUIDE_PAGES = 8
 
-def recipes(version_dir, new_format, chain_id):
+def recipes(version_dir, new_format, chain_id=None):
     base = os.path.join(REPO, "versions", version_dir, "src", "main", "resources", "data", NS, "recipe")
     for name, count, pattern, key in RECIPES:
         k = {}

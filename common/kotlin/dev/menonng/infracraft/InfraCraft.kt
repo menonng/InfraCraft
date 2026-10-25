@@ -14,6 +14,7 @@ import dev.menonng.infracraft.content.ModEnchantments
 import dev.menonng.infracraft.content.ModTags
 import dev.menonng.infracraft.system.Enchants
 import dev.menonng.infracraft.system.InfraCommands
+import dev.menonng.infracraft.system.CreateCompat
 import dev.menonng.infracraft.system.ElytraBan
 import dev.menonng.infracraft.system.Interactions
 import dev.menonng.infracraft.system.Network
@@ -52,6 +53,8 @@ object InfraCraft : ModInitializer {
         ModAttributes.init()
         FabricDefaultAttributeRegistry.register(Compat.playerType, Player.createAttributes().add(ModAttributes.ROAD_AFFINITY))
 
+        CreateCompat.init()
+
         EntityElytraEvents.ALLOW.register { !Config.c.banElytra }
 
         Compat.onUseItem { player, _, hand -> if (player.isSpectator) null else Interactions.useItem(player, hand) }
@@ -73,6 +76,7 @@ object InfraCraft : ModInitializer {
                 if (server.tickCount % 40 == 0) ElytraBan.sweep(player)
             }
             Network.tickTransits(server)
+            CreateCompat.tick(server)
         }
         Compat.onLevelTick { level -> tickLevel(level) }
         Compat.onPlayerChangedLevel { player, origin, destination -> Network.onChangedLevel(player, origin, destination) }
@@ -111,6 +115,14 @@ object InfraCraft : ModInitializer {
         check("asphalt tier 3", ModBlocks.ASPHALT.defaultBlockState().`is`(ModTags.ROAD_TIER_3))
         check("rails tag", ModBlocks.EXPRESS_RAIL.defaultBlockState().`is`(net.minecraft.tags.BlockTags.RAILS))
         check("network attachment", Network.data(server).stations.isEmpty())
+        if (System.getenv("INFRACRAFT_SMOKE_CREATE") == "true") {
+            check("create loaded", CreateCompat.loaded)
+            check("create train API (reflection)", CreateCompat.selfCheck())
+            val track = CreateCompat.trackBlock()
+            check("create track shape", track != null &&
+                CreateCompat.trackState(track, net.minecraft.core.Direction.EAST, 0).toString().contains("shape=xo") &&
+                CreateCompat.trackState(track, net.minecraft.core.Direction.NORTH, 1).toString().contains("shape=an"))
+        }
         if (failures.isEmpty()) LOGGER.info("[InfraCraft] smoke test passed")
         else LOGGER.error("[InfraCraft] smoke test FAILED: {}", failures)
         Compat.halt(server)

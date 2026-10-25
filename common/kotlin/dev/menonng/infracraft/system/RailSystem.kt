@@ -7,7 +7,6 @@ import dev.menonng.infracraft.block.RailTier
 import dev.menonng.infracraft.block.TickedBlock
 import dev.menonng.infracraft.block.TierRailBlock
 import dev.menonng.infracraft.compat.Compat
-import dev.menonng.infracraft.compat.HorseEntity
 import dev.menonng.infracraft.compat.Minecart
 import dev.menonng.infracraft.content.ModAttachments
 import dev.menonng.infracraft.content.ModBlocks
@@ -30,9 +29,8 @@ import net.minecraft.world.phys.Vec3
 import java.util.WeakHashMap
 import kotlin.math.abs
 import kotlin.math.ceil
-import kotlin.math.sqrt
 
-/** 마인카트: 등급 선로 가속, 커브 감속, 연결(편성), 역 정차, 분기기, 블레이즈 연료 */
+/** 마인카트(바닐라·Create 마인카트 장치): 등급 선로 가속, 커브 감속, 역 정차, 분기기, 블레이즈 연료 */
 object RailSystem {
     private class CartState {
         var stopTicks = 0
@@ -106,8 +104,6 @@ object RailSystem {
         val st = states.getOrPut(cart) { CartState() }
         val railInfo = railStateAt(level, cart.blockPosition())
 
-        handleCoupling(level, cart)
-
         if (railInfo != null) {
             val (railPos, rail) = railInfo
             boost(level, cart, st, rail)
@@ -164,40 +160,6 @@ object RailSystem {
         st.fuelBlocks -= speed
         if (st.fuelBlocks > 0 && cart.level().gameTime % 100 == 0L) cart.setAttached(ModAttachments.BLAZE_FUEL, st.fuelBlocks.toInt())
         return true
-    }
-
-    // ───────────── 연결(열차 편성·마차) ─────────────
-
-    private fun handleCoupling(level: ServerLevel, cart: Minecart) {
-        val leaderId = cart.getAttached(ModAttachments.COUPLED_TO) ?: return
-        val leader = level.getEntity(leaderId)
-        if (leader == null || leader.isRemoved) {
-            if (leader != null) cart.removeAttached(ModAttachments.COUPLED_TO)
-            return
-        }
-        val toLeader = leader.position().subtract(cart.position())
-        val dist = sqrt(toLeader.x * toLeader.x + toLeader.z * toLeader.z)
-        if (dist > 12.0) return // 너무 멀면 끌지 않고 기다린다
-        val v = cart.deltaMovement
-        if (leader is HorseEntity) {
-            // 마차: 말 뒤 2.4칸을 따라간다(선로 밖에서도)
-            val back = Vec3.directionFromRotation(0f, leader.yRot).scale(-2.4)
-            val target = leader.position().add(back)
-            val pull = target.subtract(cart.position()).scale(0.35)
-            cart.deltaMovement = Vec3(pull.x, v.y, pull.z)
-            return
-        }
-        val gap = 1.6
-        if (dist > gap + 0.2) {
-            val k = (dist - gap) * 0.25
-            cart.deltaMovement = Vec3(v.x + toLeader.x / dist * k, v.y, v.z + toLeader.z / dist * k)
-        } else if (dist < gap - 0.4 && dist > 0.01) {
-            val k = (gap - dist) * 0.2
-            cart.deltaMovement = Vec3(v.x - toLeader.x / dist * k, v.y, v.z - toLeader.z / dist * k)
-        }
-        // 선두 차량과 속도를 맞춘다
-        val lv = leader.deltaMovement
-        cart.deltaMovement = cart.deltaMovement.multiply(0.8, 1.0, 0.8).add(lv.x * 0.2, 0.0, lv.z * 0.2)
     }
 
     // ───────────── 역과 목적지 ─────────────

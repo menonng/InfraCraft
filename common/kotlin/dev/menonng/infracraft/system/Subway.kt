@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.BaseRailBlock
+import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.phys.AABB
@@ -26,6 +27,7 @@ import kotlin.math.abs
 
 /**
  * 지하철 제작 키트: 실드 굴진기(터널 단면), 지하 역사 설계도(승강장 + 승강기 수직구), 역 승강기.
+ * 차량은 만들지 않는다. 선로는 Create 트랙을 우선 쓰고(Create Fly 와 Steam 'n' Rails 기차가 달린다), 없으면 바닐라 선로를 쓴다.
  *
  * 좌표 표기: dir = 진행 방향, side = 진행 방향의 오른쪽, o = 옆 칸 수, h = 선로 높이 기준 높이, k = 진행 방향 칸 수.
  */
@@ -37,6 +39,9 @@ object Subway {
 
     private fun at(base: BlockPos, dir: Direction, side: Direction, k: Int, o: Int, h: Int): BlockPos =
         base.relative(dir, k).relative(side, o).above(h)
+
+    /** 바닐라 선로 또는 Create 트랙 */
+    private fun isTrack(s: BlockState) = BaseRailBlock.isRail(s) || (CreateCompat.trackBlock()?.let { s.block == it } ?: false)
 
     private fun isLining(s: BlockState) = s.`is`(ModBlocks.TUNNEL_LINING) || s.`is`(ModBlocks.TUNNEL_LIGHT)
 
@@ -68,7 +73,7 @@ object Subway {
         for (o in -TUNNEL_HALF..TUNNEL_HALF) for (h in 0 until TUNNEL_HEIGHT) {
             val p = c.relative(side, o).above(h)
             val s = level.getBlockState(p)
-            if (!(s.isAir || (o == 0 && h == 0 && BaseRailBlock.isRail(s)))) return false
+            if (!(s.isAir || (o == 0 && h == 0 && isTrack(s)))) return false
         }
         return isLining(level.getBlockState(c.below()))
     }
@@ -119,24 +124,48 @@ object Subway {
         for (o in -TUNNEL_HALF..TUNNEL_HALF) for (h in 0 until TUNNEL_HEIGHT) {
             val p = c.relative(side, o).above(h)
             val s = level.getBlockState(p)
-            if (s.isAir || (o == 0 && h == 0 && BaseRailBlock.isRail(s))) continue
+            if (s.isAir || (o == 0 && h == 0 && isTrack(s))) continue
             if (!s.fluidState.isEmpty && s.block is net.minecraft.world.level.block.LiquidBlock) { level.setBlock(p, Blocks.AIR.defaultBlockState(), 3); continue }
             if (!replaceable(level, p, s)) continue
             if (level.destroyBlock(p, true, player)) mined++
         }
 
-        // 3) 바닥 가운데 선로
-        if (level.getBlockState(c).isAir) {
-            val off = player.offhandItem
-            val railStack = if (isRailItem(off)) off else Inventories.find(player) { isRailItem(it) }
-            if (railStack != null) {
-                level.setBlock(c, (railStack.item as BlockItem).block.defaultBlockState(), 3)
-                if (!player.isCreative) railStack.shrink(1)
-                player.awardStat(ModStats.TRACK_PLACED, 1)
-            } else Compat.overlay(player, msg("subway.no_rails", Palette.ORANGE))
-        }
+        // 3) 바닥 가운데 선로(Create 트랙 또는 바닐라 선로)
+        if (level.getBlockState(c).isAir && !placeTrack(level, c, dir, slope, player)) Compat.overlay(player, msg("subway.no_rails", Palette.ORANGE))
         if (mined > 0) player.awardStat(ModStats.BLOCKS_BORED, mined)
         damage(player, tool, hand)
+    }
+
+    /** 설정과 인벤토리에 따라 Create 트랙을 우선, 없으면 바닐라 선로를 놓는다. */
+    private fun placeTrack(level: ServerLevel, pos: BlockPos, dir: Direction, slope: Int, player: ServerPlayer): Boolean {
+        val mode = Config.c.subwayTrack
+        if (mode == "none") return true
+        if (mode != "vanilla") {
+            val track = CreateCompat.trackBlock()
+            if (track != null) {
+                val stack = Inventories.find(player) { it.`is`(track.asItem()) }
+                if (stack != null || player.isCreative) {
+                    level.setBlock(pos, CreateCompat.trackState(track, dir, slope), 3)
+                    if (!player.isCreative) stack?.shrink(1)
+                    player.awardStat(ModStats.TRACK_PLACED, 1)
+                    return true
+                }
+            }
+            if (mode == "create") return false
+        }
+        val off = player.offhandItem
+        val railStack = (if (isRailItem(off)) off else Inventories.find(player) { isRailItem(it) }) ?: return false
+        level.setBlock(pos, (railStack.item as BlockItem).block.defaultBlockState(), 3)
+        if (!player.isCreative) railStack.shrink(1)
+        player.awardStat(ModStats.TRACK_PLACED, 1)
+        return true
+    }
+
+    /** 설계도가 Create 트랙으로 역사를 지을지: 설정이 허용하고, 트랙이 16개 이상 있거나 창작 모드 */
+    private fun useCreateTrack(player: ServerPlayer): Block? {
+        if (Config.c.subwayTrack == "vanilla" || Config.c.subwayTrack == "none") return null
+        val track = CreateCompat.trackBlock() ?: return null
+        return if (player.isCreative || Inventories.count(player) { it.`is`(track.asItem()) } >= 16) track else null
     }
 
     private fun isRailItem(stack: ItemStack): Boolean {
@@ -164,11 +193,14 @@ object Subway {
         val solids = ArrayList<Pair<BlockPos, BlockState>>()
         val clears = ArrayList<BlockPos>()
         val lining = ModBlocks.TUNNEL_LINING.defaultBlockState()
+        // Create 트랙을 쓰면 역은 Create 기차역(트랙 옆)으로 두므로 InfraCraft 역 블록은 놓지 않는다
+        val createTrack = useCreateTrack(player)
+        val trackState = createTrack?.let { CreateCompat.trackState(it, dir, 0) } ?: Blocks.RAIL.defaultBlockState()
         for (k in -7..8) for (o in -wall..wall) for (h in -1..HALL_HEIGHT) {
             val p = at(base, dir, side, k, o, h)
             val ao = abs(o)
             when {
-                h == -1 -> solids.add(p to if (k == 0 && o == 0) ModBlocks.STATION.defaultBlockState() else lining)
+                h == -1 -> solids.add(p to if (k == 0 && o == 0 && createTrack == null) ModBlocks.STATION.defaultBlockState() else lining)
                 h == HALL_HEIGHT -> when {
                     k == elevatorK && o == elevatorO -> clears.add(p)
                     ao == 3 && Math.floorMod(k, 4) == 0 -> solids.add(p to ModBlocks.TUNNEL_LIGHT.defaultBlockState())
@@ -176,7 +208,10 @@ object Subway {
                 }
                 ao == wall -> solids.add(p to lining)
                 h == 0 -> when (ao) {
-                    0 -> if (!BaseRailBlock.isRail(level.getBlockState(p))) solids.add(p to Blocks.RAIL.defaultBlockState())
+                    0 -> {
+                        val cur = level.getBlockState(p)
+                        if (!isTrack(cur)) solids.add(p to trackState)
+                    }
                     1 -> clears.add(p)
                     2 -> solids.add(p to ModBlocks.PLATFORM_EDGE.defaultBlockState())
                     else -> solids.add(p to if (k == elevatorK && o == elevatorO) ModBlocks.STATION_ELEVATOR.defaultBlockState() else lining)
@@ -212,11 +247,18 @@ object Subway {
             if (s.isAir || !replaceable(level, p, s)) continue
             level.setBlock(p, Blocks.AIR.defaultBlockState(), 3)
         }
-        val stationPos = at(base, dir, side, 0, 0, -1)
-        val st = Network.registerStation(level, stationPos, null)
         Network.data(level.server).addTicker(TickedBlock.ELEVATOR, Compat.dimensionId(level), elevatorPos)
-        if (!player.isCreative) blueprint.shrink(1)
-        Compat.chat(player, msg("station_hall.built", Palette.GREEN, st.name, (y - 1).toString()))
+        if (!player.isCreative) {
+            blueprint.shrink(1)
+            if (createTrack != null) {
+                val placed = todo.count { it.second.block == createTrack }
+                Inventories.consume(player, placed) { it.`is`(createTrack.asItem()) }
+            }
+        }
+        if (createTrack == null) {
+            val st = Network.registerStation(level, at(base, dir, side, 0, 0, -1), null)
+            Compat.chat(player, msg("station_hall.built", Palette.GREEN, st.name, (y - 1).toString()))
+        } else Compat.chat(player, msg("station_hall.built_create", Palette.GREEN, (y - 1).toString()))
     }
 
     // ───────────── 역 승강기 ─────────────

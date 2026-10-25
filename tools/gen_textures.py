@@ -237,16 +237,6 @@ for y in (6, 8):
 px(img, [(12, 9), (12, 10)], "#3355BB")
 save(img, "item/ticket")
 
-# 연결기(사슬 + 고리)
-img = new()
-def link(cx, cy, c1, c2):
-    px(img, [(cx, cy - 1), (cx + 1, cy - 1), (cx - 1, cy), (cx + 2, cy), (cx - 1, cy + 1), (cx + 2, cy + 1), (cx, cy + 2), (cx + 1, cy + 2)], c1)
-    px(img, [(cx + 2, cy + 1), (cx + 1, cy + 2)], c2)
-link(2, 11, IRON[1], IRON[3]); link(5, 8, IRON[2], IRON[4]); link(8, 5, IRON[1], IRON[3])
-px(img, [(11, 3), (12, 2), (13, 2), (14, 3), (14, 4), (13, 5), (11, 4), (10, 4)], IRON[1])
-px(img, [(14, 5), (13, 6)], IRON[3])
-save(img, "item/coupler")
-
 # 도로 포장기(롤러)
 img = new()
 for i in range(7):

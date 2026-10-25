@@ -21,6 +21,7 @@ object InfraCommands {
                 .then(Commands.literal("stations").executes { stations(it) })
                 .then(Commands.literal("network").executes { network(it) })
                 .then(Commands.literal("guide").executes { guide(it) })
+                .then(Commands.literal("express").then(Commands.argument("to", StringArgumentType.greedyString()).executes { express(it) }))
                 .then(
                     Commands.literal("route").then(
                         Commands.argument("from", StringArgumentType.string()).then(
@@ -32,13 +33,25 @@ object InfraCommands {
     }
 
     private fun help(ctx: CommandContext<CommandSourceStack>): Int {
-        for (k in listOf("help.stations", "help.route", "help.network", "help.guide")) Compat.sendSuccess(ctx.source, msg(k, Palette.SKY))
+        for (k in listOf("help.stations", "help.route", "help.network", "help.express", "help.guide")) Compat.sendSuccess(ctx.source, msg(k, Palette.SKY))
         return 1
     }
 
     private fun guide(ctx: CommandContext<CommandSourceStack>): Int {
         Compat.sendSuccess(ctx.source, msg("guide.title", Palette.SKY))
         for (i in 1..Subway.GUIDE_LINES) Compat.sendSuccess(ctx.source, msg("guide.$i", if (i % 2 == 0) Palette.YELLOW else Palette.PINK))
+        return 1
+    }
+
+    /** 가까운 역(InfraCraft 역 블록 또는 Create 기차역, 8블록 안)에서 급행을 탄다. */
+    private fun express(ctx: CommandContext<CommandSourceStack>): Int {
+        val player = ctx.source.playerOrException
+        val level = player.level() as net.minecraft.server.level.ServerLevel
+        val here = Network.nearestStation(level, player.blockPosition(), 8)
+        if (here == null) {
+            Compat.sendSuccess(ctx.source, msg("express.not_at_station", Palette.ORANGE)); return 0
+        }
+        Network.startExpress(level, player, here, StringArgumentType.getString(ctx, "to").trim('"', ' '))
         return 1
     }
 

@@ -57,3 +57,42 @@ jobs:
         with:
           name: infracraft-mc${{ matrix.mc }}
           path: versions/${{ matrix.mc }}/build/libs/
+
+  # Create Fly(비공식 26.3 포트)와 함께 서버를 띄워 Create 연동(리플렉션, 트랙 블록)을 확인한다.
+  create-compat:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "microsoft"
+      - uses: gradle/actions/setup-gradle@v6
+      - run: chmod +x ./gradlew
+      - name: build Create Fly (unofficial 26.3 port)
+        run: |
+          set -o pipefail
+          git clone --depth 1 https://github.com/zedekvdb/create-fly-unofficial-port /tmp/createfly
+          cd /tmp/createfly && chmod +x gradlew && ./gradlew build -x test 2>&1 | tee /tmp/createfly-build.log | tail -20
+          ls -la build/libs
+      - name: smoke test with Create
+        env:
+          INFRACRAFT_SMOKE_CREATE: "true"
+        run: |
+          mkdir -p versions/26.3/run/mods
+          cp "$(ls /tmp/createfly/build/libs/*.jar | grep -vE 'sources|dev' | head -1)" versions/26.3/run/mods/
+          ls versions/26.3/run/mods
+          timeout 1200 ./gradlew :mc26.3:runServer 2>&1 | tee server.log
+          grep -q "\[InfraCraft\] smoke test passed" server.log
+      - name: report errors and warnings as annotations
+        if: always()
+        run: |
+          cat /tmp/createfly-build.log server.log 2>/dev/null \
+            | grep -E "SMOKE|InfraCraft|^e: |error:|What went wrong|Caused by|Exception|Mixin.*(fail|error)" \
+            | grep -vE "SMOKE OK|^\s*at " | sed -E 's/^.*\] //' | awk '!seen[$0]++' | head -80 | cut -c1-400 > notes.txt || true
+          split -l 8 notes.txt nchunk_ || true
+          for c in nchunk_*; do
+            [ -f "$c" ] || continue
+            msg=$(sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g' "$c")
+            echo "::warning title=create-compat::$msg"
+          done

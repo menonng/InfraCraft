@@ -4,15 +4,10 @@ import com.mojang.serialization.Codec
 import dev.menonng.infracraft.system.NetworkData
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType
-import net.minecraft.core.UUIDUtil
 import net.minecraft.nbt.CompoundTag
-import java.util.UUID
 
 /** Fabric 데이터 첨부로 저장하는 상태. 버전마다 다른 BlockEntity/SavedData 직렬화를 피하려고 전부 여기에 둔다. */
 object ModAttachments {
-    /** 마인카트: 이 UUID 의 마인카트(또는 말)를 따라간다 */
-    val COUPLED_TO: AttachmentType<UUID> = AttachmentRegistry.create(id("coupled_to")) { it.persistent(UUIDUtil.CODEC) }
-
     /** 마인카트: 화물 운송장으로 정한 목적지 */
     val CART_DESTINATION: AttachmentType<String> = AttachmentRegistry.create(id("cart_destination")) { it.persistent(Codec.STRING) }
 

@@ -30,6 +30,34 @@
     "minecraft:end_stone",
     "#infracraft:road_tier_1",
     "#infracraft:road_tier_2",
-    "#infracraft:road_tier_3"
+    "#infracraft:road_tier_3",
+    {
+      "id": "create:asurine",
+      "required": false
+    },
+    {
+      "id": "create:crimsite",
+      "required": false
+    },
+    {
+      "id": "create:limestone",
+      "required": false
+    },
+    {
+      "id": "create:ochrum",
+      "required": false
+    },
+    {
+      "id": "create:scorchia",
+      "required": false
+    },
+    {
+      "id": "create:scoria",
+      "required": false
+    },
+    {
+      "id": "create:veridium",
+      "required": false
+    }
   ]
 }

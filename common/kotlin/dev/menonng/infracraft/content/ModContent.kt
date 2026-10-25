@@ -68,7 +68,6 @@ object ModBlocks {
 
 object ModItems {
     val TICKET = Compat.item("ticket", Item.Properties().stacksTo(16))
-    val COUPLER = Compat.item("coupler", Item.Properties().stacksTo(1))
     val ROAD_PAVER = Compat.item("road_paver", Compat.toolProperties(2048))
     val TRACK_LAYER = Compat.item("track_layer", Compat.toolProperties(2048))
     val TUNNEL_BORER = Compat.item("tunnel_borer", Compat.toolProperties(1561))
@@ -89,7 +88,7 @@ object ModItems {
                 ModBlocks.WATER_CURRENT, ModBlocks.BOAT_LIFT, ModBlocks.STABLE,
                 ModBlocks.TUNNEL_LINING, ModBlocks.TUNNEL_LIGHT, ModBlocks.PLATFORM_EDGE, ModBlocks.STATION_ELEVATOR,
                 SUBWAY_SHIELD, STATION_BLUEPRINT,
-                TICKET, COUPLER, ROAD_PAVER, TRACK_LAYER, TUNNEL_BORER, SURVEYOR, WHISTLE,
+                TICKET, ROAD_PAVER, TRACK_LAYER, TUNNEL_BORER, SURVEYOR, WHISTLE,
                 IRON_HORSESHOE, DIAMOND_HORSESHOE, ENDER_RAIL_CORE,
             )
         }
@@ -104,7 +103,7 @@ object ModComponents {
     val ACTIVE: DataComponentType<Boolean> = reg("active", Codec.BOOL, ByteBufCodecs.BOOL)
     /** 측량기의 첫 번째 지점 */
     val POINT_A: DataComponentType<BlockPos> = reg("point_a", BlockPos.CODEC, BlockPos.STREAM_CODEC)
-    /** 호루라기에 묶인 말, 연결기로 고른 첫 번째 탈것 */
+    /** 호루라기에 묶인 말 */
     val BOUND_ENTITY: DataComponentType<UUID> = reg("bound_entity", UUIDUtil.CODEC, UUIDUtil.STREAM_CODEC)
 
     private fun <T : Any> reg(name: String, codec: Codec<T>, stream: StreamCodec<in RegistryFriendlyByteBuf, T>): DataComponentType<T> =

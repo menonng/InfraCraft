@@ -36,6 +36,8 @@ class InfraConfig {
     var bridgeMaxLength = 96
 
     // ── 지하철 ──
+    /** 굴진기·설계도가 까는 선로: auto(Create 트랙이 있으면 그것, 없으면 바닐라), create, vanilla, none */
+    var subwayTrack = "auto"
     var elevatorSpeed = 0.35
     var elevatorMaxHeight = 200
 
