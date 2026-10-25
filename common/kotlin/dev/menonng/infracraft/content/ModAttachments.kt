@@ -24,7 +24,7 @@ object ModAttachments {
 
     /** 오버월드: 역·노선·분기기 등 노선망 전체 */
     val NETWORK: AttachmentType<NetworkData> = AttachmentRegistry.create(id("network")) {
-        it.persistent(Codec.STRING.xmap(NetworkData::fromJson, NetworkData::toJson))
+        it.persistent(Codec.STRING.xmap({ s -> NetworkData.fromJson(s) }, { d -> d.toJson() }))
     }
 
     /** 오버월드: 마구간 위치 키 → 보관 중인 말 NBT */

@@ -6,6 +6,7 @@ plugins {
 }
 
 val minecraftVersion = property("minecraft_version") as String
+val flkVersion = property("flk_version") as String
 val javaVersion = (property("java_version") as String).toInt()
 
 version = "${property("mod_version")}+mc$minecraftVersion"
@@ -30,7 +31,7 @@ dependencies {
 tasks.processResources {
     // 버전별 리소스(src/main/resources)가 공통 리소스보다 먼저 오므로, 겹치면 버전별 파일이 이긴다.
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    val props = mapOf("version" to project.version, "flk_version" to property("flk_version"))
+    val props = mapOf("version" to project.version.toString(), "flk_version" to flkVersion)
     inputs.properties(props)
     filesMatching("fabric.mod.json") { expand(props) }
 }

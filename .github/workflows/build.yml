@@ -20,11 +20,26 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
       - run: chmod +x ./gradlew
       - name: build
-        run: ./gradlew :mc${{ matrix.mc }}:build --stacktrace
+        run: |
+          set -o pipefail
+          ./gradlew :mc${{ matrix.mc }}:build 2>&1 | tee build.log
       - name: smoke test (dedicated server boots, then stops)
         run: |
           timeout 900 ./gradlew :mc${{ matrix.mc }}:runServer --stacktrace 2>&1 | tee server.log
           grep -q "\[InfraCraft\] smoke test passed" server.log
+      - name: report errors as annotations
+        if: failure()
+        run: |
+          cat build.log server.log 2>/dev/null \
+            | grep -E "^e: |error:|\[ERROR\]|What went wrong|Caused by|Exception|Mixin.*(fail|error)|Unresolved|> .*failed" \
+            | grep -vE "^\s*at " | sed -E 's#file:///home/runner/work/InfraCraft/InfraCraft/##; s#/home/runner/work/InfraCraft/InfraCraft/##' \
+            | awk '!seen[$0]++' | head -80 | cut -c1-400 > errors.txt || true
+          split -l 8 errors.txt chunk_ || true
+          for c in chunk_*; do
+            [ -f "$c" ] || continue
+            msg=$(sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g' "$c")
+            echo "::error title=${{ matrix.mc }}::$msg"
+          done
       - name: show InfraCraft warnings
         if: always()
         run: grep -iE "infracraft|mixin apply|Couldn't parse|Failed to (load|parse)" server.log | grep -iE "warn|error|fail|exception" | head -100 || true

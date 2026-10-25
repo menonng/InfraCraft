@@ -52,7 +52,9 @@ object Compat : CompatApi {
     override fun level(server: MinecraftServer, dimensionId: String): ServerLevel? =
         Identifier.tryParse(dimensionId)?.let { server.getLevel(ResourceKey.create(Registries.DIMENSION, it)) }
 
-    override fun chat(player: Player, message: Component) = player.sendSystemMessage(message)
+    override fun chat(player: Player, message: Component) {
+        (player as? ServerPlayer)?.sendSystemMessage(message)
+    }
     override fun overlay(player: Player, message: Component) = player.displayClientMessage(message, true)
     override fun sendSuccess(source: CommandSourceStack, message: Component) = source.sendSuccess({ message }, false)
 

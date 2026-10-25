@@ -12,7 +12,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
 
 /** /infra stations | route <출발> <도착> | network | help */
-object Commands {
+object InfraCommands {
     fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
         dispatcher.register(
             Commands.literal("infra")

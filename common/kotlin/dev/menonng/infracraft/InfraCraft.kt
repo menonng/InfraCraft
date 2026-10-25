@@ -10,7 +10,7 @@ import dev.menonng.infracraft.content.ModBlocks
 import dev.menonng.infracraft.content.ModComponents
 import dev.menonng.infracraft.content.ModItems
 import dev.menonng.infracraft.content.ModStats
-import dev.menonng.infracraft.system.Commands
+import dev.menonng.infracraft.system.InfraCommands
 import dev.menonng.infracraft.system.ElytraBan
 import dev.menonng.infracraft.system.Interactions
 import dev.menonng.infracraft.system.Network
@@ -75,7 +75,7 @@ object InfraCraft : ModInitializer {
         Compat.onLevelTick { level -> tickLevel(level) }
         Compat.onPlayerChangedLevel { player, origin, destination -> Network.onChangedLevel(player, origin, destination) }
 
-        CommandRegistrationCallback.EVENT.register { dispatcher, _, _ -> Commands.register(dispatcher) }
+        CommandRegistrationCallback.EVENT.register { dispatcher, _, _ -> InfraCommands.register(dispatcher) }
 
         ServerLifecycleEvents.SERVER_STARTED.register { server ->
             val overworld = server.overworld()
