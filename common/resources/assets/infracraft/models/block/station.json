@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "infracraft:block/station_side",
+    "bottom": "infracraft:block/station_side",
+    "side": "infracraft:block/station"
+  }
+}

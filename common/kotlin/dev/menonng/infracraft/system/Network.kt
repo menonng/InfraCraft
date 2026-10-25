@@ -1,0 +1,308 @@
+package dev.menonng.infracraft.system
+
+import dev.menonng.infracraft.Config
+import dev.menonng.infracraft.Palette
+import dev.menonng.infracraft.compat.Compat
+import dev.menonng.infracraft.content.ModAttachments
+import dev.menonng.infracraft.content.ModBlocks
+import dev.menonng.infracraft.content.ModStats
+import dev.menonng.infracraft.fmt1
+import dev.menonng.infracraft.lit
+import dev.menonng.infracraft.msg
+import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component
+import net.minecraft.server.MinecraftServer
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.player.Player
+import java.util.PriorityQueue
+import java.util.UUID
+import java.util.WeakHashMap
+import kotlin.math.atan2
+import kotlin.math.sqrt
+
+/** 역 등록, 실제 운행으로 구간 측량, 경로 탐색, 급행 운행 */
+object Network {
+    fun data(server: MinecraftServer): NetworkData =
+        server.overworld().getAttachedOrCreate(ModAttachments.NETWORK) { NetworkData() }
+
+    // ───────────── 역 ─────────────
+
+    fun registerStation(level: ServerLevel, pos: BlockPos, requestedName: String?): StationRec {
+        val data = data(level.server)
+        val dim = Compat.dimensionId(level)
+        val key = NetworkData.key(dim, pos)
+        data.station(key)?.let { return it }
+        val rec = StationRec().apply {
+            name = data.uniqueName(requestedName?.takeIf { it.isNotBlank() } ?: "역 ${data.stations.size + 1}")
+            this.dim = dim
+            x = pos.x; y = pos.y; z = pos.z
+        }
+        data.stations[key] = rec
+        return rec
+    }
+
+    fun stationAt(level: ServerLevel, pos: BlockPos): StationRec? {
+        if (!level.getBlockState(pos).`is`(ModBlocks.STATION)) return null
+        return data(level.server).station(NetworkData.key(Compat.dimensionId(level), pos))
+            ?: registerStation(level, pos, null)
+    }
+
+    fun rename(level: ServerLevel, pos: BlockPos, newName: String, player: Player) {
+        val st = stationAt(level, pos) ?: return
+        val data = data(level.server)
+        val clash = data.stationByName(newName)
+        if (clash != null && clash !== st) {
+            Compat.chat(player, msg("station.name_taken", Palette.RED, newName))
+            return
+        }
+        // 이 역을 가리키는 분기기 설정도 새 이름으로 옮긴다
+        val old = st.name
+        data.switches.values.forEach { set -> if (set.remove(old)) set.add(newName) }
+        st.name = newName
+        Compat.chat(player, msg("station.renamed", Palette.GREEN, old, newName))
+    }
+
+    fun nearestStation(level: ServerLevel, pos: BlockPos, radius: Int): StationRec? {
+        val dim = Compat.dimensionId(level)
+        val r2 = radius.toDouble() * radius
+        return data(level.server).stations.values
+            .filter { it.dim == dim && it.pos.distSqr(pos) <= r2 }
+            .minByOrNull { it.pos.distSqr(pos) }
+    }
+
+    fun showStationInfo(level: ServerLevel, pos: BlockPos, player: Player) {
+        val st = stationAt(level, pos) ?: return
+        val data = data(level.server)
+        Compat.chat(player, msg("station.info", Palette.SKY, st.name, "${st.x}, ${st.y}, ${st.z}"))
+        val edges = data.edgesOf(st.key)
+        if (edges.isEmpty()) Compat.chat(player, msg("station.no_routes", Palette.ORANGE))
+        for (e in edges) {
+            val other = data.station(e.other(st.key)) ?: continue
+            Compat.chat(player, lit("  → ${other.name}  ", Palette.YELLOW)
+                .append(msg("mode.${e.mode}", Palette.PINK))
+                .append(lit("  ${e.distance.toInt()}m · ${fmt1(e.seconds)}s", Palette.BLUE)))
+        }
+    }
+
+    /** 이정표: 같은 차원에서 가장 가까운 역 다섯 곳의 방향과 거리 */
+    fun showSignpost(level: ServerLevel, pos: BlockPos, player: Player) {
+        val dim = Compat.dimensionId(level)
+        val list = data(level.server).stations.values.filter { it.dim == dim }
+            .sortedBy { it.pos.distSqr(pos) }.take(5)
+        if (list.isEmpty()) {
+            Compat.chat(player, msg("signpost.none", Palette.ORANGE))
+            return
+        }
+        Compat.chat(player, msg("signpost.header", Palette.SKY))
+        for (st in list) {
+            val dx = (st.x - pos.x).toDouble()
+            val dz = (st.z - pos.z).toDouble()
+            val dist = sqrt(dx * dx + dz * dz).toInt()
+            Compat.chat(player, lit("  ${arrow(dx, dz)} ${st.name}  ", Palette.YELLOW).append(lit("${dist}m", Palette.BLUE)))
+        }
+    }
+
+    private fun arrow(dx: Double, dz: Double): String {
+        // 북쪽(-Z)을 위로 하는 8방위
+        val deg = (Math.toDegrees(atan2(dx, -dz)) + 360.0) % 360.0
+        return listOf("↑N", "↗NE", "→E", "↘SE", "↓S", "↙SW", "←W", "↖NW")[((deg + 22.5) / 45.0).toInt() % 8]
+    }
+
+    // ───────────── 운행 기록(측량) ─────────────
+
+    private class Journey(var stationKey: String, var startTick: Long, var lastX: Double, var lastZ: Double) {
+        var distance = 0.0
+        val chunks = LinkedHashSet<Long>()
+    }
+
+    private val journeys = WeakHashMap<Entity, Journey>()
+
+    /** 탈것이 움직인 거리와 지나간 청크를 쌓는다. 역에 있지 않으면 매 틱 호출된다. */
+    fun trackMovement(vehicle: Entity) {
+        val j = journeys[vehicle] ?: return
+        val dx = vehicle.x - j.lastX
+        val dz = vehicle.z - j.lastZ
+        val d = sqrt(dx * dx + dz * dz)
+        if (d < 8.0) j.distance += d // 순간이동은 무시
+        j.lastX = vehicle.x
+        j.lastZ = vehicle.z
+        j.chunks.add(NetworkData.chunkKey(vehicle.blockX shr 4, vehicle.blockZ shr 4))
+    }
+
+    /**
+     * 탈것이 역에 닿았을 때. 직전 역과 다른 역이면 그 구간을 노선으로 기록한다.
+     * @return 새로 도착한 역(같은 역에 계속 머물면 null)
+     */
+    fun arriveAt(level: ServerLevel, vehicle: Entity, st: StationRec, mode: String): Boolean {
+        val j = journeys[vehicle]
+        if (j != null && j.stationKey == st.key) {
+            j.startTick = level.gameTime
+            j.distance = 0.0
+            j.chunks.clear()
+            j.lastX = vehicle.x
+            j.lastZ = vehicle.z
+            return false
+        }
+        if (j != null) {
+            val seconds = (level.gameTime - j.startTick) / 20.0
+            val data = data(level.server)
+            val from = data.station(j.stationKey)
+            if (from != null && seconds > 0.5 && j.distance > 4.0) {
+                data.putEdge(EdgeRec().apply {
+                    this.from = j.stationKey
+                    to = st.key
+                    this.mode = mode
+                    distance = j.distance
+                    this.seconds = seconds
+                    chunks = j.chunks.toMutableList()
+                    recordedAt = level.gameTime
+                })
+                for (p in vehicle.passengers) if (p is ServerPlayer) {
+                    p.awardStat(ModStats.ROUTES_SURVEYED, 1)
+                    Compat.overlay(p, msg("route.surveyed", Palette.GREEN, from.name, st.name, j.distance.toInt().toString(), fmt1(seconds)))
+                }
+            }
+        }
+        journeys[vehicle] = Journey(st.key, level.gameTime, vehicle.x, vehicle.z)
+        for (p in vehicle.passengers) if (p is ServerPlayer) p.awardStat(ModStats.STATIONS_ARRIVED, 1)
+        return true
+    }
+
+    /** 노선이 지나는 청크에서 선로가 부서지면 그 노선은 끊긴 것으로 본다. */
+    fun invalidateChunk(server: MinecraftServer, dim: String, pos: BlockPos) {
+        val ck = NetworkData.chunkKey(pos.x shr 4, pos.z shr 4)
+        val data = data(server)
+        data.edges.removeAll { e -> e.mode != "portal" && e.chunks.contains(ck) && data.station(e.from)?.dim == dim }
+    }
+
+    /** 포탈을 지나 차원을 옮겼을 때 양쪽 역을 포탈 노선으로 잇는다. */
+    private val lastPositions = HashMap<UUID, Pair<String, BlockPos>>()
+
+    fun rememberPosition(player: ServerPlayer) {
+        lastPositions[player.uuid] = Compat.dimensionId(player.level()) to player.blockPosition()
+    }
+
+    fun onChangedLevel(player: ServerPlayer, origin: ServerLevel, destination: ServerLevel) {
+        val (dim, pos) = lastPositions[player.uuid] ?: return
+        if (dim != Compat.dimensionId(origin)) return
+        val r = Config.c.stationScanRadius
+        val a = nearestStation(origin, pos, r) ?: return
+        val b = nearestStation(destination, player.blockPosition(), r) ?: return
+        val data = data(origin.server)
+        data.putEdge(EdgeRec().apply {
+            from = a.key; to = b.key; mode = "portal"; distance = 0.0; seconds = 4.0; recordedAt = origin.gameTime
+        })
+        Compat.overlay(player, msg("route.portal", Palette.PURPLE, a.name, b.name))
+    }
+
+    // ───────────── 경로 탐색 ─────────────
+
+    class Route(val stations: List<StationRec>, val edges: List<EdgeRec>) {
+        val seconds get() = edges.sumOf { it.seconds }
+        val distance get() = edges.sumOf { it.distance }
+    }
+
+    fun route(data: NetworkData, fromKey: String, toKey: String): Route? {
+        if (fromKey == toKey) return null
+        val dist = HashMap<String, Double>().apply { put(fromKey, 0.0) }
+        val prev = HashMap<String, EdgeRec>()
+        val queue = PriorityQueue<Pair<String, Double>>(compareBy { it.second })
+        queue.add(fromKey to 0.0)
+        val adjacency = HashMap<String, MutableList<EdgeRec>>()
+        for (e in data.edges) {
+            adjacency.getOrPut(e.from) { mutableListOf() }.add(e)
+            adjacency.getOrPut(e.to) { mutableListOf() }.add(e)
+        }
+        while (queue.isNotEmpty()) {
+            val (k, d) = queue.poll()
+            if (d > (dist[k] ?: Double.MAX_VALUE)) continue
+            if (k == toKey) break
+            for (e in adjacency[k].orEmpty()) {
+                val o = e.other(k)
+                val nd = d + e.seconds
+                if (nd < (dist[o] ?: Double.MAX_VALUE)) {
+                    dist[o] = nd
+                    prev[o] = e
+                    queue.add(o to nd)
+                }
+            }
+        }
+        if (toKey !in prev) return null
+        val edges = ArrayList<EdgeRec>()
+        val keys = ArrayList<String>().apply { add(toKey) }
+        var cur = toKey
+        while (cur != fromKey) {
+            val e = prev[cur] ?: return null
+            edges.add(e)
+            cur = e.other(cur)
+            keys.add(cur)
+        }
+        return Route(keys.reversed().mapNotNull { data.station(it) }, edges.reversed())
+    }
+
+    fun describeRoute(route: Route): Component {
+        val c = lit(route.stations.joinToString(" → ") { it.name }, Palette.YELLOW)
+        return c.append(lit("  (${route.distance.toInt()}m · ${fmt1(route.seconds)}s)", Palette.BLUE))
+    }
+
+    // ───────────── 급행 운행 ─────────────
+
+    private class Transit(val target: StationRec, val endTick: Long, val originX: Double, val originY: Double, val originZ: Double)
+
+    private val transits = HashMap<UUID, Transit>()
+
+    fun startExpress(level: ServerLevel, player: ServerPlayer, from: StationRec, destinationName: String) {
+        val data = data(level.server)
+        val to = data.stationByName(destinationName)
+        if (to == null) {
+            Compat.chat(player, msg("ticket.unknown", Palette.RED, destinationName))
+            return
+        }
+        val route = route(data, from.key, to.key)
+        if (route == null) {
+            Compat.chat(player, msg("express.no_route", Palette.RED, from.name, to.name))
+            return
+        }
+        val seconds = maxOf(Config.c.expressMinSeconds.toDouble(), route.seconds / Config.c.expressCompression)
+        transits[player.uuid] = Transit(to, level.gameTime + (seconds * 20).toLong(), player.x, player.y, player.z)
+        Compat.chat(player, msg("express.start", Palette.SKY, to.name, fmt1(seconds)))
+        Compat.chat(player, describeRoute(route))
+    }
+
+    fun tickTransits(server: MinecraftServer) {
+        if (transits.isEmpty()) return
+        val it = transits.entries.iterator()
+        while (it.hasNext()) {
+            val (uuid, t) = it.next()
+            val player = server.playerList.getPlayer(uuid)
+            if (player == null) {
+                it.remove(); continue
+            }
+            val level = player.level() as ServerLevel
+            val dx = player.x - t.originX
+            val dy = player.y - t.originY
+            val dz = player.z - t.originZ
+            if (dx * dx + dy * dy + dz * dz > 4.0) {
+                Compat.overlay(player, msg("express.cancelled", Palette.RED))
+                it.remove(); continue
+            }
+            val remaining = t.endTick - level.gameTime
+            if (remaining > 0) {
+                if (remaining % 10 == 0L) Compat.overlay(player, msg("express.riding", Palette.SKY, t.target.name, fmt1(remaining / 20.0)))
+                continue
+            }
+            it.remove()
+            val dest = Compat.level(server, t.target.dim)
+            if (dest == null || !dest.getBlockState(t.target.pos).`is`(ModBlocks.STATION)) {
+                Compat.chat(player, msg("express.station_gone", Palette.RED, t.target.name))
+                continue
+            }
+            player.stopRiding()
+            Compat.teleport(player, dest, t.target.x + 0.5, t.target.y + 1.0, t.target.z + 0.5)
+            player.awardStat(ModStats.EXPRESS_TRIPS, 1)
+            Compat.chat(player, msg("express.arrived", Palette.GREEN, t.target.name))
+        }
+    }
+}

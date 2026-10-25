@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "infracraft",
+  "version": "${version}",
+  "name": "InfraCraft",
+  "description": "교통 인프라 중심 모드: 겉날개 금지, 네더 1:1, 도로·철도·운하·말·급행 노선망.",
+  "authors": ["menonng"],
+  "contact": { "sources": "https://github.com/menonng/InfraCraft" },
+  "license": "All-Rights-Reserved",
+  "icon": "assets/infracraft/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [{ "adapter": "kotlin", "value": "dev.menonng.infracraft.InfraCraft" }],
+    "client": [{ "adapter": "kotlin", "value": "dev.menonng.infracraft.client.InfraCraftClient" }]
+  },
+  "mixins": ["infracraft.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~1.21.1",
+    "java": ">=21",
+    "fabric-api": "*",
+    "fabric-language-kotlin": ">=${flk_version}"
+  },
+  "suggests": { "couriersroost": "*" }
+}

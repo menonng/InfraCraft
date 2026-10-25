@@ -1,0 +1,438 @@
+{
+ "block.infracraft.asphalt": {
+  "ko_kr": "아스팔트",
+  "en_us": "Asphalt"
+ },
+ "block.infracraft.road_line": {
+  "ko_kr": "차선 아스팔트",
+  "en_us": "Lane-Marked Asphalt"
+ },
+ "block.infracraft.street_lamp": {
+  "ko_kr": "가로등",
+  "en_us": "Street Lamp"
+ },
+ "block.infracraft.signpost": {
+  "ko_kr": "이정표",
+  "en_us": "Signpost"
+ },
+ "block.infracraft.high_speed_rail": {
+  "ko_kr": "고속 선로",
+  "en_us": "High-Speed Rail"
+ },
+ "block.infracraft.express_rail": {
+  "ko_kr": "특급 선로",
+  "en_us": "Express Rail"
+ },
+ "block.infracraft.blaze_rail": {
+  "ko_kr": "블레이즈 선로",
+  "en_us": "Blaze Rail"
+ },
+ "block.infracraft.station": {
+  "ko_kr": "역",
+  "en_us": "Station"
+ },
+ "block.infracraft.rail_switch": {
+  "ko_kr": "분기기",
+  "en_us": "Rail Switch"
+ },
+ "block.infracraft.water_current": {
+  "ko_kr": "물살 블록",
+  "en_us": "Water Current"
+ },
+ "block.infracraft.boat_lift": {
+  "ko_kr": "보트 리프트",
+  "en_us": "Boat Lift"
+ },
+ "block.infracraft.stable": {
+  "ko_kr": "마구간",
+  "en_us": "Stable"
+ },
+ "item.infracraft.ticket": {
+  "ko_kr": "승차권",
+  "en_us": "Ticket"
+ },
+ "item.infracraft.coupler": {
+  "ko_kr": "연결기",
+  "en_us": "Coupler"
+ },
+ "item.infracraft.road_paver": {
+  "ko_kr": "도로 포장기",
+  "en_us": "Road Paver"
+ },
+ "item.infracraft.track_layer": {
+  "ko_kr": "선로 부설기",
+  "en_us": "Track Layer"
+ },
+ "item.infracraft.tunnel_borer": {
+  "ko_kr": "터널 굴착기",
+  "en_us": "Tunnel Borer"
+ },
+ "item.infracraft.surveyor": {
+  "ko_kr": "측량기",
+  "en_us": "Surveyor"
+ },
+ "item.infracraft.whistle": {
+  "ko_kr": "말 호루라기",
+  "en_us": "Horse Whistle"
+ },
+ "item.infracraft.iron_horseshoe": {
+  "ko_kr": "철 편자",
+  "en_us": "Iron Horseshoe"
+ },
+ "item.infracraft.diamond_horseshoe": {
+  "ko_kr": "다이아몬드 편자",
+  "en_us": "Diamond Horseshoe"
+ },
+ "item.infracraft.ender_rail_core": {
+  "ko_kr": "엔더 선로 핵",
+  "en_us": "Ender Rail Core"
+ },
+ "itemGroup.infracraft.main": {
+  "ko_kr": "인프라크래프트",
+  "en_us": "InfraCraft"
+ },
+ "enchantment.infracraft.roadrunner": {
+  "ko_kr": "로드러너",
+  "en_us": "Roadrunner"
+ },
+ "enchantment.infracraft.momentum": {
+  "ko_kr": "관성",
+  "en_us": "Momentum"
+ },
+ "enchantment.infracraft.equestrian": {
+  "ko_kr": "기수",
+  "en_us": "Equestrian"
+ },
+ "enchantment.infracraft.conductor": {
+  "ko_kr": "차장",
+  "en_us": "Conductor"
+ },
+ "enchantment.infracraft.wide_paving": {
+  "ko_kr": "넓은 포장",
+  "en_us": "Wide Paving"
+ },
+ "enchantment.infracraft.bore_radius": {
+  "ko_kr": "굴착 반경",
+  "en_us": "Bore Radius"
+ },
+ "enchantment.infracraft.thrift": {
+  "ko_kr": "절약",
+  "en_us": "Thrift"
+ },
+ "attribute.name.infracraft.road_affinity": {
+  "ko_kr": "도로 적응",
+  "en_us": "Road Affinity"
+ },
+ "stat.infracraft.road_one_cm": {
+  "ko_kr": "도로 이동 거리",
+  "en_us": "Distance on Roads"
+ },
+ "stat.infracraft.express_trips": {
+  "ko_kr": "급행 이용 횟수",
+  "en_us": "Express Trips"
+ },
+ "stat.infracraft.stations_arrived": {
+  "ko_kr": "역 도착 횟수",
+  "en_us": "Station Arrivals"
+ },
+ "stat.infracraft.routes_surveyed": {
+  "ko_kr": "측량한 노선 수",
+  "en_us": "Routes Surveyed"
+ },
+ "stat.infracraft.track_placed": {
+  "ko_kr": "부설한 선로",
+  "en_us": "Track Laid"
+ },
+ "stat.infracraft.road_paved": {
+  "ko_kr": "포장한 도로 블록",
+  "en_us": "Road Blocks Paved"
+ },
+ "stat.infracraft.blocks_bored": {
+  "ko_kr": "굴착한 블록",
+  "en_us": "Blocks Bored"
+ },
+ "stat.infracraft.horses_called": {
+  "ko_kr": "말 부른 횟수",
+  "en_us": "Horses Called"
+ },
+ "infracraft.msg.station.name_taken": {
+  "ko_kr": "'%1$s' 이름의 역이 이미 있어요.",
+  "en_us": "A station named '%1$s' already exists."
+ },
+ "infracraft.msg.station.renamed": {
+  "ko_kr": "역 이름을 '%1$s'에서 '%2$s'(으)로 바꿨어요.",
+  "en_us": "Renamed station '%1$s' to '%2$s'."
+ },
+ "infracraft.msg.station.info": {
+  "ko_kr": "[역] %1$s  (%2$s)",
+  "en_us": "[Station] %1$s  (%2$s)"
+ },
+ "infracraft.msg.station.no_routes": {
+  "ko_kr": "아직 측량된 노선이 없어요. 탈것으로 다른 역까지 한 번 달려 보세요.",
+  "en_us": "No surveyed routes yet. Ride a vehicle to another station once."
+ },
+ "infracraft.msg.station.route_count": {
+  "ko_kr": "노선 %1$s개",
+  "en_us": "%1$s routes"
+ },
+ "infracraft.msg.mode.rail": {
+  "ko_kr": "철도",
+  "en_us": "rail"
+ },
+ "infracraft.msg.mode.water": {
+  "ko_kr": "수운",
+  "en_us": "water"
+ },
+ "infracraft.msg.mode.portal": {
+  "ko_kr": "포탈",
+  "en_us": "portal"
+ },
+ "infracraft.msg.mode.road": {
+  "ko_kr": "도로",
+  "en_us": "road"
+ },
+ "infracraft.msg.signpost.none": {
+  "ko_kr": "이 차원에는 아직 역이 없어요.",
+  "en_us": "There are no stations in this dimension yet."
+ },
+ "infracraft.msg.signpost.header": {
+  "ko_kr": "가까운 역:",
+  "en_us": "Nearest stations:"
+ },
+ "infracraft.msg.route.surveyed": {
+  "ko_kr": "노선 측량: %1$s → %2$s  %3$sm · %4$s초",
+  "en_us": "Route surveyed: %1$s → %2$s  %3$sm · %4$ss"
+ },
+ "infracraft.msg.route.portal": {
+  "ko_kr": "포탈 노선 연결: %1$s ↔ %2$s",
+  "en_us": "Portal route linked: %1$s ↔ %2$s"
+ },
+ "infracraft.msg.ticket.unknown": {
+  "ko_kr": "'%1$s' 역을 찾을 수 없어요.",
+  "en_us": "No station named '%1$s'."
+ },
+ "infracraft.msg.ticket.cleared": {
+  "ko_kr": "승차권을 비웠어요.",
+  "en_us": "Ticket cleared."
+ },
+ "infracraft.msg.ticket.no_stations": {
+  "ko_kr": "등록된 역이 없어요.",
+  "en_us": "No stations registered."
+ },
+ "infracraft.msg.ticket.set": {
+  "ko_kr": "목적지: %1$s",
+  "en_us": "Destination: %1$s"
+ },
+ "infracraft.msg.ticket.blank": {
+  "ko_kr": "승차권에 목적지가 없어요. 허공에 우클릭해서 고르세요.",
+  "en_us": "This ticket has no destination. Right-click in the air to pick one."
+ },
+ "infracraft.msg.express.no_route": {
+  "ko_kr": "%1$s에서 %2$s까지 이어진 노선이 없어요.",
+  "en_us": "No connected route from %1$s to %2$s."
+ },
+ "infracraft.msg.express.start": {
+  "ko_kr": "급행 출발! %1$s까지 %2$s초. 자리에서 움직이지 마세요.",
+  "en_us": "Express departing! %2$ss to %1$s. Stay where you are."
+ },
+ "infracraft.msg.express.cancelled": {
+  "ko_kr": "자리를 벗어나서 급행이 취소됐어요.",
+  "en_us": "You left the platform; express cancelled."
+ },
+ "infracraft.msg.express.riding": {
+  "ko_kr": "급행 운행 중 → %1$s  (%2$s초)",
+  "en_us": "Express → %1$s  (%2$ss)"
+ },
+ "infracraft.msg.express.station_gone": {
+  "ko_kr": "도착역 %1$s이(가) 사라져서 급행이 멈췄어요.",
+  "en_us": "Destination %1$s no longer exists; express stopped."
+ },
+ "infracraft.msg.express.arrived": {
+  "ko_kr": "%1$s에 도착했어요.",
+  "en_us": "Arrived at %1$s."
+ },
+ "infracraft.msg.rail.need_fuel": {
+  "ko_kr": "블레이즈 선로를 달리려면 블레이즈 가루가 필요해요.",
+  "en_us": "Blaze rails need blaze powder."
+ },
+ "infracraft.msg.rail.arrived": {
+  "ko_kr": "도착: %1$s",
+  "en_us": "Arrived: %1$s"
+ },
+ "infracraft.msg.rail.passing": {
+  "ko_kr": "통과: %1$s",
+  "en_us": "Passing: %1$s"
+ },
+ "infracraft.msg.tool.on": {
+  "ko_kr": "%1$s 작동",
+  "en_us": "%1$s on"
+ },
+ "infracraft.msg.tool.off": {
+  "ko_kr": "%1$s 정지",
+  "en_us": "%1$s off"
+ },
+ "infracraft.msg.paver.need_material": {
+  "ko_kr": "왼손에 깔 블록을 들어 주세요.",
+  "en_us": "Hold the block to lay in your off hand."
+ },
+ "infracraft.msg.layer.need_rails": {
+  "ko_kr": "선로가 없어요. 왼손이나 인벤토리에 선로를 넣어 주세요.",
+  "en_us": "Out of rails. Keep rails in your off hand or inventory."
+ },
+ "infracraft.msg.surveyor.point_a": {
+  "ko_kr": "측량 시작점: %1$s",
+  "en_us": "Survey start: %1$s"
+ },
+ "infracraft.msg.surveyor.result": {
+  "ko_kr": "수평 %1$sm · 높이 %2$sm · 경사 %3$s%% · 폭 3 교량 블록 약 %4$s개",
+  "en_us": "Horizontal %1$sm · rise %2$sm · grade %3$s%% · ~%4$s blocks for a 3-wide bridge"
+ },
+ "infracraft.msg.surveyor.hint": {
+  "ko_kr": "웅크리고 두 번째 지점을 찍으면 왼손 블록으로 교량을 놓아요.",
+  "en_us": "Sneak while picking the second point to build a bridge with your off-hand block."
+ },
+ "infracraft.msg.surveyor.cleared": {
+  "ko_kr": "측량 지점을 지웠어요.",
+  "en_us": "Survey point cleared."
+ },
+ "infracraft.msg.bridge.too_long": {
+  "ko_kr": "교량은 %1$s칸까지만 놓을 수 있어요.",
+  "en_us": "Bridges are limited to %1$s blocks."
+ },
+ "infracraft.msg.bridge.out_of_material": {
+  "ko_kr": "재료가 떨어졌어요. %1$s칸 놓았어요.",
+  "en_us": "Out of material after %1$s blocks."
+ },
+ "infracraft.msg.bridge.done": {
+  "ko_kr": "교량 완성: %1$s블록",
+  "en_us": "Bridge built: %1$s blocks"
+ },
+ "infracraft.msg.whistle.untamed": {
+  "ko_kr": "길들인 말에만 호루라기를 묶을 수 있어요.",
+  "en_us": "Only tamed horses can be bound."
+ },
+ "infracraft.msg.whistle.bound": {
+  "ko_kr": "%1$s에게 호루라기를 묶었어요.",
+  "en_us": "Whistle bound to %1$s."
+ },
+ "infracraft.msg.whistle.unbound": {
+  "ko_kr": "묶인 말이 없어요. 말에게 호루라기를 우클릭하세요.",
+  "en_us": "No horse bound. Right-click a horse with the whistle."
+ },
+ "infracraft.msg.whistle.too_far": {
+  "ko_kr": "말이 너무 멀리 있거나 불러올 수 없어요.",
+  "en_us": "Your horse is too far away or not loaded."
+ },
+ "infracraft.msg.whistle.called": {
+  "ko_kr": "%1$s이(가) 달려와요! (%2$sm)",
+  "en_us": "%1$s is coming! (%2$sm)"
+ },
+ "infracraft.msg.horseshoe.already": {
+  "ko_kr": "이미 같거나 더 좋은 편자를 신고 있어요.",
+  "en_us": "Already wearing an equal or better horseshoe."
+ },
+ "infracraft.msg.horseshoe.fitted": {
+  "ko_kr": "%1$s에게 편자를 박았어요.",
+  "en_us": "Fitted a horseshoe to %1$s."
+ },
+ "infracraft.msg.horseshoe.tier0": {
+  "ko_kr": "없음",
+  "en_us": "none"
+ },
+ "infracraft.msg.horseshoe.tier1": {
+  "ko_kr": "철",
+  "en_us": "iron"
+ },
+ "infracraft.msg.horseshoe.tier2": {
+  "ko_kr": "다이아몬드",
+  "en_us": "diamond"
+ },
+ "infracraft.msg.horse.stats": {
+  "ko_kr": "%1$s: 속도 %2$s블록/초 · 점프 %3$s블록 · 체력 %4$s · 편자 %5$s",
+  "en_us": "%1$s: speed %2$s b/s · jump %3$s blocks · health %4$s · shoes %5$s"
+ },
+ "infracraft.msg.stable.occupied": {
+  "ko_kr": "이 마구간에는 이미 말이 있어요.",
+  "en_us": "This stable is already occupied."
+ },
+ "infracraft.msg.stable.stored": {
+  "ko_kr": "%1$s을(를) 마구간에 넣었어요.",
+  "en_us": "%1$s is resting in the stable."
+ },
+ "infracraft.msg.stable.empty": {
+  "ko_kr": "마구간이 비어 있어요. 말을 탄 채로 우클릭하면 맡길 수 있어요.",
+  "en_us": "The stable is empty. Right-click while riding to stable your horse."
+ },
+ "infracraft.msg.stable.released": {
+  "ko_kr": "%1$s을(를) 꺼냈어요.",
+  "en_us": "%1$s left the stable."
+ },
+ "infracraft.msg.switch.removed": {
+  "ko_kr": "분기 목적지에서 뺐어요: %1$s",
+  "en_us": "Removed divert destination: %1$s"
+ },
+ "infracraft.msg.switch.added": {
+  "ko_kr": "이 목적지로 가는 카트를 분기해요: %1$s",
+  "en_us": "Carts bound for %1$s will be diverted."
+ },
+ "infracraft.msg.switch.empty": {
+  "ko_kr": "분기 목적지가 없어요. 승차권으로 우클릭해 추가하세요.",
+  "en_us": "No divert destinations. Right-click with a ticket to add one."
+ },
+ "infracraft.msg.switch.list": {
+  "ko_kr": "분기 목적지: %1$s",
+  "en_us": "Divert destinations: %1$s"
+ },
+ "infracraft.msg.coupler.cleared": {
+  "ko_kr": "연결기 선택을 지웠어요.",
+  "en_us": "Coupler selection cleared."
+ },
+ "infracraft.msg.coupler.first": {
+  "ko_kr": "앞 차량: %1$s. 이제 뒤에 붙일 마인카트를 클릭하세요.",
+  "en_us": "Leader: %1$s. Now click the cart to attach."
+ },
+ "infracraft.msg.coupler.follower_cart": {
+  "ko_kr": "뒤에 붙일 수 있는 건 마인카트뿐이에요.",
+  "en_us": "Only minecarts can follow."
+ },
+ "infracraft.msg.coupler.too_far": {
+  "ko_kr": "두 차량이 너무 멀어요(6칸 이내).",
+  "en_us": "Too far apart (max 6 blocks)."
+ },
+ "infracraft.msg.coupler.uncoupled": {
+  "ko_kr": "연결을 풀었어요.",
+  "en_us": "Uncoupled."
+ },
+ "infracraft.msg.coupler.harnessed": {
+  "ko_kr": "%1$s에 %2$s을(를) 마차로 매었어요.",
+  "en_us": "Harnessed %2$s to %1$s."
+ },
+ "infracraft.msg.coupler.coupled": {
+  "ko_kr": "%1$s 뒤에 %2$s을(를) 연결했어요.",
+  "en_us": "Coupled %2$s behind %1$s."
+ },
+ "infracraft.msg.cart.destination": {
+  "ko_kr": "이 카트의 목적지: %1$s",
+  "en_us": "This cart is bound for %1$s"
+ },
+ "infracraft.msg.elytra.converted": {
+  "ko_kr": "겉날개는 이 세계에서 날지 못해요. 엔더 선로 핵으로 바뀌었어요.",
+  "en_us": "Elytra cannot fly here; it became an Ender Rail Core."
+ },
+ "infracraft.msg.help.stations": {
+  "ko_kr": "/infra stations — 모든 역 목록",
+  "en_us": "/infra stations — list all stations"
+ },
+ "infracraft.msg.help.route": {
+  "ko_kr": "/infra route \"출발\" \"도착\" — 최단 노선 찾기",
+  "en_us": "/infra route \"from\" \"to\" — find the fastest route"
+ },
+ "infracraft.msg.help.network": {
+  "ko_kr": "/infra network — 노선망 요약",
+  "en_us": "/infra network — network summary"
+ },
+ "infracraft.msg.network.summary": {
+  "ko_kr": "역 %1$s곳 · 노선 %2$s개 · 총 %3$skm",
+  "en_us": "%1$s stations · %2$s routes · %3$skm total"
+ }
+}

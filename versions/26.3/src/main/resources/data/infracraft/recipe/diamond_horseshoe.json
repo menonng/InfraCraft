@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "D D",
+    "D D",
+    "DDD"
+  ],
+  "key": {
+    "D": "minecraft:diamond"
+  },
+  "result": {
+    "id": "infracraft:diamond_horseshoe",
+    "count": 2
+  }
+}

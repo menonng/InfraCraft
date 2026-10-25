@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " W ",
+    "AAA",
+    " A "
+  ],
+  "key": {
+    "W": {
+      "item": "minecraft:white_dye"
+    },
+    "A": {
+      "item": "infracraft:asphalt"
+    }
+  },
+  "result": {
+    "id": "infracraft:road_line",
+    "count": 4
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " GS"
+  ],
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "S": "minecraft:string"
+  },
+  "result": {
+    "id": "infracraft:whistle",
+    "count": 1
+  }
+}

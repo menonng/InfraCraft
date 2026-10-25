@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "infracraft:block/boat_lift_top",
+    "bottom": "infracraft:block/boat_lift_side",
+    "side": "infracraft:block/boat_lift_side"
+  }
+}

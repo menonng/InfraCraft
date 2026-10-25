@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "infracraft:block/water_current"
+    },
+    "facing=east": {
+      "model": "infracraft:block/water_current",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "infracraft:block/water_current",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "infracraft:block/water_current",
+      "y": 270
+    }
+  }
+}

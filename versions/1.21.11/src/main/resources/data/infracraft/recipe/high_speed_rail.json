@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "IGI",
+    "ISI",
+    "IRI"
+  ],
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "G": "minecraft:gold_ingot",
+    "S": "minecraft:stick",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "infracraft:high_speed_rail",
+    "count": 6
+  }
+}

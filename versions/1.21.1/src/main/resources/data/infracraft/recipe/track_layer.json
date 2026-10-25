@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "RRR",
+    "ISI",
+    " S "
+  ],
+  "key": {
+    "R": {
+      "item": "minecraft:rail"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "S": {
+      "item": "minecraft:stick"
+    }
+  },
+  "result": {
+    "id": "infracraft:track_layer",
+    "count": 1
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "infracraft:block/rail_switch"
+    },
+    "powered=true": {
+      "model": "infracraft:block/rail_switch_on"
+    }
+  }
+}

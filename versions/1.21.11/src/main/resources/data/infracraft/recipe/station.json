@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GCG",
+    "GRG",
+    "SSS"
+  ],
+  "key": {
+    "G": "minecraft:gold_ingot",
+    "C": "minecraft:compass",
+    "R": "minecraft:redstone",
+    "S": "minecraft:smooth_stone"
+  },
+  "result": {
+    "id": "infracraft:station",
+    "count": 1
+  }
+}

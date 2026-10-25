@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "infracraft:roadrunner",
+    "infracraft:momentum",
+    "infracraft:equestrian",
+    "infracraft:conductor",
+    "infracraft:wide_paving",
+    "infracraft:bore_radius",
+    "infracraft:thrift"
+  ]
+}

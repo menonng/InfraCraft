@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PPP",
+    "SRS",
+    "PPP"
+  ],
+  "key": {
+    "P": "minecraft:prismarine_bricks",
+    "S": "minecraft:soul_sand",
+    "R": "minecraft:redstone"
+  },
+  "result": {
+    "id": "infracraft:boat_lift",
+    "count": 1
+  }
+}

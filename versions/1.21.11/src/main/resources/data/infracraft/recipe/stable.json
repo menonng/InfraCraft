@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "PHP",
+    "H H",
+    "PHP"
+  ],
+  "key": {
+    "P": "#minecraft:planks",
+    "H": "minecraft:hay_block"
+  },
+  "result": {
+    "id": "infracraft:stable",
+    "count": 1
+  }
+}

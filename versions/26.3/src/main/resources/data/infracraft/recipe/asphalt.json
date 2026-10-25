@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GSG",
+    "SCS",
+    "GSG"
+  ],
+  "key": {
+    "G": "minecraft:gravel",
+    "S": "#minecraft:sand",
+    "C": "#minecraft:coals"
+  },
+  "result": {
+    "id": "infracraft:asphalt",
+    "count": 8
+  }
+}

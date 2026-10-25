@@ -1,0 +1,161 @@
+package dev.menonng.infracraft.content
+
+import com.mojang.serialization.Codec
+import dev.menonng.infracraft.block.CurrentBlock
+import dev.menonng.infracraft.block.RailSwitchBlock
+import dev.menonng.infracraft.block.RailTier
+import dev.menonng.infracraft.block.StationBlock
+import dev.menonng.infracraft.block.TickedBlock
+import dev.menonng.infracraft.block.TierRailBlock
+import dev.menonng.infracraft.compat.Compat
+import dev.menonng.infracraft.compat.Id
+import net.minecraft.core.BlockPos
+import net.minecraft.core.Holder
+import net.minecraft.core.Registry
+import net.minecraft.core.UUIDUtil
+import net.minecraft.core.component.DataComponentType
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.registries.Registries
+import net.minecraft.network.RegistryFriendlyByteBuf
+import net.minecraft.network.codec.ByteBufCodecs
+import net.minecraft.network.codec.StreamCodec
+import net.minecraft.resources.ResourceKey
+import net.minecraft.stats.StatFormatter
+import net.minecraft.stats.Stats
+import net.minecraft.tags.TagKey
+import net.minecraft.world.entity.ai.attributes.Attribute
+import net.minecraft.world.entity.ai.attributes.RangedAttribute
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.enchantment.Enchantment
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import java.util.UUID
+
+const val MOD_ID = "infracraft"
+fun id(path: String): Id = Compat.id(MOD_ID, path)
+
+object ModBlocks {
+    // 도로
+    val ASPHALT = Compat.block("asphalt", Properties.ofFullCopy(Blocks.STONE), ::Block)
+    val ROAD_LINE = Compat.block("road_line", Properties.ofFullCopy(Blocks.STONE), ::Block)
+    val STREET_LAMP = Compat.block("street_lamp", Properties.ofFullCopy(Blocks.REDSTONE_LAMP).lightLevel { 15 }, ::Block)
+    val SIGNPOST = Compat.block("signpost", Properties.ofFullCopy(Blocks.OAK_PLANKS), ::Block)
+
+    // 철도
+    val HIGH_SPEED_RAIL = Compat.block("high_speed_rail", Properties.ofFullCopy(Blocks.POWERED_RAIL)) { TierRailBlock(it, RailTier.HIGH_SPEED) }
+    val EXPRESS_RAIL = Compat.block("express_rail", Properties.ofFullCopy(Blocks.POWERED_RAIL)) { TierRailBlock(it, RailTier.EXPRESS) }
+    val BLAZE_RAIL = Compat.block("blaze_rail", Properties.ofFullCopy(Blocks.POWERED_RAIL).lightLevel { 7 }) { TierRailBlock(it, RailTier.BLAZE) }
+    val STATION = Compat.block("station", Properties.ofFullCopy(Blocks.POLISHED_DEEPSLATE), ::StationBlock)
+    val RAIL_SWITCH = Compat.block("rail_switch", Properties.ofFullCopy(Blocks.SMOOTH_STONE), ::RailSwitchBlock)
+
+    // 수운
+    val WATER_CURRENT = Compat.block("water_current", Properties.ofFullCopy(Blocks.PRISMARINE), ::CurrentBlock)
+    val BOAT_LIFT = Compat.block("boat_lift", Properties.ofFullCopy(Blocks.PRISMARINE_BRICKS)) { TickedBlock(it, TickedBlock.LIFT) }
+
+    // 말
+    val STABLE = Compat.block("stable", Properties.ofFullCopy(Blocks.HAY_BLOCK), ::Block)
+
+    fun init() {}
+}
+
+object ModItems {
+    val TICKET = Compat.item("ticket", Item.Properties().stacksTo(16))
+    val COUPLER = Compat.item("coupler", Item.Properties().stacksTo(1))
+    val ROAD_PAVER = Compat.item("road_paver", Compat.toolProperties(2048))
+    val TRACK_LAYER = Compat.item("track_layer", Compat.toolProperties(2048))
+    val TUNNEL_BORER = Compat.item("tunnel_borer", Compat.toolProperties(1561))
+    val SURVEYOR = Compat.item("surveyor", Item.Properties().stacksTo(1))
+    val WHISTLE = Compat.item("whistle", Item.Properties().stacksTo(1))
+    val IRON_HORSESHOE = Compat.item("iron_horseshoe", Item.Properties().stacksTo(16))
+    val DIAMOND_HORSESHOE = Compat.item("diamond_horseshoe", Item.Properties().stacksTo(16))
+    val ENDER_RAIL_CORE = Compat.item("ender_rail_core", Item.Properties().stacksTo(64))
+
+    fun init() {
+        Compat.creativeTab("main", { ItemStack(ModBlocks.EXPRESS_RAIL) }) {
+            listOf(
+                ModBlocks.ASPHALT, ModBlocks.ROAD_LINE, ModBlocks.STREET_LAMP, ModBlocks.SIGNPOST,
+                ModBlocks.HIGH_SPEED_RAIL, ModBlocks.EXPRESS_RAIL, ModBlocks.BLAZE_RAIL,
+                ModBlocks.STATION, ModBlocks.RAIL_SWITCH,
+                ModBlocks.WATER_CURRENT, ModBlocks.BOAT_LIFT, ModBlocks.STABLE,
+                TICKET, COUPLER, ROAD_PAVER, TRACK_LAYER, TUNNEL_BORER, SURVEYOR, WHISTLE,
+                IRON_HORSESHOE, DIAMOND_HORSESHOE, ENDER_RAIL_CORE,
+            )
+        }
+    }
+}
+
+/** 아이템에 붙는 데이터 컴포넌트 */
+object ModComponents {
+    /** 승차권·화물 운송장의 목적지 역 이름 */
+    val DESTINATION: DataComponentType<String> = reg("destination", Codec.STRING, ByteBufCodecs.STRING_UTF8)
+    /** 도로 포장기·선로 부설기 작동 여부 */
+    val ACTIVE: DataComponentType<Boolean> = reg("active", Codec.BOOL, ByteBufCodecs.BOOL)
+    /** 측량기의 첫 번째 지점 */
+    val POINT_A: DataComponentType<BlockPos> = reg("point_a", BlockPos.CODEC, BlockPos.STREAM_CODEC)
+    /** 호루라기에 묶인 말, 연결기로 고른 첫 번째 탈것 */
+    val BOUND_ENTITY: DataComponentType<UUID> = reg("bound_entity", UUIDUtil.CODEC, UUIDUtil.STREAM_CODEC)
+
+    private fun <T : Any> reg(name: String, codec: Codec<T>, stream: StreamCodec<in RegistryFriendlyByteBuf, T>): DataComponentType<T> =
+        Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE, id(name),
+            DataComponentType.builder<T>().persistent(codec).networkSynchronized(stream).build(),
+        )
+
+    fun init() {}
+}
+
+/** 사용자 통계(통계 화면 > 일반 탭) */
+object ModStats {
+    val ROAD_ONE_CM = stat("road_one_cm", StatFormatter.DISTANCE)
+    val EXPRESS_TRIPS = stat("express_trips", StatFormatter.DEFAULT)
+    val STATIONS_ARRIVED = stat("stations_arrived", StatFormatter.DEFAULT)
+    val ROUTES_SURVEYED = stat("routes_surveyed", StatFormatter.DEFAULT)
+    val TRACK_PLACED = stat("track_placed", StatFormatter.DEFAULT)
+    val ROAD_PAVED = stat("road_paved", StatFormatter.DEFAULT)
+    val BLOCKS_BORED = stat("blocks_bored", StatFormatter.DEFAULT)
+    val HORSES_CALLED = stat("horses_called", StatFormatter.DEFAULT)
+
+    private fun stat(name: String, formatter: StatFormatter): Id {
+        val key = id(name)
+        Registry.register(BuiltInRegistries.CUSTOM_STAT, key, key)
+        Stats.CUSTOM.get(key, formatter)
+        return key
+    }
+
+    fun init() {}
+}
+
+/** 엔티티 속성. 로드러너 인챈트가 이 값을 올린다. */
+object ModAttributes {
+    val ROAD_AFFINITY: Holder<Attribute> = Registry.registerForHolder(
+        BuiltInRegistries.ATTRIBUTE, id("road_affinity"),
+        RangedAttribute("attribute.name.infracraft.road_affinity", 0.0, 0.0, 4.0).setSyncable(true),
+    )
+
+    fun init() {}
+}
+
+object ModEnchantments {
+    val ROADRUNNER = key("roadrunner")
+    val MOMENTUM = key("momentum")
+    val EQUESTRIAN = key("equestrian")
+    val CONDUCTOR = key("conductor")
+    val WIDE_PAVING = key("wide_paving")
+    val BORE_RADIUS = key("bore_radius")
+    val THRIFT = key("thrift")
+
+    private fun key(name: String): ResourceKey<Enchantment> = ResourceKey.create(Registries.ENCHANTMENT, id(name))
+}
+
+object ModTags {
+    val ROAD_TIER_1 = block("road_tier_1")
+    val ROAD_TIER_2 = block("road_tier_2")
+    val ROAD_TIER_3 = block("road_tier_3")
+    val PAVEABLE = block("paveable")
+    val ICE = TagKey.create(Registries.BLOCK, Compat.id("minecraft", "ice"))
+    val RAIL_ITEMS = TagKey.create(Registries.ITEM, Compat.id("minecraft", "rails"))
+
+    private fun block(name: String): TagKey<Block> = TagKey.create(Registries.BLOCK, id(name))
+}
