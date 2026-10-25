@@ -79,7 +79,7 @@ object Compat : CompatApi {
     }
 
     override fun dropItem(player: Player, stack: ItemStack) {
-        player.drop(stack, false, false)
+        player.level().addFreshEntity(net.minecraft.world.entity.item.ItemEntity(player.level(), player.x, player.y + 0.5, player.z, stack))
     }
 
     override val playerType: EntityType<out net.minecraft.world.entity.LivingEntity> get() = net.minecraft.world.entity.EntityTypes.PLAYER
