@@ -4,11 +4,12 @@
 
 **차량(기차·보트·비행선 등)은 추가하지 않아요.** 기본적으로 [Create](https://github.com/Creators-of-Create/Create)(26.x Fabric 은 Create Fly)와 그 애드온이 차량을 맡는다고 보고, InfraCraft 는 그 차량이 달릴 인프라와 노선망을 만들어요.
 
-| 마인크래프트 | Java | Fabric API | 언어 |
+| 마인크래프트 | Java | Fabric API | 고른 이유 |
 |---|---|---|---|
-| 26.3 | 25 | 0.165.0+26.3 | Kotlin (fabric-language-kotlin 1.14.2) |
-| 1.21.11 | 21 | 0.141.6+1.21.11 | 〃 |
-| 1.21.1 | 21 | 0.116.17+1.21.1 | 〃 |
+| **26.3** | 25 | 0.165.0+26.3 | 최신 버전. Create Fly 비공식 26.3 포트와 함께 쓰는 것을 확인했어요 |
+| **26.2** | 25 | 0.161.0+26.2 | Create Fly 애드온 포트가 가장 많은 버전. 공식 Create Fly 26.2 + Steam 'n' Rails 와 함께 쓰는 것을 확인했어요 |
+
+언어는 Kotlin(fabric-language-kotlin 1.14.2)이에요. 어느 버전을 고를지는 [docs/CREATE_ADDONS.md](docs/CREATE_ADDONS.md)의 애드온 목록을 보고 정하면 돼요.
 
 ## 기본 규칙
 - **겉날개 금지**: 활공이 막히고, 손에 들어온 겉날개는 *엔더 선로 핵*(특급 선로 재료)으로 바뀌어요.
@@ -91,8 +92,8 @@
 
 ## 빌드
 ```
-./gradlew buildAll                 # 세 버전 모두
-./gradlew :mc1.21.1:build          # 하나만
+./gradlew buildAll                 # 두 버전 모두
+./gradlew :mc26.2:build            # 하나만
 ```
 결과물은 `versions/<버전>/build/libs/` 에 생겨요. 텍스처와 데이터 JSON 은 `tools/gen_textures.py`, `tools/gen_data.py` 로 다시 만들 수 있어요(번역 원본은 `tools/lang.json`).
 

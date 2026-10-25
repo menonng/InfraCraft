@@ -119,6 +119,9 @@ object InfraCraft : ModInitializer {
                 CreateCompat.trackState(track, net.minecraft.core.Direction.EAST, 0).toString().contains("shape=xo") &&
                 CreateCompat.trackState(track, net.minecraft.core.Direction.NORTH, 1).toString().contains("shape=an"))
         }
+        if (System.getenv("INFRACRAFT_SMOKE_RAILWAYS") == "true") {
+            check("steam 'n' rails loaded", net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("railways"))
+        }
         if (failures.isEmpty()) LOGGER.info("[InfraCraft] smoke test passed")
         else LOGGER.error("[InfraCraft] smoke test FAILED: {}", failures)
         Compat.halt(server)

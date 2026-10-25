@@ -260,12 +260,10 @@ def guide_recipe(version_dir, new_format):
         json.dump(obj, f, ensure_ascii=False, indent=2)
         f.write("\n")
 
-recipes("1.21.1", False, "minecraft:chain")
-guide_recipe("1.21.1", False)
-guide_recipe("1.21.11", True)
+guide_recipe("26.2", True)
 guide_recipe("26.3", True)
-recipes("1.21.11", True, "minecraft:iron_chain")
-recipes("26.3", True, "minecraft:iron_chain")
+recipes("26.2", True)
+recipes("26.3", True)
 
 # ── 번역 ──
 with open(os.path.join(HERE, "lang.json"), encoding="utf-8") as f:
