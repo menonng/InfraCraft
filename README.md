@@ -66,6 +66,7 @@
 | Create 마인카트 장치 | — | 바닐라 마인카트라서 등급 선로 가속·역 정차·분기기가 그대로 적용돼요 |
 | Create 장식 돌 | — | 자른 돌·벽돌·기둥 등이 도로 2등급으로 들어가요(Create 가 없으면 무시) |
 
+- 분야별 전체 애드온 호환 목록과 링크: **[docs/CREATE_ADDONS.md](docs/CREATE_ADDONS.md)**
 - Create 연동은 리플렉션으로 읽기만 하므로 **Create 가 없어도 InfraCraft 는 그대로 동작**해요. CI 에서 Create Fly 26.3 포트와 함께 서버를 띄워 연동을 확인해요.
 - 네더 1:1 은 Create 기차의 포탈 통과에도 똑같이 적용돼요.
 - 지하철 키트가 깔 선로는 설정 `subwayTrack`(auto / create / vanilla / none)으로 정해요.
