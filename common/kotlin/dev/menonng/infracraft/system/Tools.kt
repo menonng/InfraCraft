@@ -40,7 +40,7 @@ object Tools {
 
     private fun thrifty(player: ServerPlayer, tool: ItemStack): Boolean {
         val lvl = Enchants.level(player.level(), tool, ModEnchantments.THRIFT)
-        return lvl > 0 && player.random.nextFloat() < 0.15f * lvl
+        return lvl > 0 && player.random.nextFloat() < (0.15f * lvl).coerceAtMost(0.6f)
     }
 
     private fun damage(player: ServerPlayer, tool: ItemStack, hand: InteractionHand) {
@@ -71,7 +71,7 @@ object Tools {
         val state = block.defaultBlockState()
         val facing = player.direction
         val side = facing.clockWise
-        val width = Config.c.paverBaseWidth + 2 * Enchants.level(level, tool, ModEnchantments.WIDE_PAVING)
+        val width = Config.c.paverBaseWidth + 2 * Enchants.level(level, tool, ModEnchantments.WIDE_PAVING).coerceAtMost(4)
         val half = width / 2
         val y = feet.below()
         var placed = 0
@@ -126,7 +126,7 @@ object Tools {
     fun bore(player: ServerPlayer, hand: InteractionHand, pos: BlockPos, face: Direction) {
         val level = player.level() as ServerLevel
         val tool = player.getItemInHand(hand)
-        val r = Config.c.borerBaseRadius + Enchants.level(level, tool, ModEnchantments.BORE_RADIUS)
+        val r = Config.c.borerBaseRadius + Enchants.level(level, tool, ModEnchantments.BORE_RADIUS).coerceAtMost(3)
         val axis = face.axis
         var mined = 0
         for (a in -r..r) for (b in -r..r) {

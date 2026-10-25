@@ -53,7 +53,7 @@ InfraCraft 는 차량과 기계를 직접 만들지 않고 Create 생태계와 �
 | **Copycats+** | 🟡 26.1–26.2 | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/createfly-copycats-port) · [GitHub](https://github.com/zoom-packers/copycats-createfly) | 카피캣 블록. 원작 팀 허가를 받은 포트 |
 | Bits 'n' Bobs | 🟡 26.1.2–26.2 · 🟠 26.3 | [GitHub (fabric-26.2)](https://github.com/zoom-packers/Create-Bits-n-Bobs/tree/fabric-26.2) | 잡다한 기계·장식 |
 | Dragons Plus | 🟡 26.2 | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/create-dragons-plus-fly) · [GitHub](https://github.com/GravisLudio/create-dragons-plus-fly-26.2) | Enchantment Industry 의 필수 의존 모드 |
-| Enchantment Industry | 🟡 26.2 | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/create-enchantment-industry-fly) · [GitHub](https://github.com/GravisLudio/create-enchantment-industry-fly-26.2) | 경험치 액체·자동 인챈트. InfraCraft 의 새 인챈트도 책으로 다룰 수 있어요 |
+| **Enchantment Industry** | 🟡 26.2 | [CurseForge](https://www.curseforge.com/minecraft/mc-mods/create-enchantment-industry-fly) · [GitHub](https://github.com/GravisLudio/create-enchantment-industry-fly-26.2) | 경험치 액체, 블레이즈 인챈터(자동 인챈트), 블레이즈 대장간(레벨 합성), 인쇄기. 아래 「인챈트 연동」 참고 |
 
 ## 5. 장식·건축
 | 애드온 | 상태 | 링크 | 메모 |
@@ -68,6 +68,15 @@ InfraCraft 는 차량과 기계를 직접 만들지 않고 Create 생태계와 �
 | Create: Gunsmithing | ✅ (소스 브랜치) | [fabric-26.3 브랜치](https://github.com/meakaandre-tech/CreateGunMod/tree/fabric-26.3) | 총기 |
 
 ---
+
+## 인챈트 연동 (Enchantment Industry)
+소스를 확인한 결과, 따로 연동 코드 없이도 다음처럼 맞물려요(26.2 전용, 아직 CI 로 함께 띄워 보지는 않았어요).
+
+| InfraCraft 인챈트 | Enchantment Industry 에서 |
+|---|---|
+| 새 인챈트 7종(로드러너, 관성, 기수, 차장, 넓은 포장, 굴착 반경, 절약) | `#minecraft:in_enchanting_table` 에 들어 있어서 **블레이즈 인챈터가 자동으로 붙일 수 있어요** |
+| 바닐라 레벨 확장(영혼 가속 V, 차가운 걸음 III, 가벼운 착지 V) | 최대 레벨을 `getMaxLevel()` 로 읽기 때문에 **확장된 레벨을 그대로 따라요** |
+| 블레이즈 대장간의 최대 레벨 +1(설정값) | 영혼 가속 VI, 로드러너 IV 처럼 한 단계 더 올라가요. 이렇게 넘친 레벨에서도 효과가 뒤집히지 않도록 InfraCraft 쪽에 상한을 두었어요(관성의 감소 억제 85%, 절약 60%, 넓은 포장·굴착 반경 각각 +4·+3 단계까지) |
 
 ## InfraCraft 에서 이미 연동되는 것
 - **Create 기차역 → 노선망 역 자동 등록**, **Create 기차 운행 → 노선 자동 측량**: 경로 안내, 이정표, 급행에 반영돼요. Steam 'n' Rails 같은 트랙 애드온도 같은 선로망이라 그대로 적용돼요.

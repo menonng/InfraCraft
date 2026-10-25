@@ -58,7 +58,7 @@ object RoadSystem {
 
         m.bonus = if (m.bonus < target) minOf(target, m.bonus + Config.c.roadRampPerTick)
         else {
-            val keep = 1.0 - 0.35 * Enchants.level(player, ModEnchantments.MOMENTUM)
+            val keep = (1.0 - 0.35 * Enchants.level(player, ModEnchantments.MOMENTUM)).coerceAtLeast(0.15)
             maxOf(target, m.bonus - Config.c.roadDecayPerTick * keep)
         }
         apply(mover, m.bonus)

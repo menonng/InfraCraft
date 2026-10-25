@@ -63,7 +63,7 @@ object Subway {
             return false
         }
         val thrift = tool?.let { Enchants.level(player.level(), it, ModEnchantments.THRIFT) } ?: 0
-        val cost = if (thrift > 0) (needed * (1.0 - 0.15 * thrift)).toInt().coerceAtLeast(1) else needed
+        val cost = if (thrift > 0) (needed * (1.0 - (0.15 * thrift).coerceAtMost(0.6))).toInt().coerceAtLeast(1) else needed
         return Inventories.consume(player, cost) { liningItem(it) }
     }
 
