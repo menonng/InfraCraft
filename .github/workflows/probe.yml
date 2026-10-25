@@ -1,0 +1,36 @@
+# 개발용: 지정한 마인크래프트 버전 jar 에서 클래스 시그니처를 javap 로 찾아 주석(annotation)으로 남긴다.
+name: api-probe
+on:
+  workflow_dispatch:
+    inputs:
+      mc:
+        description: "Minecraft version subproject (1.21.1, 1.21.11, 26.3)"
+        required: true
+      queries:
+        description: "Semicolon separated class=regex pairs, e.g. net.minecraft.world.entity.Entity=hurt|Motion"
+        required: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "microsoft"
+      - uses: gradle/actions/setup-gradle@v6
+      - run: chmod +x ./gradlew && ./gradlew :mc${{ inputs.mc }}:compileJava --dry-run -q || true
+      - name: probe
+        env:
+          QUERIES: ${{ inputs.queries }}
+        run: |
+          jars=$(find ~/.gradle/caches -name "*.jar" -size +5M 2>/dev/null | grep -iE "minecraft" | grep -viE "sources|fabric-api")
+          cp=$(echo $jars | tr ' ' ':')
+          IFS=';' read -ra qs <<< "$QUERIES"
+          for q in "${qs[@]}"; do
+            cls="${q%%=*}"; re="${q#*=}"
+            out=$(javap -cp "$cp" -p "$cls" 2>&1 | grep -E "class |interface |record |enum |$re" | head -60 | cut -c1-300)
+            msg=$(printf '%s' "$out" | sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g')
+            echo "::warning title=$cls::$msg"
+          done

@@ -58,12 +58,12 @@ tasks.register("smokeServer") {
     group = "verification"
     dependsOn("runServer")
 }
+val smokeRunDir = layout.projectDirectory.dir("run").asFile
 tasks.matching { it.name == "runServer" }.configureEach {
     (this as JavaExec).apply {
         jvmArgs("-Dinfracraft.smoke=true")
-        args("--nogui")
         doFirst {
-            val runDir = workingDir
+            val runDir = smokeRunDir
             runDir.mkdirs()
             runDir.resolve("eula.txt").writeText("eula=true\n")
             runDir.resolve("server.properties").writeText("online-mode=false\nlevel-type=minecraft\\:flat\nspawn-protection=0\n")
