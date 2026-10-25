@@ -7,6 +7,9 @@
     "infracraft:rail_switch",
     "infracraft:water_current",
     "infracraft:boat_lift",
+    "infracraft:tunnel_lining",
+    "infracraft:platform_edge",
+    "infracraft:station_elevator",
     "infracraft:high_speed_rail",
     "infracraft:express_rail",
     "infracraft:blaze_rail"

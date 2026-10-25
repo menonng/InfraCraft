@@ -434,5 +434,129 @@
  "infracraft.msg.network.summary": {
   "ko_kr": "역 %1$s곳 · 노선 %2$s개 · 총 %3$skm",
   "en_us": "%1$s stations · %2$s routes · %3$skm total"
+ },
+ "block.infracraft.tunnel_lining": {
+  "ko_kr": "터널 라이닝",
+  "en_us": "Tunnel Lining"
+ },
+ "block.infracraft.tunnel_light": {
+  "ko_kr": "터널 조명",
+  "en_us": "Tunnel Light"
+ },
+ "block.infracraft.platform_edge": {
+  "ko_kr": "승강장 안전선",
+  "en_us": "Platform Edge"
+ },
+ "block.infracraft.station_elevator": {
+  "ko_kr": "역 승강기",
+  "en_us": "Station Elevator"
+ },
+ "item.infracraft.subway_shield": {
+  "ko_kr": "실드 굴진기",
+  "en_us": "Subway Shield Machine"
+ },
+ "item.infracraft.station_blueprint": {
+  "ko_kr": "지하 역사 설계도",
+  "en_us": "Underground Station Blueprint"
+ },
+ "infracraft.msg.subway.need_lining": {
+  "ko_kr": "터널 라이닝이 %1$s개 필요해요(가진 것 %2$s개).",
+  "en_us": "Needs %1$s tunnel lining (you have %2$s)."
+ },
+ "infracraft.msg.subway.ahead_done": {
+  "ko_kr": "앞쪽 4칸은 이미 뚫려 있어요. 앞으로 걸어가세요.",
+  "en_us": "The next 4 blocks are already bored. Walk forward."
+ },
+ "infracraft.msg.subway.no_rails": {
+  "ko_kr": "선로가 없어서 바닥에 선로를 깔지 못했어요.",
+  "en_us": "No rails in your inventory; the floor rail was skipped."
+ },
+ "infracraft.msg.station_hall.need_lining": {
+  "ko_kr": "역사를 지으려면 터널 라이닝 %1$s개가 필요해요.",
+  "en_us": "Building the station needs %1$s tunnel lining."
+ },
+ "infracraft.msg.station_hall.built": {
+  "ko_kr": "지하 역사 '%1$s' 완성! 승강기 수직구 높이 %2$s칸. 이름표로 역 이름을 바꾸세요.",
+  "en_us": "Underground station '%1$s' built! Elevator shaft: %2$s blocks. Rename it with a name tag."
+ },
+ "infracraft.msg.help.guide": {
+  "ko_kr": "/infra guide — 지하철 건설 가이드",
+  "en_us": "/infra guide — subway building guide"
+ },
+ "infracraft.msg.guide.title": {
+  "ko_kr": "━━ 지하철 건설 가이드 ━━",
+  "en_us": "━━ Subway Building Guide ━━"
+ },
+ "infracraft.msg.guide.1": {
+  "ko_kr": "① 준비: 실드 굴진기, 터널 라이닝(64개 이상), 선로, 터널 조명, 지하 역사 설계도",
+  "en_us": "1. Gather: shield machine, tunnel lining (64+), rails, tunnel lights, station blueprint"
+ },
+ "infracraft.msg.guide.2": {
+  "ko_kr": "② 측량: 지상에서 측량기로 두 역 사이 거리와 높이 차를 재요",
+  "en_us": "2. Survey: measure distance and height between stations with the surveyor"
+ },
+ "infracraft.msg.guide.3": {
+  "ko_kr": "③ 진입: 굴진기를 들고 아래(40° 이상)를 보며 쓰면 1:1 내리막 터널이 생겨요",
+  "en_us": "3. Descend: look down (40°+) while using the shield to bore a 1:1 ramp"
+ },
+ "infracraft.msg.guide.4": {
+  "ko_kr": "④ 굴진: 정면을 보고 쓸 때마다 5×4 단면이 한 칸씩 뚫리고 라이닝·선로·조명(8칸마다)이 깔려요",
+  "en_us": "4. Bore: each use cuts a 5×4 slice and lays lining, a rail and a light every 8 blocks"
+ },
+ "infracraft.msg.guide.5": {
+  "ko_kr": "⑤ 전원: 고속·특급 선로 아래 라이닝 몇 칸을 레드스톤 블록으로 바꾸면 늘 전원이 들어와요",
+  "en_us": "5. Power: swap some lining under fast rails for redstone blocks"
+ },
+ "infracraft.msg.guide.6": {
+  "ko_kr": "⑥ 역사: 선로 위에 서서 진행 방향을 보고 설계도를 쓰면 승강장·역 블록·승강기가 생겨요",
+  "en_us": "6. Station: stand on the rail facing along the line and use the blueprint"
+ },
+ "infracraft.msg.guide.7": {
+  "ko_kr": "⑦ 승강기: 승강기 위에 서면 지상까지 올라가고, 웅크리면 내려와요",
+  "en_us": "7. Elevator: stand on it to rise to the surface; sneak to go down"
+ },
+ "infracraft.msg.guide.8": {
+  "ko_kr": "⑧ 개통: 이름표로 역(선로 클릭) 이름을 짓고, 카트로 한 번 달려 노선을 측량해요",
+  "en_us": "8. Open: name stations with a name tag, then ride once to survey the route"
+ },
+ "infracraft.msg.guide.9": {
+  "ko_kr": "⑨ 운행: 승차권으로 목적지를 정하고, 갈림길엔 분기기, 역에서 웅크려 승차권을 쓰면 급행",
+  "en_us": "9. Run: tickets set destinations, switches route junctions, sneak-use a ticket for express"
+ },
+ "infracraft.msg.guide.10": {
+  "ko_kr": "⑩ 안내서: 책 + 레일로 이 가이드를 책으로 만들 수 있어요",
+  "en_us": "10. Craft a book + rail to get this guide as a book"
+ },
+ "infracraft.book.subway.1": {
+  "ko_kr": "━ 지하철 건설 안내서 ━\n\n지상 대신 땅속으로!\n겉날개 없는 세계에서\n지하철은 가장 빠르고\n안전한 장거리 교통이에요.\n\n다음 장부터 순서대로\n따라 하세요.",
+  "en_us": "━ Subway Handbook ━\n\nGo underground!\nWithout elytra, a subway\nis the fastest and safest\nway to travel far.\n\nFollow the steps on\nthe next pages."
+ },
+ "infracraft.book.subway.2": {
+  "ko_kr": "1. 준비물\n\n· 실드 굴진기\n· 터널 라이닝 64+\n  (돌 8 + 점토 1 → 16)\n· 선로(고속·특급)\n· 터널 조명\n· 지하 역사 설계도\n· 측량기, 승차권",
+  "en_us": "1. Supplies\n\n· Subway shield machine\n· Tunnel lining 64+\n  (8 stone + clay → 16)\n· Rails (fast/express)\n· Tunnel lights\n· Station blueprint\n· Surveyor, tickets"
+ },
+ "infracraft.book.subway.3": {
+  "ko_kr": "2. 노선 계획\n\n측량기로 두 역 자리를\n찍으면 거리와 높이 차가\n나와요. 깊이는 지하수와\n동굴을 피해 Y 0 근처가\n좋아요. 이정표로 지상\n방향을 표시해 두세요.",
+  "en_us": "2. Planning\n\nClick both station sites\nwith the surveyor to get\ndistance and height.\nAim for around Y 0 to\navoid caves and aquifers.\nMark the way with\nsignposts."
+ },
+ "infracraft.book.subway.4": {
+  "ko_kr": "3. 굴진\n\n실드 굴진기를 정면으로\n쓰면 5×4 터널이 한 칸씩\n뚫려요. 둘레엔 라이닝,\n바닥엔 선로, 8칸마다\n조명이 들어가요.\n아래·위를 보고 쓰면\n1:1 경사 터널이에요.",
+  "en_us": "3. Boring\n\nUse the shield facing\nforward: each use cuts a\n5×4 slice, lines it,\nlays a rail and adds a\nlight every 8 blocks.\nLook down or up for a\n1:1 ramp."
+ },
+ "infracraft.book.subway.5": {
+  "ko_kr": "4. 물과 용암\n\n라이닝을 먼저 깔고\n안쪽을 비우기 때문에\n지하수와 용암이 터널로\n새지 않아요. 기반암과\n상자 같은 블록은\n그대로 남겨요.",
+  "en_us": "4. Water & lava\n\nLining is placed before\nthe slice is cleared, so\naquifers and lava stay\nout. Bedrock and block\nentities are left alone."
+ },
+ "infracraft.book.subway.6": {
+  "ko_kr": "5. 역사 짓기\n\n선로 위에 서서 노선\n방향을 보고 설계도를\n쓰세요. 길이 16칸\n승강장 둘, 역 블록,\n조명, 지상까지 뚫린\n승강기가 한 번에\n만들어져요.",
+  "en_us": "5. Stations\n\nStand on the rail facing\nalong the line and use\nthe blueprint: two 16-\nblock platforms, the\nstation block, lights and\nan elevator shaft to the\nsurface appear at once."
+ },
+ "infracraft.book.subway.7": {
+  "ko_kr": "6. 전원과 속도\n\n고속·특급 선로는 전원이\n필요해요. 선로 아래\n라이닝 몇 칸을 레드스톤\n블록으로 바꾸세요.\n커브 앞에선 자동으로\n감속하니 직선을 길게!",
+  "en_us": "6. Power & speed\n\nFast rails need power:\nswap some lining under\nthem for redstone\nblocks. Carts slow down\nbefore curves, so keep\nlines straight."
+ },
+ "infracraft.book.subway.8": {
+  "ko_kr": "8. 더 알아보기\n\n/infra guide\n/infra stations\n/infra route \"A\" \"B\"\n/infra network\n\n좋은 여행 되세요!",
+  "en_us": "8. More\n\n/infra guide\n/infra stations\n/infra route \"A\" \"B\"\n/infra network\n\nHave a good trip!"
  }
 }

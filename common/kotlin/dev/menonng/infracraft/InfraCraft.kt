@@ -125,7 +125,7 @@ object InfraCraft : ModInitializer {
         }
         val data = Network.data(level.server)
         val dim = Compat.dimensionId(level)
-        for (kind in listOf(TickedBlock.SWITCH, TickedBlock.CURRENT, TickedBlock.LIFT)) {
+        for (kind in listOf(TickedBlock.SWITCH, TickedBlock.CURRENT, TickedBlock.LIFT, TickedBlock.ELEVATOR)) {
             if (kind == TickedBlock.SWITCH && level.gameTime % 2 != 0L) continue
             val keys = data.tickers[kind] ?: continue
             for (key in keys.toList()) {
@@ -135,6 +135,7 @@ object InfraCraft : ModInitializer {
                     TickedBlock.SWITCH -> RailSystem.tickSwitch(level, pos, key, data)
                     TickedBlock.CURRENT -> Water.tickCurrent(level, pos, key, data)
                     TickedBlock.LIFT -> Water.tickLift(level, pos, key, data)
+                    TickedBlock.ELEVATOR -> dev.menonng.infracraft.system.Subway.tickElevator(level, pos, key, data)
                 }
             }
         }

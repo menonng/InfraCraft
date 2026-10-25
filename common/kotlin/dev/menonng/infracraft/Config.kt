@@ -35,6 +35,10 @@ class InfraConfig {
     var borerMaxHardness = 30.0
     var bridgeMaxLength = 96
 
+    // ── 지하철 ──
+    var elevatorSpeed = 0.35
+    var elevatorMaxHeight = 200
+
     // ── 말 ──
     var whistleRange = 96.0
 

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SSS",
+    "SCS",
+    "SSS"
+  ],
+  "key": {
+    "S": "#minecraft:stone_crafting_materials",
+    "C": "minecraft:clay_ball"
+  },
+  "result": {
+    "id": "infracraft:tunnel_lining",
+    "count": 16
+  }
+}

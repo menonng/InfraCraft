@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "III",
+    "DTD",
+    "III"
+  ],
+  "key": {
+    "I": "minecraft:iron_block",
+    "D": "minecraft:diamond",
+    "T": "infracraft:tunnel_borer"
+  },
+  "result": {
+    "id": "infracraft:subway_shield",
+    "count": 1
+  }
+}

@@ -330,6 +330,83 @@ for (x, y) in [(x, y) for x in range(16) for y in range(16) if ((x - 7.5) ** 2 +
 px(img, [(7, 0), (8, 0), (7, 15), (8, 15), (0, 7), (0, 8), (15, 7), (15, 8)], BRASS[2])
 save(img, "item/ender_rail_core")
 
+# ═══════════════════ 지하철 키트 ═══════════════════
+
+# 터널 라이닝: 콘크리트 세그먼트 4장 + 볼트
+img = new()
+noise(img, "#A7A9A4", 6, 31)
+for i in range(16):
+    img.putpixel((i, 7), hx("#7C7E79")); img.putpixel((i, 8), hx("#C4C6C0"))
+    img.putpixel((7, i), hx("#7C7E79")); img.putpixel((8, i), hx("#C4C6C0"))
+    img.putpixel((i, 0), hx("#C4C6C0")); img.putpixel((0, i), hx("#C4C6C0"))
+    img.putpixel((i, 15), hx("#7C7E79")); img.putpixel((15, i), hx("#7C7E79"))
+for (x, y) in [(3, 3), (12, 3), (3, 12), (12, 12)]:
+    img.putpixel((x, y), hx(ANDESITE[4])); img.putpixel((x - 1, y - 1), hx(ANDESITE[0]))
+save(img, "block/tunnel_lining")
+
+# 터널 조명: 안산암 케이싱 + 흰 형광 막대 두 줄
+img = new("#000000"); casing(img, ANDESITE, 32)
+rect(img, 3, 3, 12, 12, "#3B3F3A")
+for y0 in (4, 9):
+    rect(img, 4, y0, 11, y0 + 2, "#EAF7FF"); rect(img, 4, y0 + 1, 11, y0 + 1, "#FFFFFF")
+    px(img, [(4, y0), (11, y0 + 2)], "#B9D4E0")
+save(img, "block/tunnel_light")
+
+# 승강장 안전선: 노란 점자 블록 + 회색 테두리
+img = new()
+noise(img, "#E8B923", 5, 33)
+for x in range(16):
+    img.putpixel((x, 0), hx("#9A9C97")); img.putpixel((x, 15), hx("#6E706B"))
+for y in range(16):
+    img.putpixel((0, y), hx("#9A9C97")); img.putpixel((15, y), hx("#6E706B"))
+for y in range(2, 14, 3):
+    for x in range(2, 14, 3):
+        px(img, [(x, y), (x + 1, y)], "#FFE27A"); px(img, [(x, y + 1), (x + 1, y + 1)], "#B98E12")
+save(img, "block/platform_edge")
+
+# 역 승강기: 황동 케이싱 + 위/아래 화살표
+img = new("#000000"); casing(img, BRASS, 34); rect(img, 3, 3, 12, 12, "#2B2F33")
+px(img, [(7, 4), (8, 4), (6, 5), (9, 5), (5, 6), (10, 6), (7, 5), (8, 5), (7, 6), (8, 6)], "#55BB44")
+px(img, [(7, 11), (8, 11), (6, 10), (9, 10), (5, 9), (10, 9), (7, 10), (8, 10), (7, 9), (8, 9)], "#FFCC11")
+save(img, "block/station_elevator_top")
+img = new("#000000"); casing(img, BRASS, 35); rect(img, 3, 3, 12, 12, "#2B2F33")
+rect(img, 7, 3, 8, 12, "#6E726C")
+px(img, [(5, 5), (10, 5), (5, 10), (10, 10)], BRASS[1])
+rect(img, 4, 6, 6, 9, "#3E4A52"); rect(img, 9, 6, 11, 9, "#3E4A52")
+save(img, "block/station_elevator_side")
+
+# 실드 굴진기: 원형 커터 헤드(황동 고리 + 철 커터 날)
+img = new()
+for y in range(16):
+    for x in range(16):
+        d = ((x - 7.5) ** 2 + (y - 7.5) ** 2) ** 0.5
+        if d < 7.4:
+            c = BRASS[3] if d > 6.2 else (BRASS[1] if d > 5.4 else ("#3A3C38" if d > 1.6 else BRASS[0]))
+            img.putpixel((x, y), hx(c))
+for i in range(-5, 6):
+    for (x, y) in [(7 + i, 7), (7, 7 + i), (8 + i, 8), (8, 8 + i)]:
+        if 0 <= x < 16 and 0 <= y < 16 and ((x - 7.5) ** 2 + (y - 7.5) ** 2) ** 0.5 < 5.4:
+            img.putpixel((x, y), hx(IRON[1] if (x + y) % 2 else IRON[2]))
+for (x, y) in [(3, 3), (12, 3), (3, 12), (12, 12)]:
+    img.putpixel((x, y), hx(IRON[0]))
+save(img, "item/subway_shield")
+
+# 지하 역사 설계도: 청사진
+img = new()
+rect(img, 1, 2, 14, 13, "#2E5C9E")
+for x in range(1, 15):
+    img.putpixel((x, 2), hx("#1E3F70")); img.putpixel((x, 13), hx("#1E3F70"))
+for y in range(2, 14):
+    img.putpixel((1, y), hx("#1E3F70")); img.putpixel((14, y), hx("#1E3F70"))
+for x in range(3, 13):
+    img.putpixel((x, 5), hx("#CFE3FF")); img.putpixel((x, 10), hx("#CFE3FF"))
+for y in range(5, 11):
+    img.putpixel((3, y), hx("#CFE3FF")); img.putpixel((12, y), hx("#CFE3FF"))
+px(img, [(x, 7) for x in range(4, 12)] + [(x, 8) for x in range(4, 12)], "#8FB6E8")
+px(img, [(5, 6), (9, 6), (6, 9), (10, 9)], "#FFFFFF")
+px(img, [(13, 3), (12, 3), (13, 4)], "#FFCC11")
+save(img, "item/station_blueprint")
+
 # 모드 아이콘(64x64): 특급 선로 위의 역 패널
 icon = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
 icon.alpha_composite(Image.open(os.path.join(TEX, "block/express_rail_on.png")))

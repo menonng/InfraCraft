@@ -22,11 +22,11 @@ def write(base, path, obj):
 A = os.path.join(COMMON, "assets", NS)
 D = os.path.join(COMMON, "data")
 
-CUBE_ALL = ["asphalt", "road_line", "street_lamp", "signpost"]
+CUBE_ALL = ["asphalt", "road_line", "street_lamp", "signpost", "tunnel_lining", "tunnel_light", "platform_edge"]
 RAILS = ["high_speed_rail", "express_rail", "blaze_rail"]
 ITEMS = ["ticket", "coupler", "road_paver", "track_layer", "tunnel_borer", "surveyor", "whistle",
-         "iron_horseshoe", "diamond_horseshoe", "ender_rail_core"]
-BLOCKS = CUBE_ALL + RAILS + ["station", "rail_switch", "water_current", "boat_lift", "stable"]
+         "iron_horseshoe", "diamond_horseshoe", "ender_rail_core", "subway_shield", "station_blueprint"]
+BLOCKS = CUBE_ALL + RAILS + ["station", "rail_switch", "water_current", "boat_lift", "stable", "station_elevator"]
 
 def item_def(name, model):
     # 1.21.4+ 아이템 정의(1.21.1 은 이 폴더를 무시한다)
@@ -57,6 +57,9 @@ write(A, "blockstates/water_current.json", {"variants": {
 write(A, "models/block/stable.json", {"parent": "minecraft:block/cube_bottom_top", "textures": {
     "top": f"{NS}:block/stable_top", "bottom": f"{NS}:block/stable_side", "side": f"{NS}:block/stable_side"}})
 write(A, "blockstates/stable.json", {"variants": {"": {"model": f"{NS}:block/stable"}}})
+write(A, "models/block/station_elevator.json", {"parent": "minecraft:block/cube_bottom_top", "textures": {
+    "top": f"{NS}:block/station_elevator_top", "bottom": f"{NS}:block/station_elevator_side", "side": f"{NS}:block/station_elevator_side"}})
+write(A, "blockstates/station_elevator.json", {"variants": {"": {"model": f"{NS}:block/station_elevator"}}})
 
 # 선로: 바닐라 전동 레일과 같은 모양 템플릿을 쓴다
 for r in RAILS:
@@ -86,7 +89,7 @@ for b in BLOCKS:
     item_def(b, f"{NS}:item/{b}")
 
 for i in ITEMS:
-    parent = "minecraft:item/handheld" if i in ("road_paver", "track_layer", "tunnel_borer") else "minecraft:item/generated"
+    parent = "minecraft:item/handheld" if i in ("road_paver", "track_layer", "tunnel_borer", "subway_shield") else "minecraft:item/generated"
     write(A, f"models/item/{i}.json", {"parent": parent, "textures": {"layer0": f"{NS}:item/{i}"}})
     item_def(i, f"{NS}:item/{i}")
 
@@ -113,7 +116,8 @@ tag(f"{NS}/tags/block/road_tier_2.json", mc(
     "end_stone_bricks", "purpur_block", "quartz_block", "smooth_quartz", "prismarine_bricks",
     "stone_brick_slab", "smooth_stone_slab", "cobblestone_slab", "brick_slab", "polished_andesite_slab",
     "sandstone_slab", "smooth_sandstone_slab", "cobbled_deepslate_slab", "deepslate_brick_slab", "deepslate_tile_slab",
-    "polished_blackstone_brick_slab", "nether_brick_slab", "end_stone_brick_slab", "quartz_slab"))
+    "polished_blackstone_brick_slab", "nether_brick_slab", "end_stone_brick_slab", "quartz_slab")
+    + [f"{NS}:tunnel_lining", f"{NS}:platform_edge"])
 tag(f"{NS}/tags/block/road_tier_3.json", [f"{NS}:asphalt", f"{NS}:road_line"])
 tag(f"{NS}/tags/block/paveable.json", mc(
     "dirt", "grass_block", "coarse_dirt", "podzol", "mycelium", "rooted_dirt", "mud", "clay", "moss_block",
@@ -121,12 +125,12 @@ tag(f"{NS}/tags/block/paveable.json", mc(
     "dirt_path", "snow_block", "netherrack", "soul_sand", "soul_soil", "blackstone", "basalt", "end_stone")
     + [f"#{NS}:road_tier_1", f"#{NS}:road_tier_2", f"#{NS}:road_tier_3"])
 tag("minecraft/tags/block/mineable/pickaxe.json", [f"{NS}:{b}" for b in
-    ("asphalt", "road_line", "station", "rail_switch", "water_current", "boat_lift", *RAILS)])
+    ("asphalt", "road_line", "station", "rail_switch", "water_current", "boat_lift", "tunnel_lining", "platform_edge", "station_elevator", *RAILS)])
 tag("minecraft/tags/block/mineable/axe.json", [f"{NS}:signpost"])
 tag("minecraft/tags/block/mineable/hoe.json", [f"{NS}:stable"])
 tag("minecraft/tags/block/rails.json", [f"{NS}:{r}" for r in RAILS])
 tag("minecraft/tags/item/rails.json", [f"{NS}:{r}" for r in RAILS])
-TOOLS = [f"{NS}:road_paver", f"{NS}:track_layer", f"{NS}:tunnel_borer"]
+TOOLS = [f"{NS}:road_paver", f"{NS}:track_layer", f"{NS}:tunnel_borer", f"{NS}:subway_shield"]
 tag(f"{NS}/tags/item/enchantable/road_paver.json", [f"{NS}:road_paver"])
 tag(f"{NS}/tags/item/enchantable/tunnel_borer.json", [f"{NS}:tunnel_borer"])
 tag(f"{NS}/tags/item/enchantable/construction.json", TOOLS)
@@ -192,7 +196,16 @@ RECIPES = [
     ("iron_horseshoe", 2, ["I I", "I I", "III"], {"I": "minecraft:iron_ingot"}),
     ("diamond_horseshoe", 2, ["D D", "D D", "DDD"], {"D": "minecraft:diamond"}),
     ("ender_rail_core", 1, ["PEP", "ERE", "PEP"], {"P": "minecraft:popped_chorus_fruit", "E": "minecraft:ender_eye", "R": "minecraft:redstone_block"}),
+    # 지하철 키트
+    ("tunnel_lining", 16, ["SSS", "SCS", "SSS"], {"S": "#minecraft:stone_crafting_materials", "C": "minecraft:clay_ball"}),
+    ("tunnel_light", 4, ["NGN", "GLG", "NGN"], {"N": "minecraft:iron_nugget", "G": "minecraft:glass_pane", "L": "minecraft:glowstone_dust"}),
+    ("platform_edge", 8, ["LLL", "LYL", "LLL"], {"L": f"{NS}:tunnel_lining", "Y": "minecraft:yellow_dye"}),
+    ("station_elevator", 1, ["IPI", "IRI", "IPI"], {"I": "minecraft:iron_ingot", "P": "minecraft:piston", "R": "minecraft:redstone_block"}),
+    ("subway_shield", 1, ["III", "DTD", "III"], {"I": "minecraft:iron_block", "D": "minecraft:diamond", "T": f"{NS}:tunnel_borer"}),
+    ("station_blueprint", 1, ["BPB", "PSP", "BPB"], {"B": "minecraft:blue_dye", "P": "minecraft:paper", "S": f"{NS}:station"}),
 ]
+
+GUIDE_PAGES = 8
 
 def recipes(version_dir, new_format, chain_id):
     base = os.path.join(REPO, "versions", version_dir, "src", "main", "resources", "data", NS, "recipe")
@@ -213,7 +226,26 @@ def recipes(version_dir, new_format, chain_id):
             json.dump(obj, f, ensure_ascii=False, indent=2)
             f.write("\n")
 
+def guide_recipe(version_dir, new_format):
+    """책 + 레일 → 지하철 건설 안내서(번역 키를 쓰는 완성된 책)"""
+    if new_format:
+        pages = [{"translate": f"infracraft.book.subway.{i}"} for i in range(1, GUIDE_PAGES + 1)]
+        ingredients = ["minecraft:book", "minecraft:rail"]
+    else:
+        pages = [json.dumps({"translate": f"infracraft.book.subway.{i}"}) for i in range(1, GUIDE_PAGES + 1)]
+        ingredients = [{"item": "minecraft:book"}, {"item": "minecraft:rail"}]
+    obj = {"type": "minecraft:crafting_shapeless", "category": "misc", "ingredients": ingredients,
+           "result": {"id": "minecraft:written_book", "count": 1, "components": {
+               "minecraft:written_book_content": {"title": "지하철 건설 안내서", "author": "InfraCraft", "pages": pages}}}}
+    full = os.path.join(REPO, "versions", version_dir, "src", "main", "resources", "data", NS, "recipe", "subway_guide.json")
+    with open(full, "w", encoding="utf-8") as f:
+        json.dump(obj, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+
 recipes("1.21.1", False, "minecraft:chain")
+guide_recipe("1.21.1", False)
+guide_recipe("1.21.11", True)
+guide_recipe("26.3", True)
 recipes("1.21.11", True, "minecraft:iron_chain")
 recipes("26.3", True, "minecraft:iron_chain")
 

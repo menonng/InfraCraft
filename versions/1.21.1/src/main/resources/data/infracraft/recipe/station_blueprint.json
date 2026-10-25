@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "BPB",
+    "PSP",
+    "BPB"
+  ],
+  "key": {
+    "B": {
+      "item": "minecraft:blue_dye"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    },
+    "S": {
+      "item": "infracraft:station"
+    }
+  },
+  "result": {
+    "id": "infracraft:station_blueprint",
+    "count": 1
+  }
+}

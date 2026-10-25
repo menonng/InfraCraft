@@ -54,6 +54,12 @@ object ModBlocks {
     val WATER_CURRENT = Compat.block("water_current", Properties.ofFullCopy(Blocks.PRISMARINE), ::CurrentBlock)
     val BOAT_LIFT = Compat.block("boat_lift", Properties.ofFullCopy(Blocks.PRISMARINE_BRICKS)) { TickedBlock(it, TickedBlock.LIFT) }
 
+    // 지하철
+    val TUNNEL_LINING = Compat.block("tunnel_lining", Properties.ofFullCopy(Blocks.SMOOTH_STONE), ::Block)
+    val TUNNEL_LIGHT = Compat.block("tunnel_light", Properties.ofFullCopy(Blocks.SEA_LANTERN).lightLevel { 15 }, ::Block)
+    val PLATFORM_EDGE = Compat.block("platform_edge", Properties.ofFullCopy(Blocks.SMOOTH_STONE), ::Block)
+    val STATION_ELEVATOR = Compat.block("station_elevator", Properties.ofFullCopy(Blocks.IRON_BLOCK)) { TickedBlock(it, TickedBlock.ELEVATOR) }
+
     // 말
     val STABLE = Compat.block("stable", Properties.ofFullCopy(Blocks.HAY_BLOCK), ::Block)
 
@@ -71,6 +77,8 @@ object ModItems {
     val IRON_HORSESHOE = Compat.item("iron_horseshoe", Item.Properties().stacksTo(16))
     val DIAMOND_HORSESHOE = Compat.item("diamond_horseshoe", Item.Properties().stacksTo(16))
     val ENDER_RAIL_CORE = Compat.item("ender_rail_core", Item.Properties().stacksTo(64))
+    val SUBWAY_SHIELD = Compat.item("subway_shield", Compat.toolProperties(4096))
+    val STATION_BLUEPRINT = Compat.item("station_blueprint", Item.Properties().stacksTo(16))
 
     fun init() {
         Compat.creativeTab("main", { ItemStack(ModBlocks.EXPRESS_RAIL) }) {
@@ -79,6 +87,8 @@ object ModItems {
                 ModBlocks.HIGH_SPEED_RAIL, ModBlocks.EXPRESS_RAIL, ModBlocks.BLAZE_RAIL,
                 ModBlocks.STATION, ModBlocks.RAIL_SWITCH,
                 ModBlocks.WATER_CURRENT, ModBlocks.BOAT_LIFT, ModBlocks.STABLE,
+                ModBlocks.TUNNEL_LINING, ModBlocks.TUNNEL_LIGHT, ModBlocks.PLATFORM_EDGE, ModBlocks.STATION_ELEVATOR,
+                SUBWAY_SHIELD, STATION_BLUEPRINT,
                 TICKET, COUPLER, ROAD_PAVER, TRACK_LAYER, TUNNEL_BORER, SURVEYOR, WHISTLE,
                 IRON_HORSESHOE, DIAMOND_HORSESHOE, ENDER_RAIL_CORE,
             )

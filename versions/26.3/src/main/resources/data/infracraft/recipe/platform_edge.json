@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "LLL",
+    "LYL",
+    "LLL"
+  ],
+  "key": {
+    "L": "infracraft:tunnel_lining",
+    "Y": "minecraft:yellow_dye"
+  },
+  "result": {
+    "id": "infracraft:platform_edge",
+    "count": 8
+  }
+}

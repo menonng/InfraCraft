@@ -1,0 +1,44 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:book",
+    "minecraft:rail"
+  ],
+  "result": {
+    "id": "minecraft:written_book",
+    "count": 1,
+    "components": {
+      "minecraft:written_book_content": {
+        "title": "지하철 건설 안내서",
+        "author": "InfraCraft",
+        "pages": [
+          {
+            "translate": "infracraft.book.subway.1"
+          },
+          {
+            "translate": "infracraft.book.subway.2"
+          },
+          {
+            "translate": "infracraft.book.subway.3"
+          },
+          {
+            "translate": "infracraft.book.subway.4"
+          },
+          {
+            "translate": "infracraft.book.subway.5"
+          },
+          {
+            "translate": "infracraft.book.subway.6"
+          },
+          {
+            "translate": "infracraft.book.subway.7"
+          },
+          {
+            "translate": "infracraft.book.subway.8"
+          }
+        ]
+      }
+    }
+  }
+}

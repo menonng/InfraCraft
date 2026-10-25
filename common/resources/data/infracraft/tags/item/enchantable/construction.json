@@ -3,6 +3,7 @@
   "values": [
     "infracraft:road_paver",
     "infracraft:track_layer",
-    "infracraft:tunnel_borer"
+    "infracraft:tunnel_borer",
+    "infracraft:subway_shield"
   ]
 }

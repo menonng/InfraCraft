@@ -38,6 +38,16 @@ object Inventories {
         return null
     }
 
+    fun count(player: Player, predicate: (ItemStack) -> Boolean): Int {
+        val inv = player.inventory
+        var have = 0
+        for (i in 0 until inv.containerSize) {
+            val s = inv.getItem(i)
+            if (!s.isEmpty && predicate(s)) have += s.count
+        }
+        return have
+    }
+
     /** 조건에 맞는 아이템을 count 개 소모한다. 창작 모드는 소모하지 않는다. */
     fun consume(player: Player, count: Int, predicate: (ItemStack) -> Boolean): Boolean {
         if (player.isCreative) return true

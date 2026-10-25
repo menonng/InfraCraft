@@ -45,6 +45,7 @@ open class TickedBlock(props: BlockBehaviour.Properties, val kind: String) : Blo
         const val SWITCH = "switch"
         const val CURRENT = "current"
         const val LIFT = "lift"
+        const val ELEVATOR = "elevator"
     }
 }
 

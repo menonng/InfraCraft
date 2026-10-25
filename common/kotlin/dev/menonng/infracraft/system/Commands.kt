@@ -20,6 +20,7 @@ object InfraCommands {
                 .then(Commands.literal("help").executes { help(it) })
                 .then(Commands.literal("stations").executes { stations(it) })
                 .then(Commands.literal("network").executes { network(it) })
+                .then(Commands.literal("guide").executes { guide(it) })
                 .then(
                     Commands.literal("route").then(
                         Commands.argument("from", StringArgumentType.string()).then(
@@ -31,7 +32,13 @@ object InfraCommands {
     }
 
     private fun help(ctx: CommandContext<CommandSourceStack>): Int {
-        for (k in listOf("help.stations", "help.route", "help.network")) Compat.sendSuccess(ctx.source, msg(k, Palette.SKY))
+        for (k in listOf("help.stations", "help.route", "help.network", "help.guide")) Compat.sendSuccess(ctx.source, msg(k, Palette.SKY))
+        return 1
+    }
+
+    private fun guide(ctx: CommandContext<CommandSourceStack>): Int {
+        Compat.sendSuccess(ctx.source, msg("guide.title", Palette.SKY))
+        for (i in 1..Subway.GUIDE_LINES) Compat.sendSuccess(ctx.source, msg("guide.$i", if (i % 2 == 0) Palette.YELLOW else Palette.PINK))
         return 1
     }
 

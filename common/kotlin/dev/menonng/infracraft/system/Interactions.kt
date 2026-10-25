@@ -20,6 +20,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.level.block.BaseRailBlock
 import net.minecraft.world.phys.BlockHitResult
 
 /** 아이템·블록·엔티티 우클릭을 각 시스템으로 보낸다. 모든 아이템은 바닐라 Item 이고 동작은 여기서 정해진다. */
@@ -38,6 +39,8 @@ object Interactions {
         val stack = player.getItemInHand(hand)
         return when {
             stack.`is`(ModItems.ROAD_PAVER) || stack.`is`(ModItems.TRACK_LAYER) -> handled(player) { Tools.toggle(it, stack) }
+            stack.`is`(ModItems.SUBWAY_SHIELD) -> handled(player) { Subway.shield(it, hand) }
+            stack.`is`(ModItems.STATION_BLUEPRINT) -> handled(player) { Subway.buildStation(it, hand) }
             stack.`is`(ModItems.TICKET) -> handled(player) { cycleTicket(it.level() as ServerLevel, it, stack) }
             stack.`is`(ModItems.WHISTLE) -> handled(player) {
                 if (it.isShiftKeyDown) {
@@ -75,12 +78,16 @@ object Interactions {
 
     fun useBlock(player: Player, hand: InteractionHand, hit: BlockHitResult): InteractionResult? {
         val level = player.level()
-        val pos = hit.blockPos
+        // 역 블록 위에 선로가 깔려 있으면 선로를 눌러도 역으로 다룬다
+        val clicked = hit.blockPos
+        val pos = if (BaseRailBlock.isRail(level.getBlockState(clicked)) && level.getBlockState(clicked.below()).`is`(ModBlocks.STATION)) clicked.below() else clicked
         val state = level.getBlockState(pos)
         val stack = player.getItemInHand(hand)
         val emptyMain = stack.isEmpty && hand == InteractionHand.MAIN_HAND
 
         if (stack.`is`(ModItems.TUNNEL_BORER)) return handled(player) { Tools.bore(it, hand, pos, hit.direction) }
+        if (stack.`is`(ModItems.SUBWAY_SHIELD)) return handled(player) { Subway.shield(it, hand) }
+        if (stack.`is`(ModItems.STATION_BLUEPRINT)) return handled(player) { Subway.buildStation(it, hand) }
         if (stack.`is`(ModItems.SURVEYOR)) return handled(player) { Tools.survey(it, stack, pos) }
 
         if (state.`is`(ModBlocks.STATION)) {
