@@ -104,6 +104,38 @@ object Network {
         }
     }
 
+    /** 이정표를 웅크리고 클릭: 노선망 요약과 모든 역(가까운 순) */
+    fun showNetwork(level: ServerLevel, pos: BlockPos, player: Player) {
+        val data = data(level.server)
+        Compat.chat(player, msg("network.summary", Palette.SKY, data.stations.size.toString(), data.edges.size.toString(),
+            fmt1(data.edges.sumOf { it.distance } / 1000.0)))
+        for ((mode, list) in data.edges.groupBy { it.mode }) {
+            Compat.chat(player, lit("  ", Palette.SKY).append(msg("mode.$mode", Palette.PINK)).append(lit(" × ${list.size}", Palette.YELLOW)))
+        }
+        val dim = Compat.dimensionId(level)
+        for (st in data.stations.values.sortedWith(compareBy<StationRec>({ it.dim != dim }, { it.pos.distSqr(pos) })).take(20)) {
+            val where = if (st.dim == dim) "${sqrt(st.pos.distSqr(pos)).toInt()}m" else st.dim.substringAfter(':')
+            Compat.chat(player, lit("  ${st.name}  ", Palette.YELLOW).append(lit(where, Palette.BLUE))
+                .append(lit("  ", Palette.BLUE)).append(msg("station.route_count", Palette.SKY, data.edgesOf(st.key).size.toString())))
+        }
+    }
+
+    /** 역에서 목적지가 있는 승차권을 쓰면: 가장 빠른 경로 */
+    fun showRoute(level: ServerLevel, player: Player, from: StationRec, destinationName: String) {
+        val data = data(level.server)
+        val to = data.stationByName(destinationName)
+        if (to == null) {
+            Compat.chat(player, msg("ticket.unknown", Palette.RED, destinationName)); return
+        }
+        val r = route(data, from.key, to.key)
+        if (r == null) {
+            Compat.chat(player, msg("express.no_route", Palette.RED, from.name, to.name)); return
+        }
+        Compat.chat(player, msg("route.header", Palette.SKY, from.name, to.name))
+        Compat.chat(player, describeRoute(r))
+        Compat.chat(player, msg("route.express_hint", Palette.PINK))
+    }
+
     private fun arrow(dx: Double, dz: Double): String {
         // 북쪽(-Z)을 위로 하는 8방위
         val deg = (Math.toDegrees(atan2(dx, -dz)) + 360.0) % 360.0

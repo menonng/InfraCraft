@@ -289,8 +289,4 @@ object Subway {
             Compat.syncVelocity(p)
         }
     }
-
-    // ───────────── 가이드 ─────────────
-
-    const val GUIDE_LINES = 10
 }

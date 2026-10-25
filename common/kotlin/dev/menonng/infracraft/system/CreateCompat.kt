@@ -100,6 +100,11 @@ object CreateCompat {
         return state.setValue(prop, v)
     }
 
+    private val stationBlock: Block? by lazy { if (loaded) Compat.blockById("create", "track_station") else null }
+
+    /** Create 기차역 블록인가(클라이언트에서도 같은 판단을 하도록 블록으로만 본다) */
+    fun isStationBlock(state: BlockState): Boolean = stationBlock?.let { state.block == it } ?: false
+
     // ───────────── 기차와 역 ─────────────
 
     private class TrainState {

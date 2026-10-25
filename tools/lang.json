@@ -192,8 +192,8 @@
   "en_us": "There are no stations in this dimension yet."
  },
  "infracraft.msg.signpost.header": {
-  "ko_kr": "가까운 역:",
-  "en_us": "Nearest stations:"
+  "ko_kr": "가까운 역(웅크리고 클릭하면 노선망 전체):",
+  "en_us": "Nearest stations (sneak-click for the whole network):"
  },
  "infracraft.msg.route.surveyed": {
   "ko_kr": "노선 측량: %1$s → %2$s  %3$sm · %4$s초",
@@ -220,8 +220,8 @@
   "en_us": "Destination: %1$s"
  },
  "infracraft.msg.ticket.blank": {
-  "ko_kr": "승차권에 목적지가 없어요. 허공에 우클릭해서 고르세요.",
-  "en_us": "This ticket has no destination. Right-click in the air to pick one."
+  "ko_kr": "승차권에 목적지가 없어요. 허공에 우클릭해서 고르거나 역에 우클릭하세요.",
+  "en_us": "This ticket has no destination. Right-click in the air to pick one, or click a station."
  },
  "infracraft.msg.express.no_route": {
   "ko_kr": "%1$s에서 %2$s까지 이어진 노선이 없어요.",
@@ -387,18 +387,6 @@
   "ko_kr": "겉날개는 이 세계에서 날지 못해요. 엔더 선로 핵으로 바뀌었어요.",
   "en_us": "Elytra cannot fly here; it became an Ender Rail Core."
  },
- "infracraft.msg.help.stations": {
-  "ko_kr": "/infra stations — 모든 역 목록",
-  "en_us": "/infra stations — list all stations"
- },
- "infracraft.msg.help.route": {
-  "ko_kr": "/infra route \"출발\" \"도착\" — 최단 노선 찾기",
-  "en_us": "/infra route \"from\" \"to\" — find the fastest route"
- },
- "infracraft.msg.help.network": {
-  "ko_kr": "/infra network — 노선망 요약",
-  "en_us": "/infra network — network summary"
- },
  "infracraft.msg.network.summary": {
   "ko_kr": "역 %1$s곳 · 노선 %2$s개 · 총 %3$skm",
   "en_us": "%1$s stations · %2$s routes · %3$skm total"
@@ -447,54 +435,6 @@
   "ko_kr": "지하 역사 '%1$s' 완성! 승강기 수직구 높이 %2$s칸. 이름표로 역 이름을 바꾸세요.",
   "en_us": "Underground station '%1$s' built! Elevator shaft: %2$s blocks. Rename it with a name tag."
  },
- "infracraft.msg.help.guide": {
-  "ko_kr": "/infra guide — 지하철 건설 가이드",
-  "en_us": "/infra guide — subway building guide"
- },
- "infracraft.msg.guide.title": {
-  "ko_kr": "━━ 지하철 건설 가이드 ━━",
-  "en_us": "━━ Subway Building Guide ━━"
- },
- "infracraft.msg.guide.1": {
-  "ko_kr": "① 준비: 실드 굴진기, 터널 라이닝(64개 이상), 선로, 터널 조명, 지하 역사 설계도",
-  "en_us": "1. Gather: shield machine, tunnel lining (64+), rails, tunnel lights, station blueprint"
- },
- "infracraft.msg.guide.2": {
-  "ko_kr": "② 측량: 지상에서 측량기로 두 역 사이 거리와 높이 차를 재요",
-  "en_us": "2. Survey: measure distance and height between stations with the surveyor"
- },
- "infracraft.msg.guide.3": {
-  "ko_kr": "③ 진입: 굴진기를 들고 아래(40° 이상)를 보며 쓰면 1:1 내리막 터널이 생겨요",
-  "en_us": "3. Descend: look down (40°+) while using the shield to bore a 1:1 ramp"
- },
- "infracraft.msg.guide.4": {
-  "ko_kr": "④ 굴진: 정면을 보고 쓸 때마다 5×4 단면이 뚫리고 라이닝·트랙(Create 트랙 우선)·조명이 깔려요",
-  "en_us": "4. Bore: each use cuts a 5×4 slice with lining, track (Create track first) and lights"
- },
- "infracraft.msg.guide.5": {
-  "ko_kr": "⑤ 전원: 고속·특급 선로 아래 라이닝 몇 칸을 레드스톤 블록으로 바꾸면 늘 전원이 들어와요",
-  "en_us": "5. Power: swap some lining under fast rails for redstone blocks"
- },
- "infracraft.msg.guide.6": {
-  "ko_kr": "⑥ 역사: 트랙 위에 서서 노선 방향을 보고 설계도를 쓰면 승강장·승강기가 생겨요. Create 트랙이면 Create 기차역을 놓아요",
-  "en_us": "6. Station: stand on the track facing along the line and use the blueprint; with Create track, add a Create train station"
- },
- "infracraft.msg.guide.7": {
-  "ko_kr": "⑦ 승강기: 승강기 위에 서면 지상까지 올라가고, 웅크리면 내려와요",
-  "en_us": "7. Elevator: stand on it to rise to the surface; sneak to go down"
- },
- "infracraft.msg.guide.8": {
-  "ko_kr": "⑧ 개통: Create 기차가 역 사이를 한 번 달리면 노선이 자동으로 측량돼요(바닐라 카트도 같아요)",
-  "en_us": "8. Open: once a Create train runs between stations the route is surveyed automatically (vanilla carts too)"
- },
- "infracraft.msg.guide.9": {
-  "ko_kr": "⑨ 운행: 기차는 Create 시간표로, /infra route 로 경로 확인, 역에서 웅크려 승차권을 쓰면 급행",
-  "en_us": "9. Run: schedule trains with Create, check /infra route, sneak-use a ticket at a station for express"
- },
- "infracraft.msg.guide.10": {
-  "ko_kr": "⑩ 안내서: 책 + 레일로 이 가이드를 책으로 만들 수 있어요",
-  "en_us": "10. Craft a book + rail to get this guide as a book"
- },
  "infracraft.book.subway.1": {
   "ko_kr": "━ 지하철 건설 안내서 ━\n\n지상 대신 땅속으로!\n이 키트는 터널과 역사를\n짓고, 기차는 Create\n(Create Fly)와 그\n애드온으로 달려요.\n\n다음 장부터 순서대로\n따라 하세요.",
   "en_us": "━ Subway Handbook ━\n\nGo underground!\nThis kit builds tunnels\nand stations; trains\ncome from Create\n(Create Fly) and its\naddons.\n\nFollow the next pages."
@@ -520,12 +460,12 @@
   "en_us": "5. Stations\n\nStand on the track facing\nalong the line and use\nthe blueprint: platforms,\nlights and an elevator to\nthe surface. With Create\ntrack, add a Create\ntrain station."
  },
  "infracraft.book.subway.7": {
-  "ko_kr": "6. 기차 운행\n\n기차는 Create 기차역과\n시간표로 운행해요. 기차가\n역 사이를 달리면 노선이\n자동 측량되어 /infra\nroute, 이정표, 급행에\n쓰여요.",
-  "en_us": "6. Running trains\n\nTrains use Create\nstations and schedules.\nEach run between two\nstations is surveyed for\n/infra route, signposts\nand express travel."
+  "ko_kr": "6. 기차 운행\n\n기차는 Create 기차역과\n시간표로 운행해요. 기차가\n역 사이를 달리면 노선이\n자동 측량되어 경로 안내,\n이정표, 급행에\n쓰여요.",
+  "en_us": "6. Running trains\n\nTrains use Create\nstations and schedules.\nEach run between two\nstations is surveyed for\nroute hints, signposts\nand express travel."
  },
  "infracraft.book.subway.8": {
-  "ko_kr": "7. 더 알아보기\n\n/infra guide\n/infra stations\n/infra route \"A\" \"B\"\n/infra network\n\n좋은 여행 되세요!",
-  "en_us": "7. More\n\n/infra guide\n/infra stations\n/infra route \"A\" \"B\"\n/infra network\n\nHave a good trip!"
+  "ko_kr": "7. 역과 이정표\n\n· 이정표 클릭: 가까운 역\n· 웅크리고 클릭: 노선망\n· 승차권으로 역 클릭:\n  목적지까지 경로\n· 웅크리고 승차권: 급행\n  (Create 기차역도 돼요)\n\n좋은 여행 되세요!",
+  "en_us": "7. Stations & signs\n\n· Click a signpost: nearby\n  stations\n· Sneak-click: network\n· Ticket on a station:\n  route to destination\n· Sneak + ticket: express\n  (Create stations too)\n\nHave a good trip!"
  },
  "infracraft.msg.mode.create_train": {
   "ko_kr": "Create 기차",
@@ -535,12 +475,16 @@
   "ko_kr": "지하 역사 완성(Create 트랙)! 승강기 수직구 높이 %1$s칸. 승강장 옆 트랙에 Create 기차역을 놓고 이름을 지으세요.",
   "en_us": "Underground station built with Create track! Elevator shaft: %1$s blocks. Place a Create train station on the track and name it."
  },
- "infracraft.msg.express.not_at_station": {
-  "ko_kr": "역(역 블록이나 Create 기차역) 8블록 안에서 쓸 수 있어요.",
-  "en_us": "Use this within 8 blocks of a station (station block or Create train station)."
+ "infracraft.msg.route.header": {
+  "ko_kr": "%1$s → %2$s 가장 빠른 경로:",
+  "en_us": "Fastest route %1$s → %2$s:"
  },
- "infracraft.msg.help.express": {
-  "ko_kr": "/infra express 도착역 — 지금 있는 역에서 급행 타기",
-  "en_us": "/infra express <station> — ride express from the station you are at"
+ "infracraft.msg.route.express_hint": {
+  "ko_kr": "웅크리고 같은 승차권을 쓰면 급행으로 갈 수 있어요.",
+  "en_us": "Sneak-use the same ticket to ride express."
+ },
+ "infracraft.msg.create.station_pending": {
+  "ko_kr": "이 Create 기차역은 아직 노선망에 등록되지 않았어요. 잠시 후 다시 해 보세요.",
+  "en_us": "This Create station has not joined the network yet. Try again in a moment."
  }
 }

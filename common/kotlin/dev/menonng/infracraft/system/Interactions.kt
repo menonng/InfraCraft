@@ -86,19 +86,21 @@ object Interactions {
         if (stack.`is`(ModItems.STATION_BLUEPRINT)) return handled(player) { Subway.buildStation(it, hand) }
         if (stack.`is`(ModItems.SURVEYOR)) return handled(player) { Tools.survey(it, stack, pos) }
 
+        // Create 기차역: 빈손 클릭은 Create 역 화면에 맡기고, 승차권일 때만 가로챈다
+        if (stack.`is`(ModItems.TICKET) && CreateCompat.isStationBlock(state)) {
+            return handled(player) {
+                val sl = it.level() as ServerLevel
+                val st = Network.data(sl.server).station(NetworkData.key(Compat.dimensionId(sl), pos))
+                if (st == null) Compat.overlay(it, msg("create.station_pending", Palette.ORANGE))
+                else useTicketAt(sl, it, stack, st)
+            }
+        }
         if (state.`is`(ModBlocks.STATION)) {
             return when {
-                stack.`is`(ModItems.TICKET) && player.isShiftKeyDown -> handled(player) {
+                stack.`is`(ModItems.TICKET) -> handled(player) {
                     val sl = it.level() as ServerLevel
                     val st = Network.stationAt(sl, pos) ?: return@handled
-                    val dest = stack.get(ModComponents.DESTINATION)
-                    if (dest == null) Compat.overlay(it, msg("ticket.blank", Palette.ORANGE))
-                    else Network.startExpress(sl, it, st, dest)
-                }
-                stack.`is`(ModItems.TICKET) -> handled(player) {
-                    val st = Network.stationAt(it.level() as ServerLevel, pos) ?: return@handled
-                    stack.set(ModComponents.DESTINATION, st.name)
-                    Compat.overlay(it, msg("ticket.set", Palette.GREEN, st.name))
+                    useTicketAt(sl, it, stack, st)
                 }
                 stack.`is`(Items.NAME_TAG) && Compat.customName(stack) != null -> handled(player) {
                     Network.rename(it.level() as ServerLevel, pos, Compat.customName(stack)!!, it)
@@ -130,11 +132,34 @@ object Interactions {
             }
             return null
         }
-        if (emptyMain && state.`is`(ModBlocks.SIGNPOST)) return handled(player) { Network.showSignpost(it.level() as ServerLevel, pos, it) }
+        if (emptyMain && state.`is`(ModBlocks.SIGNPOST)) return handled(player) {
+            if (it.isShiftKeyDown) Network.showNetwork(it.level() as ServerLevel, pos, it)
+            else Network.showSignpost(it.level() as ServerLevel, pos, it)
+        }
         if (state.`is`(ModBlocks.STABLE) && hand == InteractionHand.MAIN_HAND && (stack.isEmpty || player.vehicle is HorseEntity)) {
             return handled(player) { Horses.useStable(it.level() as ServerLevel, pos, it) }
         }
         return null
+    }
+
+    /**
+     * 역에서 승차권 사용:
+     *  - 웅크리고: 승차권 목적지로 급행
+     *  - 그냥: 목적지가 있으면 이 역에서 가는 경로를 보여 주고, 비어 있거나 이 역이면 이 역을 목적지로 정한다
+     */
+    private fun useTicketAt(level: ServerLevel, player: ServerPlayer, stack: ItemStack, st: StationRec) {
+        val dest = stack.get(ModComponents.DESTINATION)
+        if (player.isShiftKeyDown) {
+            if (dest == null) Compat.overlay(player, msg("ticket.blank", Palette.ORANGE))
+            else Network.startExpress(level, player, st, dest)
+            return
+        }
+        if (dest == null || dest.equals(st.name, ignoreCase = true)) {
+            stack.set(ModComponents.DESTINATION, st.name)
+            Compat.overlay(player, msg("ticket.set", Palette.GREEN, st.name))
+            return
+        }
+        Network.showRoute(level, player, st, dest)
     }
 
     // ───────────── 엔티티에 사용 ─────────────

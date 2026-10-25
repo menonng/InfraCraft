@@ -13,7 +13,6 @@ import dev.menonng.infracraft.content.ModStats
 import dev.menonng.infracraft.content.ModEnchantments
 import dev.menonng.infracraft.content.ModTags
 import dev.menonng.infracraft.system.Enchants
-import dev.menonng.infracraft.system.InfraCommands
 import dev.menonng.infracraft.system.CreateCompat
 import dev.menonng.infracraft.system.ElytraBan
 import dev.menonng.infracraft.system.Interactions
@@ -24,7 +23,6 @@ import dev.menonng.infracraft.system.RoadSystem
 import dev.menonng.infracraft.system.Tools
 import dev.menonng.infracraft.system.Water
 import net.fabricmc.api.ModInitializer
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.entity.event.v1.EntityElytraEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
@@ -80,8 +78,6 @@ object InfraCraft : ModInitializer {
         }
         Compat.onLevelTick { level -> tickLevel(level) }
         Compat.onPlayerChangedLevel { player, origin, destination -> Network.onChangedLevel(player, origin, destination) }
-
-        CommandRegistrationCallback.EVENT.register { dispatcher, _, _ -> InfraCommands.register(dispatcher) }
 
         ServerLifecycleEvents.SERVER_STARTED.register { server ->
             val overworld = server.overworld()
