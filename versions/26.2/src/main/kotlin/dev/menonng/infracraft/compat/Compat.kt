@@ -75,7 +75,7 @@ object Compat : CompatApi {
     }
 
     override fun syncVelocity(entity: Entity) {
-        entity.syncVelocity = true
+        entity.hurtMarked = true
     }
 
     override fun dropItem(player: Player, stack: ItemStack) {
