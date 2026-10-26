@@ -1,0 +1,56 @@
+# 개발용: Modrinth 에 배포된 jar 에서 영어 원문(en_us.json)을 꺼내 lang-sources 브랜치에 올린다(번역 작업용).
+name: lang-fetch
+on:
+  workflow_dispatch:
+    inputs:
+      projects:
+        description: "modrinth-slug[@game-version];..."
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: fetch
+        env:
+          PROJECTS: ${{ inputs.projects }}
+        run: |
+          mkdir -p /tmp/out
+          python3 - <<'PY'
+          import io, json, os, urllib.parse, urllib.request, zipfile
+          API = "https://api.modrinth.com/v2"
+          H = {"User-Agent": "menonng/InfraCraft lang-fetch"}
+          def get(u):
+              with urllib.request.urlopen(urllib.request.Request(u, headers=H), timeout=60) as r:
+                  return r.read()
+          for ref in os.environ["PROJECTS"].split(";"):
+              slug, _, game = ref.strip().partition("@")
+              if not slug:
+                  continue
+              q = f"{API}/project/{slug}/version"
+              if game:
+                  q += "?game_versions=" + urllib.parse.quote(json.dumps([game]))
+              v = json.loads(get(q))[0]
+              f = next((x for x in v["files"] if x.get("primary")), v["files"][0])
+              jar = zipfile.ZipFile(io.BytesIO(get(f["url"])))
+              for n in jar.namelist():
+                  if n.endswith("/lang/en_us.json") or n.endswith("/lang/ko_kr.json"):
+                      dest = f"/tmp/out/{slug}/{n}"
+                      os.makedirs(os.path.dirname(dest), exist_ok=True)
+                      open(dest, "wb").write(jar.read(n))
+              open(f"/tmp/out/{slug}/VERSION.txt", "w").write(v["version_number"] + "\n")
+              print(slug, v["version_number"])
+          PY
+      - name: push to lang-sources
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git fetch origin lang-sources || true
+          git checkout --orphan lang-sources-new
+          git rm -rfq . && rm -rf ./*
+          cp -r /tmp/out/* .
+          git add -A && git commit -qm "Fetched lang sources" && git push -f origin HEAD:lang-sources
