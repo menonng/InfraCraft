@@ -88,12 +88,24 @@ InfraCraft 는 차량과 기계를 직접 만들지 않고 Create 생태계와 �
 | 🟠 | 70% 미만 |
 | ❌ | 한국어 없음 |
 
+### InfraCraft 가 함께 넣어 주는 한국어 번역 🇰🇷
+아래 모드는 한국어가 없어서 **InfraCraft 안에 한국어 번역을 넣었어요.** 해당 모드를 함께 설치하면 따로 할 일 없이 한국어로 보여요.
+Create 공식 한국어의 용어(블레이즈 버너, 기계 팔, 택배, 깎인 안산암 벽돌 반 블록 …)와 바닐라 용어(마법부여, 모루, 피뢰침 …), 합니다체를 따랐어요.
+
+| 모드 | 번역 | 주요 용어 |
+|---|---|---|
+| Enchantment Industry | 336/336 (Fly 포트 기준) | 블레이즈 마법부여기, 블레이즈 단조기, 액체 경험치, 초월 마법부여, 마법부여 견본, 기계식 숫돌, 인쇄기 |
+| Dragons Plus | 103/103 (Fly 포트 기준) | 유체 해치, 액체 염료, 염색·냉동·연마·엔드화(선풍기 가공) |
+| Create Deco | 411/411 (2.1.3 기준) | 캣워크, 판금, 기차 외판, 보호망 등, 화물 컨테이너, 데칼, 금 간/이끼 낀 벽돌 |
+
+번역 원본과 생성 스크립트는 `tools/translations/` 에 있어요(`python3 tools/translations/build.py`). 모드가 업데이트되어 문구가 바뀌면 원문을 갱신하고 다시 생성하면 돼요. 이 번역은 아직 게임 안에서 직접 훑어보지 않았으니, 어색한 곳이 있으면 알려 주세요.
+
 ### 한국어가 없는 모드 ❌
 | 모드 | 영어 키 수 | 확인한 대상 |
 |---|---|---|
-| Enchantment Industry | 599 | 원작 jar(1.20.1), Fly 포트 저장소 |
-| Dragons Plus | 338 | 원작 jar(1.20.1), Fly 포트 저장소 |
-| Create Deco | 411 | 원작 jar(1.21.1) |
+| ~~Enchantment Industry~~ → InfraCraft 번역 포함 | 599 | 원작 jar(1.20.1), Fly 포트 저장소 |
+| ~~Dragons Plus~~ → InfraCraft 번역 포함 | 338 | 원작 jar(1.20.1), Fly 포트 저장소 |
+| ~~Create Deco~~ → InfraCraft 번역 포함 | 411 | 원작 jar(1.21.1) |
 | Bits 'n' Bobs | 244 | 원작 jar(1.21.1), Fly 포트 저장소 |
 | Electro Energetics | 520 | 원작 jar(1.21.1), Fly 포트 저장소 |
 | Central Kitchen | 63 | 원작 jar(1.21.1), Fly 포트 저장소 |

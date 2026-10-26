@@ -152,11 +152,11 @@
   "en_us": "Horses Called"
  },
  "infracraft.msg.station.name_taken": {
-  "ko_kr": "'%1$s' 이름의 역이 이미 있어요.",
+  "ko_kr": "'%1$s' 이름의 역이 이미 있습니다.",
   "en_us": "A station named '%1$s' already exists."
  },
  "infracraft.msg.station.renamed": {
-  "ko_kr": "역 이름을 '%1$s'에서 '%2$s'(으)로 바꿨어요.",
+  "ko_kr": "역 이름을 '%1$s'에서 '%2$s'(으)로 바꿨습니다.",
   "en_us": "Renamed station '%1$s' to '%2$s'."
  },
  "infracraft.msg.station.info": {
@@ -164,7 +164,7 @@
   "en_us": "[Station] %1$s  (%2$s)"
  },
  "infracraft.msg.station.no_routes": {
-  "ko_kr": "아직 측량된 노선이 없어요. 탈것으로 다른 역까지 한 번 달려 보세요.",
+  "ko_kr": "아직 측량된 노선이 없습니다. 탈것으로 다른 역까지 한 번 달려 보세요.",
   "en_us": "No surveyed routes yet. Ride a vehicle to another station once."
  },
  "infracraft.msg.station.route_count": {
@@ -188,7 +188,7 @@
   "en_us": "road"
  },
  "infracraft.msg.signpost.none": {
-  "ko_kr": "이 차원에는 아직 역이 없어요.",
+  "ko_kr": "이 차원에는 아직 역이 없습니다.",
   "en_us": "There are no stations in this dimension yet."
  },
  "infracraft.msg.signpost.header": {
@@ -204,15 +204,15 @@
   "en_us": "Portal route linked: %1$s ↔ %2$s"
  },
  "infracraft.msg.ticket.unknown": {
-  "ko_kr": "'%1$s' 역을 찾을 수 없어요.",
+  "ko_kr": "'%1$s' 역을 찾을 수 없습니다.",
   "en_us": "No station named '%1$s'."
  },
  "infracraft.msg.ticket.cleared": {
-  "ko_kr": "승차권을 비웠어요.",
+  "ko_kr": "승차권을 비웠습니다.",
   "en_us": "Ticket cleared."
  },
  "infracraft.msg.ticket.no_stations": {
-  "ko_kr": "등록된 역이 없어요.",
+  "ko_kr": "등록된 역이 없습니다.",
   "en_us": "No stations registered."
  },
  "infracraft.msg.ticket.set": {
@@ -220,11 +220,11 @@
   "en_us": "Destination: %1$s"
  },
  "infracraft.msg.ticket.blank": {
-  "ko_kr": "승차권에 목적지가 없어요. 허공에 우클릭해서 고르거나 역에 우클릭하세요.",
+  "ko_kr": "승차권에 목적지가 없습니다. 허공에 우클릭해 고르거나 역을 우클릭하세요.",
   "en_us": "This ticket has no destination. Right-click in the air to pick one, or click a station."
  },
  "infracraft.msg.express.no_route": {
-  "ko_kr": "%1$s에서 %2$s까지 이어진 노선이 없어요.",
+  "ko_kr": "%1$s에서 %2$s까지 이어진 노선이 없습니다.",
   "en_us": "No connected route from %1$s to %2$s."
  },
  "infracraft.msg.express.start": {
@@ -232,7 +232,7 @@
   "en_us": "Express departing! %2$ss to %1$s. Stay where you are."
  },
  "infracraft.msg.express.cancelled": {
-  "ko_kr": "자리를 벗어나서 급행이 취소됐어요.",
+  "ko_kr": "자리를 벗어나 급행이 취소되었습니다.",
   "en_us": "You left the platform; express cancelled."
  },
  "infracraft.msg.express.riding": {
@@ -240,15 +240,15 @@
   "en_us": "Express → %1$s  (%2$ss)"
  },
  "infracraft.msg.express.station_gone": {
-  "ko_kr": "도착역 %1$s이(가) 사라져서 급행이 멈췄어요.",
+  "ko_kr": "도착역 %1$s이(가) 사라져 급행이 멈췄습니다.",
   "en_us": "Destination %1$s no longer exists; express stopped."
  },
  "infracraft.msg.express.arrived": {
-  "ko_kr": "%1$s에 도착했어요.",
+  "ko_kr": "%1$s에 도착했습니다.",
   "en_us": "Arrived at %1$s."
  },
  "infracraft.msg.rail.need_fuel": {
-  "ko_kr": "블레이즈 선로를 달리려면 블레이즈 가루가 필요해요.",
+  "ko_kr": "블레이즈 선로를 달리려면 블레이즈 가루가 필요합니다.",
   "en_us": "Blaze rails need blaze powder."
  },
  "infracraft.msg.rail.arrived": {
@@ -272,7 +272,7 @@
   "en_us": "Hold the block to lay in your off hand."
  },
  "infracraft.msg.layer.need_rails": {
-  "ko_kr": "선로가 없어요. 왼손이나 인벤토리에 선로를 넣어 주세요.",
+  "ko_kr": "선로가 없습니다. 왼손이나 인벤토리에 선로를 넣어 주세요.",
   "en_us": "Out of rails. Keep rails in your off hand or inventory."
  },
  "infracraft.msg.surveyor.point_a": {
@@ -284,19 +284,19 @@
   "en_us": "Horizontal %1$sm · rise %2$sm · grade %3$s%% · ~%4$s blocks for a 3-wide bridge"
  },
  "infracraft.msg.surveyor.hint": {
-  "ko_kr": "웅크리고 두 번째 지점을 찍으면 왼손 블록으로 교량을 놓아요.",
+  "ko_kr": "웅크리고 두 번째 지점을 찍으면 왼손의 블록으로 교량을 놓습니다.",
   "en_us": "Sneak while picking the second point to build a bridge with your off-hand block."
  },
  "infracraft.msg.surveyor.cleared": {
-  "ko_kr": "측량 지점을 지웠어요.",
+  "ko_kr": "측량 지점을 지웠습니다.",
   "en_us": "Survey point cleared."
  },
  "infracraft.msg.bridge.too_long": {
-  "ko_kr": "교량은 %1$s칸까지만 놓을 수 있어요.",
+  "ko_kr": "교량은 %1$s칸까지만 놓을 수 있습니다.",
   "en_us": "Bridges are limited to %1$s blocks."
  },
  "infracraft.msg.bridge.out_of_material": {
-  "ko_kr": "재료가 떨어졌어요. %1$s칸 놓았어요.",
+  "ko_kr": "재료가 떨어졌습니다. %1$s칸 놓았습니다.",
   "en_us": "Out of material after %1$s blocks."
  },
  "infracraft.msg.bridge.done": {
@@ -304,31 +304,31 @@
   "en_us": "Bridge built: %1$s blocks"
  },
  "infracraft.msg.whistle.untamed": {
-  "ko_kr": "길들인 말에만 호루라기를 묶을 수 있어요.",
+  "ko_kr": "길들인 말에만 호루라기를 묶을 수 있습니다.",
   "en_us": "Only tamed horses can be bound."
  },
  "infracraft.msg.whistle.bound": {
-  "ko_kr": "%1$s에게 호루라기를 묶었어요.",
+  "ko_kr": "%1$s에게 호루라기를 묶었습니다.",
   "en_us": "Whistle bound to %1$s."
  },
  "infracraft.msg.whistle.unbound": {
-  "ko_kr": "묶인 말이 없어요. 말에게 호루라기를 우클릭하세요.",
+  "ko_kr": "묶인 말이 없습니다. 말에게 호루라기를 우클릭하세요.",
   "en_us": "No horse bound. Right-click a horse with the whistle."
  },
  "infracraft.msg.whistle.too_far": {
-  "ko_kr": "말이 너무 멀리 있거나 불러올 수 없어요.",
+  "ko_kr": "말이 너무 멀리 있거나 불러올 수 없습니다.",
   "en_us": "Your horse is too far away or not loaded."
  },
  "infracraft.msg.whistle.called": {
-  "ko_kr": "%1$s이(가) 달려와요! (%2$sm)",
+  "ko_kr": "%1$s이(가) 달려옵니다! (%2$sm)",
   "en_us": "%1$s is coming! (%2$sm)"
  },
  "infracraft.msg.horseshoe.already": {
-  "ko_kr": "이미 같거나 더 좋은 편자를 신고 있어요.",
+  "ko_kr": "이미 같거나 더 좋은 편자를 신고 있습니다.",
   "en_us": "Already wearing an equal or better horseshoe."
  },
  "infracraft.msg.horseshoe.fitted": {
-  "ko_kr": "%1$s에게 편자를 박았어요.",
+  "ko_kr": "%1$s에게 편자를 박았습니다.",
   "en_us": "Fitted a horseshoe to %1$s."
  },
  "infracraft.msg.horseshoe.tier0": {
@@ -348,19 +348,19 @@
   "en_us": "%1$s: speed %2$s b/s · jump %3$s blocks · health %4$s · shoes %5$s"
  },
  "infracraft.msg.stable.occupied": {
-  "ko_kr": "이 마구간에는 이미 말이 있어요.",
+  "ko_kr": "이 마구간에는 이미 말이 있습니다.",
   "en_us": "This stable is already occupied."
  },
  "infracraft.msg.stable.stored": {
-  "ko_kr": "%1$s을(를) 마구간에 넣었어요.",
+  "ko_kr": "%1$s을(를) 마구간에 넣었습니다.",
   "en_us": "%1$s is resting in the stable."
  },
  "infracraft.msg.stable.empty": {
-  "ko_kr": "마구간이 비어 있어요. 말을 탄 채로 우클릭하면 맡길 수 있어요.",
+  "ko_kr": "마구간이 비어 있습니다. 말을 탄 채로 우클릭하면 맡길 수 있습니다.",
   "en_us": "The stable is empty. Right-click while riding to stable your horse."
  },
  "infracraft.msg.stable.released": {
-  "ko_kr": "%1$s을(를) 꺼냈어요.",
+  "ko_kr": "%1$s을(를) 꺼냈습니다.",
   "en_us": "%1$s left the stable."
  },
  "infracraft.msg.switch.removed": {
@@ -372,7 +372,7 @@
   "en_us": "Carts bound for %1$s will be diverted."
  },
  "infracraft.msg.switch.empty": {
-  "ko_kr": "분기 목적지가 없어요. 승차권으로 우클릭해 추가하세요.",
+  "ko_kr": "분기 목적지가 없습니다. 승차권으로 우클릭해 추가하세요.",
   "en_us": "No divert destinations. Right-click with a ticket to add one."
  },
  "infracraft.msg.switch.list": {
@@ -384,7 +384,7 @@
   "en_us": "This cart is bound for %1$s"
  },
  "infracraft.msg.elytra.converted": {
-  "ko_kr": "겉날개는 이 세계에서 날지 못해요. 엔더 선로 핵으로 바뀌었어요.",
+  "ko_kr": "이 세계에서는 겉날개로 날 수 없습니다. 엔더 선로 핵으로 바뀌었습니다.",
   "en_us": "Elytra cannot fly here; it became an Ender Rail Core."
  },
  "infracraft.msg.network.summary": {
@@ -420,15 +420,15 @@
   "en_us": "Needs %1$s tunnel lining (you have %2$s)."
  },
  "infracraft.msg.subway.ahead_done": {
-  "ko_kr": "앞쪽 4칸은 이미 뚫려 있어요. 앞으로 걸어가세요.",
+  "ko_kr": "앞쪽 4칸은 이미 뚫려 있습니다. 앞으로 걸어가세요.",
   "en_us": "The next 4 blocks are already bored. Walk forward."
  },
  "infracraft.msg.subway.no_rails": {
-  "ko_kr": "선로가 없어서 바닥에 선로를 깔지 못했어요.",
+  "ko_kr": "트랙이 없어 바닥에 트랙을 깔지 못했습니다.",
   "en_us": "No rails in your inventory; the floor rail was skipped."
  },
  "infracraft.msg.station_hall.need_lining": {
-  "ko_kr": "역사를 지으려면 터널 라이닝 %1$s개가 필요해요.",
+  "ko_kr": "역사를 지으려면 터널 라이닝 %1$s개가 필요합니다.",
   "en_us": "Building the station needs %1$s tunnel lining."
  },
  "infracraft.msg.station_hall.built": {
@@ -436,7 +436,7 @@
   "en_us": "Underground station '%1$s' built! Elevator shaft: %2$s blocks. Rename it with a name tag."
  },
  "infracraft.book.subway.1": {
-  "ko_kr": "━ 지하철 건설 안내서 ━\n\n지상 대신 땅속으로!\n이 키트는 터널과 역사를\n짓고, 기차는 Create\n(Create Fly)와 그\n애드온으로 달려요.\n\n다음 장부터 순서대로\n따라 하세요.",
+  "ko_kr": "━ 지하철 건설 안내서 ━\n\n지상 대신 땅속으로!\n이 키트는 터널과 역사를\n짓고, 기차는 Create\n(Create Fly)와 그\n애드온으로 달립니다.\n\n다음 장부터 순서대로\n따라 하세요.",
   "en_us": "━ Subway Handbook ━\n\nGo underground!\nThis kit builds tunnels\nand stations; trains\ncome from Create\n(Create Fly) and its\naddons.\n\nFollow the next pages."
  },
  "infracraft.book.subway.2": {
@@ -444,27 +444,27 @@
   "en_us": "1. Supplies\n\n· Subway shield machine\n· Tunnel lining 64+\n  (8 stone + clay → 16)\n· Create track\n  (or vanilla rails)\n· Tunnel lights\n· Station blueprint"
  },
  "infracraft.book.subway.3": {
-  "ko_kr": "2. 노선 계획\n\n측량기로 두 역 자리를\n찍으면 거리와 높이 차가\n나와요. Create 트랙은\n완만한 곡선이 좋으니\n직선 구간을 길게\n잡으세요.",
+  "ko_kr": "2. 노선 계획\n\n측량기로 두 역 자리를\n찍으면 거리와 높이 차가\n나옵니다. Create 트랙은\n완만한 곡선이 좋으니\n직선 구간을 길게\n잡으세요.",
   "en_us": "2. Planning\n\nClick both station sites\nwith the surveyor to get\ndistance and height.\nCreate track likes gentle\ncurves, so plan long\nstraight runs."
  },
  "infracraft.book.subway.4": {
-  "ko_kr": "3. 굴진\n\n실드 굴진기를 정면으로\n쓰면 5×4 터널이 뚫리고\n라이닝, 트랙, 조명(8칸\n마다)이 깔려요. 아래·위를\n보면 경사 터널이에요.\nCreate 트랙이 있으면\n먼저 써요.",
+  "ko_kr": "3. 굴진\n\n실드 굴진기를 정면으로\n쓰면 5×4 터널이 뚫리고\n라이닝, 트랙, 조명(8칸\n마다)이 깔립니다. 아래나\n위를 보면 경사 터널이\n됩니다. Create 트랙이\n있으면 먼저 씁니다.",
   "en_us": "3. Boring\n\nUse the shield facing\nforward: a 5×4 slice\nwith lining, track and a\nlight every 8 blocks.\nLook down/up for a ramp.\nCreate track is used\nfirst when you carry it."
  },
  "infracraft.book.subway.5": {
-  "ko_kr": "4. 물과 용암\n\n라이닝을 먼저 깔고\n안쪽을 비우기 때문에\n지하수와 용암이 터널로\n새지 않아요. 기반암과\n상자 같은 블록은\n그대로 남겨요.",
+  "ko_kr": "4. 물과 용암\n\n라이닝을 먼저 깔고\n안쪽을 비우기 때문에\n지하수와 용암이 터널로\n새지 않습니다. 기반암과\n상자 같은 블록은\n그대로 남깁니다.",
   "en_us": "4. Water & lava\n\nLining is placed before\nthe slice is cleared, so\naquifers and lava stay\nout. Bedrock and block\nentities are left alone."
  },
  "infracraft.book.subway.6": {
-  "ko_kr": "5. 역사 짓기\n\n트랙 위에 서서 노선\n방향을 보고 설계도를\n쓰면 승강장, 조명,\n지상까지의 승강기가\n생겨요. Create 트랙이면\n트랙에 Create 기차역을\n놓으세요.",
+  "ko_kr": "5. 역사 짓기\n\n트랙 위에 서서 노선\n방향을 보고 설계도를\n쓰면 승강장, 조명,\n지상까지의 승강기가\n생깁니다. Create 트랙\n이면 트랙에 Create\n기차역을 놓으세요.",
   "en_us": "5. Stations\n\nStand on the track facing\nalong the line and use\nthe blueprint: platforms,\nlights and an elevator to\nthe surface. With Create\ntrack, add a Create\ntrain station."
  },
  "infracraft.book.subway.7": {
-  "ko_kr": "6. 기차 운행\n\n기차는 Create 기차역과\n시간표로 운행해요. 기차가\n역 사이를 달리면 노선이\n자동 측량되어 경로 안내,\n이정표, 급행에\n쓰여요.",
+  "ko_kr": "6. 기차 운행\n\n기차는 Create 기차역과\n기차 계획표로 달립니다.\n기차가 역 사이를 달리면\n노선이 자동 측량되어\n경로 안내, 이정표,\n급행에 쓰입니다.",
   "en_us": "6. Running trains\n\nTrains use Create\nstations and schedules.\nEach run between two\nstations is surveyed for\nroute hints, signposts\nand express travel."
  },
  "infracraft.book.subway.8": {
-  "ko_kr": "7. 역과 이정표\n\n· 이정표 클릭: 가까운 역\n· 웅크리고 클릭: 노선망\n· 승차권으로 역 클릭:\n  목적지까지 경로\n· 웅크리고 승차권: 급행\n  (Create 기차역도 돼요)\n\n좋은 여행 되세요!",
+  "ko_kr": "7. 역과 이정표\n\n· 이정표 클릭: 가까운 역\n· 웅크리고 클릭: 노선망\n· 승차권으로 역 클릭:\n  목적지까지 경로\n· 웅크리고 승차권: 급행\n  (Create 기차역도 가능)\n\n좋은 여행 되세요!",
   "en_us": "7. Stations & signs\n\n· Click a signpost: nearby\n  stations\n· Sneak-click: network\n· Ticket on a station:\n  route to destination\n· Sneak + ticket: express\n  (Create stations too)\n\nHave a good trip!"
  },
  "infracraft.msg.mode.create_train": {
@@ -480,11 +480,11 @@
   "en_us": "Fastest route %1$s → %2$s:"
  },
  "infracraft.msg.route.express_hint": {
-  "ko_kr": "웅크리고 같은 승차권을 쓰면 급행으로 갈 수 있어요.",
+  "ko_kr": "웅크리고 같은 승차권을 쓰면 급행으로 갈 수 있습니다.",
   "en_us": "Sneak-use the same ticket to ride express."
  },
  "infracraft.msg.create.station_pending": {
-  "ko_kr": "이 Create 기차역은 아직 노선망에 등록되지 않았어요. 잠시 후 다시 해 보세요.",
+  "ko_kr": "이 Create 기차역은 아직 노선망에 등록되지 않았습니다. 잠시 후 다시 시도하세요.",
   "en_us": "This Create station has not joined the network yet. Try again in a moment."
  }
 }
