@@ -6,6 +6,8 @@
 import io
 import json
 import os
+import urllib.error
+import urllib.parse
 import urllib.request
 import zipfile
 
@@ -21,10 +23,18 @@ def get(url):
 def probe(label, ref):
     slug, _, game = ref.partition("@")
     try:
-        project = json.loads(get(f"{API}/project/{slug}"))
+        try:
+            project = json.loads(get(f"{API}/project/{slug}"))
+        except urllib.error.HTTPError:
+            # slug 를 모르면 검색 결과 첫 번째를 쓴다
+            hits = json.loads(get(f"{API}/search?limit=1&query=" + urllib.parse.quote(slug.replace("-", " "))))["hits"]
+            if not hits:
+                return f"{label} | {slug} | 프로젝트를 찾지 못함"
+            slug = hits[0]["slug"]
+            project = json.loads(get(f"{API}/project/{slug}"))
         q = f"{API}/project/{slug}/version"
         if game:
-            q += "?game_versions=" + urllib.request.quote(json.dumps([game]))
+            q += "?game_versions=" + urllib.parse.quote(json.dumps([game]))
         versions = json.loads(get(q))
         if not versions:
             return f"{label} | {slug} | 해당 버전 파일 없음"
