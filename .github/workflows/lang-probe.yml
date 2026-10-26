@@ -1,0 +1,24 @@
+# 개발용: 배포된 모드 jar 에 한국어 번역이 들어 있는지 확인해 주석(annotation)으로 남긴다.
+name: lang-probe
+on:
+  workflow_dispatch:
+    inputs:
+      projects:
+        description: "label=modrinth-slug-or-id[@game-version];..."
+        required: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: probe
+        env:
+          PROJECTS: ${{ inputs.projects }}
+        run: |
+          python3 tools/lang_probe.py
+          split -l 6 lang_report.txt chunk_
+          for c in chunk_*; do
+            msg=$(sed ':a;N;$!ba;s/%/%25/g;s/\n/%0A/g' "$c")
+            echo "::warning title=lang::$msg"
+          done
