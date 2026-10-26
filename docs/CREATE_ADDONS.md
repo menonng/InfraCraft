@@ -78,6 +78,55 @@ InfraCraft 는 차량과 기계를 직접 만들지 않고 Create 생태계와 �
 | 바닐라 레벨 확장(영혼 가속 V, 차가운 걸음 III, 가벼운 착지 V) | 최대 레벨을 `getMaxLevel()` 로 읽기 때문에 **확장된 레벨을 그대로 따라요** |
 | 블레이즈 대장간의 최대 레벨 +1(설정값) | 영혼 가속 VI, 로드러너 IV 처럼 한 단계 더 올라가요. 이렇게 넘친 레벨에서도 효과가 뒤집히지 않도록 InfraCraft 쪽에 상한을 두었어요(관성의 감소 억제 85%, 절약 60%, 넓은 포장·굴착 반경 각각 +4·+3 단계까지) |
 
+## 한국어 지원
+배포된 jar 안의 `lang/ko_kr.json` 을 `en_us.json` 과 비교했어요(2026-10-26, `lang-probe` 워크플로). 원작 Create 는 99% 번역돼 있어요. 숫자는 한국어 키 수 / 영어 키 수예요.
+
+| 표시 | 뜻 |
+|---|---|
+| ✅ | 95% 이상 |
+| 🟡 | 70~95% (일부 영어로 보임) |
+| 🟠 | 70% 미만 |
+| ❌ | 한국어 없음 |
+
+### 한국어가 없는 모드 ❌
+| 모드 | 영어 키 수 | 확인한 대상 |
+|---|---|---|
+| Enchantment Industry | 599 | 원작 jar(1.20.1), Fly 포트 저장소 |
+| Dragons Plus | 338 | 원작 jar(1.20.1), Fly 포트 저장소 |
+| Create Deco | 411 | 원작 jar(1.21.1) |
+| Bits 'n' Bobs | 244 | 원작 jar(1.21.1), Fly 포트 저장소 |
+| Electro Energetics | 520 | 원작 jar(1.21.1), Fly 포트 저장소 |
+| Central Kitchen | 63 | 원작 jar(1.21.1), Fly 포트 저장소 |
+| Create: Gunsmithing | 99 | 원작 jar(1.21.1), 26.3 포트 저장소 |
+| Sable (Aeronautics 계열의 물리 엔진) | 128 | 원작 jar(1.21.1). 함께 들어 있는 Veil, Forge Config API Port 도 한국어 없음 |
+| Create Nuclear (Fly 포트) | 430 | 포트 저장소엔 없음. 원작은 62%(269/437) |
+| Gravis's Flying Config Menu | 40 | 저장소 |
+
+### 일부만 번역된 모드
+| 모드 | 번역 | 비고 |
+|---|---|---|
+| Diesel Generators | 🟠 12% (35/293) | 원작·Fly 포트 모두 같음. 사실상 영어 |
+| Power Grid | 🟠 64% (666/1042) | 원작·Fly 포트 같음 |
+| Ponder (Create Fly 내장) | 🟠 34% (21/62) | Create 본문은 99% 라서 체감은 적어요 |
+| Flywheel (Create Fly 내장) | ❌ (0/12) | 설정 화면 문구뿐 |
+| Create: Connected (Fly 포트) | 🟡 72% (307/425) | 원작과 같음 |
+| Bells & Whistles | 🟡 72% (28/39) | |
+| Blocks & Bogies (Fly 포트) | 🟡 76% (99/130) | |
+| Create Hypertubes | 🟡 78% (50/64) | |
+| Crafts & Additions | 🟡 80% (237/297) | 원작·Fly 포트 같음 |
+| Create: New Age | 🟡 94% (157/167) | |
+
+### 한국어가 거의 다 된 모드 ✅
+| 모드 | 번역 |
+|---|---|
+| Create Fly (26.2 공식, 26.3 포트) | 99% (3623/3641) |
+| Steam 'n' Rails (Fly 포트) | 99% (2541/2573) |
+| Copycats+ (Fly 포트) | 100% (113/113) |
+| Create Aeronautics · Simulated · Offroad (원작 1.21.1) | 100% (219, 650, 49). 단, **26.3 Fabric 포트(LyXith) 저장소에는 한국어 파일이 없어요.** 포트 jar 에 빠졌을 수 있으니 확인이 필요해요 |
+| InfraCraft | 100% |
+
+> 저장소만 보면 Steam 'n' Rails 처럼 Crowdin 번역을 배포할 때만 넣는 모드는 "없음"으로 잘못 보여요. 그래서 위 표는 **배포 jar 기준**이에요. CurseForge 에만 올라온 Fly 포트(Deco, Enchantment Industry, Dragons Plus)는 jar 를 받을 수 없어 원작 jar 와 포트 저장소로 판단했어요.
+
 ## InfraCraft 에서 이미 연동되는 것
 - **Create 기차역 → 노선망 역 자동 등록**, **Create 기차 운행 → 노선 자동 측량**: 경로 안내, 이정표, 급행에 반영돼요. Steam 'n' Rails 같은 트랙 애드온도 같은 선로망이라 그대로 적용돼요.
 - **지하철 키트**는 Create 트랙(`create:track`)을 우선 깔아요.
