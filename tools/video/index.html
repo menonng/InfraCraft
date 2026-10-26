@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>InfraCraft video</title>
+<style>
+  @font-face { font-family: "Pretendard"; font-weight: 400; src: url(".fonts/Pretendard-Regular.woff2") format("woff2"); }
+  @font-face { font-family: "Pretendard"; font-weight: 600; src: url(".fonts/Pretendard-SemiBold.woff2") format("woff2"); }
+  @font-face { font-family: "Pretendard"; font-weight: 700; src: url(".fonts/Pretendard-Bold.woff2") format("woff2"); }
+  @font-face { font-family: "Pretendard"; font-weight: 800; src: url(".fonts/Pretendard-ExtraBold.woff2") format("woff2"); }
+  @font-face { font-family: "Galmuri11"; src: url(".fonts/Galmuri11.woff2") format("woff2"); }
+  html, body { margin: 0; background: #000; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="1280" height="720"></canvas>
+<script src="engine.js"></script>
+<script src="subway.js"></script>
+<script src="features.js"></script>
+<script>
+  const MOD = '../../common/resources/assets/infracraft/textures/';
+  const images = {};
+  for (const n of ['stone', 'deepslate', 'dirt', 'grass_top', 'grass_side', 'water', 'lava', 'rail', 'create_track', 'planks', 'sandstone', 'snow'])
+    images[n] = `assets/${n}.png`;
+  for (const n of ['asphalt', 'road_line', 'street_lamp', 'signpost', 'station', 'station_side', 'rail_switch', 'rail_switch_on',
+    'water_current_top', 'water_current_side', 'boat_lift_top', 'boat_lift_side', 'stable_top', 'stable_side',
+    'high_speed_rail', 'high_speed_rail_on', 'express_rail', 'express_rail_on', 'blaze_rail', 'blaze_rail_on',
+    'tunnel_lining', 'tunnel_light', 'platform_edge', 'station_elevator_top', 'station_elevator_side'])
+    images[n] = MOD + 'block/' + n + '.png';
+  for (const n of ['ticket', 'road_paver', 'track_layer', 'tunnel_borer', 'surveyor', 'whistle', 'iron_horseshoe',
+    'diamond_horseshoe', 'ender_rail_core', 'subway_shield', 'station_blueprint'])
+    images[n] = MOD + 'item/' + n + '.png';
+  const VIDEOS = { subway: SUBWAY, features: FEATURES };
+  const video = VIDEOS[new URLSearchParams(location.search).get('video') || 'subway'];
+  const ctx = document.getElementById('c').getContext('2d');
+  window.TOTAL = video.total;
+  window.renderFrame = (t) => {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
+    runScenes(ctx, video.scenes, t);
+    progress(ctx, t, video.total);
+  };
+  window.ready = (async () => {
+    await loadImages(images);
+    await Promise.all(['400 20px Pretendard', '600 20px Pretendard', '700 20px Pretendard', '800 20px Pretendard', '20px Galmuri11']
+      .map((f) => document.fonts.load(f, '가나다 ABC')));
+    window.renderFrame(0);
+    return true;
+  })();
+</script>
+</body>
+</html>
