@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "DTC",
+    "PAB",
+    "FSL"
+  ],
+  "key": {
+    "D": "infracraft:star_deneb_el_okab",
+    "T": "infracraft:star_tarazed",
+    "C": "infracraft:star_chesus",
+    "P": "infracraft:star_petra",
+    "A": "infracraft:star_altair",
+    "B": "infracraft:star_bezek",
+    "F": "infracraft:star_phonix",
+    "S": "infracraft:star_alshain",
+    "L": "infracraft:star_libertas"
+  },
+  "result": {
+    "id": "infracraft:aquila_core",
+    "count": 1
+  }
+}

@@ -26,7 +26,9 @@ CUBE_ALL = ["setts", "brick_paving", "flagstone", "asphalt", "road_line", "stree
 RAILS = ["high_speed_rail", "express_rail", "blaze_rail"]
 ITEMS = ["ticket", "road_paver", "track_layer", "tunnel_borer", "surveyor", "whistle",
          "iron_horseshoe", "diamond_horseshoe", "ender_rail_core", "subway_shield", "station_blueprint",
-         "ground_station_blueprint", "harbor_blueprint", "metro_car_blueprint", "coach_blueprint", "cargo_crate"]
+         "ground_station_blueprint", "harbor_blueprint", "metro_car_blueprint", "coach_blueprint", "cargo_crate",
+         "aquila_core", "astra_obliterator"] + [f"star_{k}" for k in
+         ("altair", "tarazed", "alshain", "deneb_el_okab", "bezek", "chesus", "libertas", "phonix", "petra")]
 BLOCKS = CUBE_ALL + RAILS + ["station", "rail_switch", "water_current", "boat_lift", "stable", "station_elevator",
                              "screen_door", "trading_post", "milestone"]
 
@@ -137,7 +139,7 @@ for b in BLOCKS:
     item_def(b, f"{NS}:item/{b}")
 
 for i in ITEMS:
-    parent = "minecraft:item/handheld" if i in ("road_paver", "track_layer", "tunnel_borer", "subway_shield") else "minecraft:item/generated"
+    parent = "minecraft:item/handheld" if i in ("road_paver", "track_layer", "tunnel_borer", "subway_shield", "astra_obliterator") else "minecraft:item/generated"
     write(A, f"models/item/{i}.json", {"parent": parent, "textures": {"layer0": f"{NS}:item/{i}"}})
     item_def(i, f"{NS}:item/{i}")
 
@@ -284,6 +286,25 @@ CREATE_RECIPES = [
     ("coach_blueprint", 1, ["RPR", "PCP", "RWR"], {"R": "minecraft:red_dye", "P": "minecraft:paper", "C": "create:railway_casing",
                                                    "W": "minecraft:spruce_planks"}),
 ]
+# 히든: 독수리자리. 모두 서바이벌에서 구할 수 있는 재료지만 극악이다(위더 4마리, 엔더 드래곤, 고대 도시, 시련의 회당, 고고학 …)
+HIDDEN_RECIPES = [
+    ("star_altair", 1, ["DED", "EBE", "DED"], {"D": "minecraft:diamond_block", "E": "minecraft:end_crystal", "B": "minecraft:beacon"}),
+    ("star_tarazed", 1, ["FBF", "BNB", "FBF"], {"F": "minecraft:fire_charge", "B": "minecraft:blaze_rod", "N": "minecraft:netherite_block"}),
+    ("star_alshain", 1, ["GGG", "GTG", "GGG"], {"G": "minecraft:gold_block", "T": "minecraft:totem_of_undying"}),
+    ("star_deneb_el_okab", 1, ["SRS", "RHR", "SRS"], {"S": "minecraft:shulker_shell", "R": f"{NS}:ender_rail_core", "H": "minecraft:dragon_head"}),
+    ("star_bezek", 1, ["CAC", "AKA", "CAC"], {"C": "minecraft:sculk_catalyst", "A": "minecraft:amethyst_cluster", "K": "minecraft:recovery_compass"}),
+    ("star_chesus", 1, ["BKB", "KHK", "BKB"], {"B": "minecraft:breeze_rod", "K": "minecraft:ominous_trial_key", "H": "minecraft:heavy_core"}),
+    ("star_libertas", 1, ["NPN", "SHS", "NPN"], {"N": "minecraft:nautilus_shell", "P": "minecraft:prismarine_crystals",
+                                                  "S": "minecraft:sniffer_egg", "H": "minecraft:heart_of_the_sea"}),
+    ("star_phonix", 1, ["GFG", "FAF", "GFG"], {"G": "minecraft:ghast_tear", "F": "minecraft:fire_charge", "A": "minecraft:enchanted_golden_apple"}),
+    ("star_petra", 1, ["ICI", "CLC", "ICI"], {"I": "minecraft:netherite_ingot", "C": "minecraft:crying_obsidian", "L": "minecraft:lodestone"}),
+    # 성좌핵: 하늘의 독수리자리 모양대로 놓는다
+    ("aquila_core", 1, ["DTC", "PAB", "FSL"], {"D": f"{NS}:star_deneb_el_okab", "T": f"{NS}:star_tarazed", "C": f"{NS}:star_chesus",
+                                               "P": f"{NS}:star_petra", "A": f"{NS}:star_altair", "B": f"{NS}:star_bezek",
+                                               "F": f"{NS}:star_phonix", "S": f"{NS}:star_alshain", "L": f"{NS}:star_libertas"}),
+    ("astra_obliterator", 1, [" N ", "NCN", " W "], {"N": "minecraft:nether_star", "C": f"{NS}:aquila_core", "W": "minecraft:netherite_sword"}),
+]
+
 # 조합법이 없는 아이템(획득처는 Loot.kt·교역·설계도)
 REMOVED_RECIPES = ["diamond_horseshoe"]
 
@@ -295,7 +316,7 @@ def recipes(version_dir, new_format, chain_id=None):
         stale = os.path.join(base, f"{name}.json")
         if os.path.exists(stale):
             os.remove(stale)
-    for name, count, pattern, key in RECIPES + CREATE_RECIPES:
+    for name, count, pattern, key in RECIPES + CREATE_RECIPES + HIDDEN_RECIPES:
         k = {}
         for sym, ing in key.items():
             if ing == "CHAIN":

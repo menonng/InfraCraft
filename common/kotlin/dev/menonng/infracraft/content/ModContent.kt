@@ -11,6 +11,7 @@ import dev.menonng.infracraft.block.StationBlock
 import dev.menonng.infracraft.block.TickedBlock
 import dev.menonng.infracraft.block.TierRailBlock
 import dev.menonng.infracraft.compat.Compat
+import dev.menonng.infracraft.system.Astra
 import dev.menonng.infracraft.compat.Id
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Holder
@@ -95,6 +96,11 @@ object ModItems {
     val METRO_CAR_BLUEPRINT = Compat.item("metro_car_blueprint", Item.Properties().stacksTo(16))
     val COACH_BLUEPRINT = Compat.item("coach_blueprint", Item.Properties().stacksTo(16))
     val CARGO_CRATE = Compat.item("cargo_crate", Item.Properties().stacksTo(1))
+
+    // 히든: 독수리자리 별조각 9개 → 아퀼라 성좌핵 → 아스트라 오브리터레이터(창작 탭에 없음)
+    val STAR_SHARDS = Astra.STARS.associate { it.key to Compat.item("star_${it.key}", Astra.shardProperties(it)) }
+    val AQUILA_CORE = Compat.item("aquila_core", Astra.coreProperties())
+    val ASTRA_OBLITERATOR = Compat.item("astra_obliterator", Astra.weaponProperties())
 
     fun init() {
         Compat.creativeTab("main", { ItemStack(ModBlocks.EXPRESS_RAIL) }) {

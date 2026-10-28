@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "BKB",
+    "KHK",
+    "BKB"
+  ],
+  "key": {
+    "B": "minecraft:breeze_rod",
+    "K": "minecraft:ominous_trial_key",
+    "H": "minecraft:heavy_core"
+  },
+  "result": {
+    "id": "infracraft:star_chesus",
+    "count": 1
+  }
+}

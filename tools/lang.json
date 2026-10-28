@@ -670,5 +670,145 @@
  "infracraft.msg.milestone.alone": {
   "ko_kr": "이정석 — 아직 이어진 역이 없습니다. 길 끝에 무엇이 있을까요?",
   "en_us": "Milestone — no stations yet. What lies at the end of this road?"
+ },
+ "item.infracraft.star_altair": {
+  "ko_kr": "별조각: 알타이르",
+  "en_us": "Star Shard: Altair"
+ },
+ "item.infracraft.star_altair.short": {
+  "ko_kr": "알타이르",
+  "en_us": "Altair"
+ },
+ "item.infracraft.lore.altair": {
+  "ko_kr": "독수리자리 α · 은하수 곁에서 가장 밝게 빛나는 독수리의 눈",
+  "en_us": "Alpha Aquilae · the eagle's eye, brightest by the Milky Way"
+ },
+ "item.infracraft.star_tarazed": {
+  "ko_kr": "별조각: 타라제드",
+  "en_us": "Star Shard: Tarazed"
+ },
+ "item.infracraft.star_tarazed.short": {
+  "ko_kr": "타라제드",
+  "en_us": "Tarazed"
+ },
+ "item.infracraft.lore.tarazed": {
+  "ko_kr": "독수리자리 γ · 주황빛으로 타오르는 거성",
+  "en_us": "Gamma Aquilae · an orange giant aflame"
+ },
+ "item.infracraft.star_alshain": {
+  "ko_kr": "별조각: 알샤인",
+  "en_us": "Star Shard: Alshain"
+ },
+ "item.infracraft.star_alshain.short": {
+  "ko_kr": "알샤인",
+  "en_us": "Alshain"
+ },
+ "item.infracraft.lore.alshain": {
+  "ko_kr": "독수리자리 β · 알타이르를 지키는 노란 별",
+  "en_us": "Beta Aquilae · the yellow star guarding Altair"
+ },
+ "item.infracraft.star_deneb_el_okab": {
+  "ko_kr": "별조각: 덴드라",
+  "en_us": "Star Shard: Deneb el Okab"
+ },
+ "item.infracraft.star_deneb_el_okab.short": {
+  "ko_kr": "덴드라",
+  "en_us": "Deneb el Okab"
+ },
+ "item.infracraft.lore.deneb_el_okab": {
+  "ko_kr": "독수리자리 ζ · 독수리의 꼬리 끝",
+  "en_us": "Zeta Aquilae · the tip of the eagle's tail"
+ },
+ "item.infracraft.star_bezek": {
+  "ko_kr": "별조각: 베제크",
+  "en_us": "Star Shard: Bezek"
+ },
+ "item.infracraft.star_bezek.short": {
+  "ko_kr": "베제크",
+  "en_us": "Bezek"
+ },
+ "item.infracraft.lore.bezek": {
+  "ko_kr": "독수리자리 η · 숨 쉬듯 밝아졌다 어두워지는 별",
+  "en_us": "Eta Aquilae · a star that breathes light"
+ },
+ "item.infracraft.star_chesus": {
+  "ko_kr": "별조각: 체수스",
+  "en_us": "Star Shard: Chesus"
+ },
+ "item.infracraft.star_chesus.short": {
+  "ko_kr": "체수스",
+  "en_us": "Chesus"
+ },
+ "item.infracraft.lore.chesus": {
+  "ko_kr": "독수리자리 θ · 펼친 날개의 끝",
+  "en_us": "Theta Aquilae · the tip of the outstretched wing"
+ },
+ "item.infracraft.star_libertas": {
+  "ko_kr": "별조각: 리베르타스",
+  "en_us": "Star Shard: Libertas"
+ },
+ "item.infracraft.star_libertas.short": {
+  "ko_kr": "리베르타스",
+  "en_us": "Libertas"
+ },
+ "item.infracraft.lore.libertas": {
+  "ko_kr": "독수리자리 ξ의 행성 · 바다를 건넌 자유",
+  "en_us": "the planet of Xi Aquilae · freedom across the sea"
+ },
+ "item.infracraft.star_phonix": {
+  "ko_kr": "별조각: 포닉스",
+  "en_us": "Star Shard: Phonix"
+ },
+ "item.infracraft.star_phonix.short": {
+  "ko_kr": "포닉스",
+  "en_us": "Phonix"
+ },
+ "item.infracraft.lore.phonix": {
+  "ko_kr": "재에서 다시 날아오르는 불새의 별",
+  "en_us": "the firebird's star, rising from ashes"
+ },
+ "item.infracraft.star_petra": {
+  "ko_kr": "별조각: 페트라",
+  "en_us": "Star Shard: Petra"
+ },
+ "item.infracraft.star_petra.short": {
+  "ko_kr": "페트라",
+  "en_us": "Petra"
+ },
+ "item.infracraft.lore.petra": {
+  "ko_kr": "무너지지 않는 반석의 별",
+  "en_us": "the star of unbreakable rock"
+ },
+ "item.infracraft.lore.shard_hint": {
+  "ko_kr": "아홉 별이 하늘의 자리대로 모이면…",
+  "en_us": "When nine stars gather as they stand in the sky…"
+ },
+ "item.infracraft.aquila_core": {
+  "ko_kr": "아퀼라 성좌핵",
+  "en_us": "Aquila Constellation Core"
+ },
+ "item.infracraft.lore.core": {
+  "ko_kr": "독수리자리 아홉 별이 한 점에 깃들었다",
+  "en_us": "The nine stars of Aquila, gathered into one"
+ },
+ "item.infracraft.lore.core_hint": {
+  "ko_kr": "세 개의 별을 머리에 이고, 검 위에 앉히면",
+  "en_us": "Crowned with three stars, set upon a blade"
+ },
+ "item.infracraft.astra_obliterator": {
+  "ko_kr": "아스트라 오브리터레이터",
+  "en_us": "Astra Obliterator"
+ },
+ "item.infracraft.lore.weapon": {
+  "ko_kr": "하늘을 가로지른 독수리가 칼날에 내려앉았다",
+  "en_us": "The eagle that crossed the sky has landed on the blade"
+ },
+ "item.infracraft.lore.weapon_use": {
+  "ko_kr": "우클릭: 독수리자리 강림",
+  "en_us": "Use: Descent of Aquila"
+ },
+ "infracraft.msg.astra.cast": {
+  "ko_kr": "✦ 독수리자리가 강림합니다 ✦",
+  "en_us": "✦ Aquila descends ✦"
  }
 }

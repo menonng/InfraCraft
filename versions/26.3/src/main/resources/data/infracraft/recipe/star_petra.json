@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ICI",
+    "CLC",
+    "ICI"
+  ],
+  "key": {
+    "I": "minecraft:netherite_ingot",
+    "C": "minecraft:crying_obsidian",
+    "L": "minecraft:lodestone"
+  },
+  "result": {
+    "id": "infracraft:star_petra",
+    "count": 1
+  }
+}

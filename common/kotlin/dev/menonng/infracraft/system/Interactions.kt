@@ -40,6 +40,7 @@ object Interactions {
         return when {
             stack.`is`(ModItems.ROAD_PAVER) || stack.`is`(ModItems.TRACK_LAYER) -> handled(player) { Tools.toggle(it, stack) }
             stack.`is`(ModItems.SUBWAY_SHIELD) -> handled(player) { Subway.shield(it, hand) }
+            stack.`is`(ModItems.ASTRA_OBLITERATOR) -> handled(player) { Astra.cast(it, stack) }
             stack.`is`(ModItems.STATION_BLUEPRINT) -> handled(player) { Subway.buildStation(it, hand) }
             stack.`is`(ModItems.GROUND_STATION_BLUEPRINT) -> handled(player) { Stations.buildGround(it, hand) }
             stack.`is`(ModItems.HARBOR_BLUEPRINT) -> handled(player) { Stations.buildHarbor(it, hand) }

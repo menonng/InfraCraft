@@ -74,9 +74,11 @@ object InfraCraft : ModInitializer {
                 Tools.tick(player)
                 Network.rememberPosition(player)
                 Network.tickMilestone(player)
+                dev.menonng.infracraft.system.Astra.tickHeld(player)
                 if (server.tickCount % 40 == 0) ElytraBan.sweep(player)
             }
             CreateCompat.tick(server)
+            dev.menonng.infracraft.system.Astra.tick(server)
         }
         Compat.onLevelTick { level -> tickLevel(level) }
         Compat.onPlayerChangedLevel { player, origin, destination -> Network.onChangedLevel(player, origin, destination) }
@@ -118,6 +120,11 @@ object InfraCraft : ModInitializer {
             TradeRules.region("mangrove_swamp") == TradeRules.Region.SWAMP && TradeRules.region("plains") == TradeRules.Region.TEMPERATE)
         for (r in TradeRules.Region.entries) for (s in r.specialties) {
             check("trade item minecraft:$s", net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(Compat.id("minecraft", s)))
+        }
+        for (s in listOf("end_crystal", "beacon", "netherite_block", "totem_of_undying", "dragon_head", "shulker_shell", "sculk_catalyst",
+            "amethyst_cluster", "recovery_compass", "breeze_rod", "ominous_trial_key", "heavy_core", "prismarine_crystals",
+            "enchanted_golden_apple", "ghast_tear", "crying_obsidian", "lodestone", "nether_star", "netherite_sword")) {
+            check("astra ingredient minecraft:$s", net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(Compat.id("minecraft", s)))
         }
         for (s in listOf("nautilus_shell", "name_tag", "tropical_fish_bucket", "sniffer_egg", "saddle", "heart_of_the_sea")) {
             check("exotic item minecraft:$s", net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(Compat.id("minecraft", s)))

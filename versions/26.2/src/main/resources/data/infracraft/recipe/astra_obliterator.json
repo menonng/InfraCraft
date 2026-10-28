@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " N ",
+    "NCN",
+    " W "
+  ],
+  "key": {
+    "N": "minecraft:nether_star",
+    "C": "infracraft:aquila_core",
+    "W": "minecraft:netherite_sword"
+  },
+  "result": {
+    "id": "infracraft:astra_obliterator",
+    "count": 1
+  }
+}

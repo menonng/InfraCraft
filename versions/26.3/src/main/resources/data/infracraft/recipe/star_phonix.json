@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GFG",
+    "FAF",
+    "GFG"
+  ],
+  "key": {
+    "G": "minecraft:ghast_tear",
+    "F": "minecraft:fire_charge",
+    "A": "minecraft:enchanted_golden_apple"
+  },
+  "result": {
+    "id": "infracraft:star_phonix",
+    "count": 1
+  }
+}
