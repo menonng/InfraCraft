@@ -22,7 +22,7 @@ import kotlin.math.abs
 /**
  * Create(26.x Fabric 은 Create Fly) 연동. 컴파일 의존성 없이 리플렉션으로 읽기만 하므로 Create 가 없어도 아무 일도 하지 않는다.
  *
- *  - Create 기차역(GlobalStation)을 노선망의 역으로 등록하고 이름을 맞춘다.
+ *  - Create 기차 정거장(GlobalStation)을 노선망의 역으로 등록하고 이름을 맞춘다.
  *  - Create 기차가 역 A 를 떠나 역 B 에 도착하면 그 구간을 "create_train" 노선으로 기록한다.
  *    Steam 'n' Rails 같은 애드온의 트랙도 같은 Create 선로망을 쓰므로 그대로 잡힌다.
  *  - 지하철 키트가 쓸 Create 트랙 블록(create:track)을 찾아 준다.
@@ -69,7 +69,7 @@ object CreateCompat {
                 try {
                     glueCtor = Class.forName("$pkg.content.contraptions.glue.SuperGlueEntity").getConstructor(Level::class.java, AABB::class.java)
                 } catch (e: Throwable) {
-                    InfraCraft.LOGGER.warn("[InfraCraft] Create 초강력 접착제를 찾지 못해 차량 도면이 접착제를 붙이지 않습니다", e)
+                    InfraCraft.LOGGER.warn("[InfraCraft] Create 강력 접착제를 찾지 못해 차량 도면이 접착제를 붙이지 않습니다", e)
                 }
                 InfraCraft.LOGGER.info("[InfraCraft] Create 연동 활성화 ({})", pkg)
                 return
@@ -82,17 +82,17 @@ object CreateCompat {
         InfraCraft.LOGGER.warn("[InfraCraft] Create 모드는 있지만 기차 클래스를 찾지 못했습니다")
     }
 
-    // ───────────── 초강력 접착제 ─────────────
+    // ───────────── 강력 접착제 ─────────────
 
     private var glueCtor: Constructor<*>? = null
 
-    /** 상자 범위 전체에 Create 초강력 접착제를 붙인다(차체를 한 덩어리로 조립하게). */
+    /** 상자 범위 전체에 Create 강력 접착제를 붙인다(차체를 한 덩어리로 조립하게). */
     fun spawnGlue(level: Level, box: AABB): Boolean {
         val ctor = glueCtor ?: return false
         return try {
             level.addFreshEntity(ctor.newInstance(level, box) as Entity)
         } catch (e: Throwable) {
-            InfraCraft.LOGGER.warn("[InfraCraft] 초강력 접착제를 붙이지 못했습니다", e)
+            InfraCraft.LOGGER.warn("[InfraCraft] 강력 접착제를 붙이지 못했습니다", e)
             false
         }
     }
@@ -126,7 +126,7 @@ object CreateCompat {
 
     private val stationBlock: Block? by lazy { if (loaded) Compat.blockById("create", "track_station") else null }
 
-    /** Create 기차역 블록인가(클라이언트에서도 같은 판단을 하도록 블록으로만 본다) */
+    /** Create 기차 정거장 블록인가(클라이언트에서도 같은 판단을 하도록 블록으로만 본다) */
     fun isStationBlock(state: BlockState): Boolean = stationBlock?.let { state.block == it } ?: false
 
     // ───────────── 기차와 역 ─────────────

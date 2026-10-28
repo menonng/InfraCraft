@@ -279,8 +279,9 @@ def slot(img, d, x, y, size, item_img):
         img.alpha_composite(it, (x + off, y + off))
 
 def count_text(d, x, y, n):
+    """오른쪽 끝 x, 위 y 에 그림자 있는 숫자(마인크래프트처럼 칸 오른쪽 아래)"""
     s = str(n)
-    u = PX
+    u = PX * 2
     cx = x - len(s) * 4 * u - u
     for ch in s:
         for r, row in enumerate(DIGITS[ch]):
@@ -320,7 +321,7 @@ def recipe_image(res, recipe):
     slot(img, d, rx, ry, 26, icon(res, result["id"]))
     n = result.get("count", 1)
     if n > 1:
-        count_text(d, rx + 23 * PX, ry + 16 * PX, n)
+        count_text(d, rx + 25 * PX, ry + 26 * PX - 7 * PX * 2, n)
     return img
 
 def main():

@@ -205,7 +205,7 @@ object Subway {
         val clears = ArrayList<BlockPos>()
         val doors = ArrayList<BlockPos>()
         val lining = ModBlocks.TUNNEL_LINING.defaultBlockState()
-        // Create 트랙을 쓰면 역은 Create 기차역(트랙 옆)으로 두므로 InfraCraft 역 블록은 놓지 않는다
+        // Create 트랙을 쓰면 역은 Create 기차 정거장(트랙 옆)으로 두므로 InfraCraft 역 블록은 놓지 않는다
         val createTrack = useCreateTrack(player)
         val trackState = createTrack?.let { CreateCompat.trackState(it, dir, 0) } ?: Blocks.RAIL.defaultBlockState()
         for (k in -7..8) for (o in -wall..wall) for (h in -1..HALL_HEIGHT) {

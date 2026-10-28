@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf
 import net.minecraft.world.phys.AABB
 
 /**
- * 차량 도면: Create 트랙 위에 Create 블록으로 차체를 짓고 초강력 접착제를 붙인다. 차량 자체는 Create 기차다.
+ * 차량 도면: Create 트랙 위에 Create 블록으로 차체를 짓고 강력 접착제를 붙인다. 차량 자체는 Create 기차다.
  * 대차는 Create 방식대로 플레이어가 트랙에 기차 케이스를 대어 놓고, Create 역의 조립 모드로 조립한다.
  *
  * 규격(진행 방향 k, 옆 o, 선로 기준 높이 h): 길이 9(k 0..8) · 폭 5(o -2..2) · 높이 h1(바닥)~h4(지붕).
@@ -27,9 +27,9 @@ import net.minecraft.world.phys.AABB
  */
 object CreateCars {
     enum class Style(val floor: String, val wall: String, val window: String, val roof: String, val seat: String) {
-        /** 전동차: 산업용 철 차체, 철 창, 파란 롱시트, 천장 조명 */
+        /** 전동차: 산업용 철 차체, 철 창, 파란색 롱시트, 천장 조명 */
         METRO("create:industrial_iron_block", "create:industrial_iron_block", "create:industrial_iron_window", "create:industrial_iron_block", "create:blue_seat"),
-        /** 객차: 가문비나무 차체, 나무 창, 붉은 좌석, 등불 */
+        /** 객차: 가문비나무 차체, 나무 창, 빨간색 좌석, 등불 */
         COACH("minecraft:spruce_planks", "minecraft:spruce_planks", "create:spruce_window", "minecraft:dark_oak_planks", "create:red_seat"),
     }
 

@@ -97,7 +97,7 @@ object Interactions {
         }
         if (stack.`is`(ModItems.SURVEYOR)) return handled(player) { Tools.survey(it, stack, pos) }
 
-        // Create 기차역: 빈손 클릭은 Create 역 화면에 맡기고, 승차권일 때만 가로챈다
+        // Create 기차 정거장: 빈손 클릭은 Create 역 화면에 맡기고, 승차권일 때만 가로챈다
         if (stack.`is`(ModItems.TICKET) && CreateCompat.isStationBlock(state)) {
             return handled(player) {
                 val sl = it.level() as ServerLevel

@@ -428,7 +428,7 @@
   "en_us": "4. Water & lava\n\nLining is placed before\nthe slice is cleared, so\naquifers and lava stay\nout. Bedrock and block\nentities are left alone."
  },
  "infracraft.book.subway.6": {
-  "ko_kr": "5. 역사 짓기\n\n트랙 위에서 노선 방향을\n보고 설계도를 쓰면\n높은 승강장(차량 바닥과\n같은 높이), 안전문,\n조명, 지상 승강기가\n생깁니다. Create 트랙\n이면 Create 기차역을\n트랙 옆에 놓으세요.",
+  "ko_kr": "5. 역사 짓기\n\n트랙 위에서 노선 방향을\n보고 설계도를 쓰면\n높은 승강장(차량 바닥과\n같은 높이), 안전문,\n조명, 지상 승강기가\n생깁니다. Create 트랙\n이면 Create 기차 정거장을\n트랙 옆에 놓으세요.",
   "en_us": "5. Stations\n\nStand on the track facing\nalong the line and use\nthe blueprint: raised\nplatforms (level with the\ncar floor), screen doors,\nlights and an elevator.\nWith Create track, add a\nCreate train station."
  },
  "infracraft.book.subway.7": {
@@ -436,7 +436,7 @@
   "en_us": "6. Cars\n\nUse a metro car plan on\nCreate track: it builds a\n5×9 body from Create\nblocks and glues it. Put\nbogeys on the two marked\nblocks with train casing\nand assemble at the\nstation."
  },
  "infracraft.book.subway.8": {
-  "ko_kr": "7. 안전 운행\n\nCreate 기차는 서로\n부딪치면 탈선합니다.\n역 앞뒤에 신호기를 두고\n계획표로 운행하세요.\n마인카트는 ATS가 앞차를\n감지해 멈춥니다.\n안전문은 차량이 멈추면\n열립니다.",
+  "ko_kr": "7. 안전 운행\n\nCreate 기차는 서로\n부딪치면 탈선합니다.\n역 앞뒤에 기차 신호기를 두고\n계획표로 운행하세요.\n마인카트는 ATS가 앞차를\n감지해 멈춥니다.\n안전문은 차량이 멈추면\n열립니다.",
   "en_us": "7. Safe running\n\nCreate trains derail when\nthey collide: put signals\nbefore and after stations\nand run on schedules.\nMinecarts stop for the\ncart ahead (ATS).\nScreen doors open when a\nvehicle stops."
  },
  "infracraft.msg.mode.create_train": {
@@ -444,7 +444,7 @@
   "en_us": "Create train"
  },
  "infracraft.msg.station_hall.built_create": {
-  "ko_kr": "지하 역사 완성(Create 트랙)! 승강기 수직구 높이 %1$s칸. 승강장 옆 트랙에 Create 기차역을 놓고 이름을 지으세요.",
+  "ko_kr": "지하 역사 완성(Create 트랙)! 승강기 수직구 높이 %1$s칸. 승강장 옆 트랙에 Create 기차 정거장을 놓고 이름을 지으세요.",
   "en_us": "Underground station built with Create track! Elevator shaft: %1$s blocks. Place a Create train station on the track and name it."
  },
  "infracraft.msg.route.header": {
@@ -452,7 +452,7 @@
   "en_us": "Fastest route %1$s → %2$s:"
  },
  "infracraft.msg.create.station_pending": {
-  "ko_kr": "이 Create 기차역은 아직 노선망에 등록되지 않았습니다. 잠시 후 다시 시도하세요.",
+  "ko_kr": "이 Create 기차 정거장은 아직 노선망에 등록되지 않았습니다. 잠시 후 다시 시도하세요.",
   "en_us": "This Create station has not joined the network yet. Try again in a moment."
  },
  "infracraft.msg.route.none": {
@@ -512,7 +512,7 @@
   "en_us": "Surface station '%1$s' built! Rename it with a name tag."
  },
  "infracraft.msg.ground_station.built_create": {
-  "ko_kr": "지상 역사 완성(Create 트랙)! 승강장 옆 트랙에 Create 기차역을 놓고 이름을 지으세요.",
+  "ko_kr": "지상 역사 완성(Create 트랙)! 승강장 옆 트랙에 Create 기차 정거장을 놓고 이름을 지으세요.",
   "en_us": "Surface station built (Create track)! Place a Create train station by the track and name it."
  },
  "infracraft.msg.harbor.need_water": {
@@ -636,11 +636,11 @@
   "en_us": "Missing materials:"
  },
  "infracraft.msg.car.built": {
-  "ko_kr": "차체를 지었습니다. 대차 자리(%1$s)의 트랙에 기차 케이스를 대어 대차를 놓고, 옆 Create 기차역을 조립 모드로 바꿔 조립하세요.",
+  "ko_kr": "차체를 지었습니다. 대차 자리(%1$s)의 트랙에 기차 케이스를 대어 대차를 놓고, 옆 Create 기차 정거장을 조립 모드로 바꿔 조립하세요.",
   "en_us": "Car body built. Put bogeys on the track at (%1$s) with train casing, then assemble with a Create station in assembly mode."
  },
  "infracraft.msg.car.built_no_glue": {
-  "ko_kr": "차체를 지었습니다(접착제는 직접 붙이세요). 대차 자리(%1$s)의 트랙에 기차 케이스를 대어 대차를 놓고, 차체 전체에 초강력 접착제를 바른 뒤 조립하세요.",
+  "ko_kr": "차체를 지었습니다(접착제는 직접 붙이세요). 대차 자리(%1$s)의 트랙에 기차 케이스를 대어 대차를 놓고, 차체 전체에 강력 접착제를 바른 뒤 조립하세요.",
   "en_us": "Car body built (apply glue yourself). Put bogeys at (%1$s) with train casing, glue the whole body with super glue, then assemble."
  },
  "infracraft.book.subway.9": {
