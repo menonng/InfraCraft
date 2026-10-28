@@ -281,7 +281,7 @@ def slot(img, d, x, y, size, item_img):
 def count_text(d, x, y, n):
     s = str(n)
     u = PX
-    cx = x - len(s) * 4 * u
+    cx = x - len(s) * 4 * u - u
     for ch in s:
         for r, row in enumerate(DIGITS[ch]):
             for c, bit in enumerate(row):
@@ -320,7 +320,7 @@ def recipe_image(res, recipe):
     slot(img, d, rx, ry, 26, icon(res, result["id"]))
     n = result.get("count", 1)
     if n > 1:
-        count_text(d, rx + 24 * PX, ry + 16 * PX, n)
+        count_text(d, rx + 23 * PX, ry + 16 * PX, n)
     return img
 
 def main():
