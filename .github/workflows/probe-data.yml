@@ -42,6 +42,7 @@ jobs:
             https://api.modrinth.com/maven/maven/modrinth/create-fly/26.2-6.0.9-2/create-fly-26.2-6.0.9-2.jar
           cd /tmp/out
           unzip -Z1 /tmp/jars/create.jar > create-files.txt
+          unzip -p /tmp/jars/create.jar assets/create/lang/ko_kr.json > create-ko_kr.json || true
           grep '^assets/create/blockstates/' create-files.txt | sed 's#.*/##;s#\.json##' > create-blocks.txt
           grep '^assets/create/items/' create-files.txt | sed 's#.*/##;s#\.json##' > create-items.txt
           IFS=',' read -ra bs <<< "$BLOCKSTATES"
