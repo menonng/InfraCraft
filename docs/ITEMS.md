@@ -5,12 +5,39 @@ InfraCraft 의 모든 아이템은 **조합하거나, 또는 다른 곳에서 �
 
 | 얻는 법 | 아이템 |
 |---|---|
-| 조합 (31) | 아스팔트, 차선 아스팔트, 가로등, 이정표, 도로 포장기, 고속 선로, 특급 선로, 블레이즈 선로, 엔더 선로 핵, 역, 분기기, 승차권, 선로 부설기, 측량기, 터널 굴착기, 실드 굴진기, 터널 라이닝, 터널 조명, 승강장 안전선, 승강장 안전문, 역 승강기, 지하철 건설 안내서, 지하 역사 설계도, 지상 역사 설계도, 전동차 도면, 객차 도면, 물살 블록, 보트 리프트, 마구간, 말 호루라기, 철 편자 |
+| 조합 (35) | 포석길, 벽돌 포장길, 판석길, 아스팔트, 차선 아스팔트, 이정석, 가로등, 이정표, 도로 포장기, 고속 선로, 특급 선로, 블레이즈 선로, 엔더 선로 핵, 역, 분기기, 승차권, 선로 부설기, 측량기, 터널 굴착기, 실드 굴진기, 터널 라이닝, 터널 조명, 승강장 안전선, 승강장 안전문, 역 승강기, 지하철 건설 안내서, 지하 역사 설계도, 지상 역사 설계도, 전동차 도면, 객차 도면, 물살 블록, 보트 리프트, 마구간, 말 호루라기, 철 편자 |
 | 획득 (4) | 항구 설계도, 교역소, 화물 상자, 다이아몬드 편자 |
 
 > 그림은 `recipe-images` 워크플로가 게임 jar 의 텍스처로 그려요(`tools/recipes/render_recipes.py`). 이 문서는 `python3 tools/recipes/items_doc.py` 로 다시 만들어요.
 
 ## 도로
+
+### <img src="recipes/icons/setts.png" width="32" height="32" align="top"> 포석길
+<sub>Cobbled Setts · `infracraft:setts`</sub>
+
+**조합** → 8개
+
+![포석길 조합법](recipes/setts.png)
+
+재료: 윤나는 화강암 4 + 조약돌 4
+
+### <img src="recipes/icons/brick_paving.png" width="32" height="32" align="top"> 벽돌 포장길
+<sub>Brick Paving · `infracraft:brick_paving`</sub>
+
+**조합** → 8개
+
+![벽돌 포장길 조합법](recipes/brick_paving.png)
+
+재료: 벽돌 4 + 모래 4
+
+### <img src="recipes/icons/flagstone.png" width="32" height="32" align="top"> 판석길
+<sub>Flagstone Path · `infracraft:flagstone`</sub>
+
+**조합** → 8개
+
+![판석길 조합법](recipes/flagstone.png)
+
+재료: 매끄러운 돌 4 + 이끼 블록 4
 
 ### <img src="recipes/icons/asphalt.png" width="32" height="32" align="top"> 아스팔트
 <sub>Asphalt · `infracraft:asphalt`</sub>
@@ -29,6 +56,15 @@ InfraCraft 의 모든 아이템은 **조합하거나, 또는 다른 곳에서 �
 ![차선 아스팔트 조합법](recipes/road_line.png)
 
 재료: 흰색 염료 1 + 아스팔트 4
+
+### <img src="recipes/icons/milestone.png" width="32" height="32" align="top"> 이정석
+<sub>Milestone · `infracraft:milestone`</sub>
+
+**조합** → 1개
+
+![이정석 조합법](recipes/milestone.png)
+
+재료: 석재 벽돌 2 + 나침반 1
 
 ### <img src="recipes/icons/street_lamp.png" width="32" height="32" align="top"> 가로등
 <sub>Street Lamp · `infracraft:street_lamp`</sub>
@@ -335,3 +371,77 @@ InfraCraft 의 모든 아이템은 **조합하거나, 또는 다른 곳에서 �
 - 마을 무기 대장장이 상자: 12%
 - 마을 도구 대장장이 상자: 10%
 - 사막 피라미드 상자: 8%
+
+## 히든
+
+<details><summary>스포일러: 독수리자리의 별을 모으는 극악의 조합법(펼치기)</summary>
+
+창작 탭과 레시피 책에는 나오지 않아요. 모든 재료는 서바이벌에서 구할 수 있지만, 위더·엔더 드래곤·고대 도시·시련의 회당·고고학·바다 깊은 곳을 모두 거쳐야 해요.
+
+### <img src="recipes/icons/star_altair.png" width="32" height="32" align="top"> 별조각: 알타이르
+
+![별조각: 알타이르 조합법](recipes/star_altair.png)
+
+재료: 다이아몬드 블록 4 + 엔드 수정 4 + 신호기 1
+
+### <img src="recipes/icons/star_tarazed.png" width="32" height="32" align="top"> 별조각: 타라제드
+
+![별조각: 타라제드 조합법](recipes/star_tarazed.png)
+
+재료: 화염구 4 + 블레이즈 막대기 4 + 네더라이트 블록 1
+
+### <img src="recipes/icons/star_alshain.png" width="32" height="32" align="top"> 별조각: 알샤인
+
+![별조각: 알샤인 조합법](recipes/star_alshain.png)
+
+재료: 금 블록 8 + 불사의 토템 1
+
+### <img src="recipes/icons/star_deneb_el_okab.png" width="32" height="32" align="top"> 별조각: 덴드라
+
+![별조각: 덴드라 조합법](recipes/star_deneb_el_okab.png)
+
+재료: 셜커 껍데기 4 + 엔더 선로 핵 4 + 드래곤 머리 1
+
+### <img src="recipes/icons/star_bezek.png" width="32" height="32" align="top"> 별조각: 베제크
+
+![별조각: 베제크 조합법](recipes/star_bezek.png)
+
+재료: 스컬크 촉매 4 + 자수정 군집 4 + 회생 나침반 1
+
+### <img src="recipes/icons/star_chesus.png" width="32" height="32" align="top"> 별조각: 체수스
+
+![별조각: 체수스 조합법](recipes/star_chesus.png)
+
+재료: 브리즈 막대기 4 + 불길한 시련 열쇠 4 + 무거운 코어 1
+
+### <img src="recipes/icons/star_libertas.png" width="32" height="32" align="top"> 별조각: 리베르타스
+
+![별조각: 리베르타스 조합법](recipes/star_libertas.png)
+
+재료: 앵무조개 껍데기 4 + 프리즈머린 수정 2 + 스니퍼 알 2 + 바다의 심장 1
+
+### <img src="recipes/icons/star_phonix.png" width="32" height="32" align="top"> 별조각: 포닉스
+
+![별조각: 포닉스 조합법](recipes/star_phonix.png)
+
+재료: 가스트 눈물 4 + 화염구 4 + 마법이 부여된 황금 사과 1
+
+### <img src="recipes/icons/star_petra.png" width="32" height="32" align="top"> 별조각: 페트라
+
+![별조각: 페트라 조합법](recipes/star_petra.png)
+
+재료: 네더라이트 주괴 4 + 우는 흑요석 4 + 자석석 1
+
+### <img src="recipes/icons/aquila_core.png" width="32" height="32" align="top"> 아퀼라 성좌핵
+
+![아퀼라 성좌핵 조합법](recipes/aquila_core.png)
+
+재료: 별조각: 덴드라 1 + 별조각: 타라제드 1 + 별조각: 체수스 1 + 별조각: 페트라 1 + 별조각: 알타이르 1 + 별조각: 베제크 1 + 별조각: 포닉스 1 + 별조각: 알샤인 1 + 별조각: 리베르타스 1
+
+### <img src="recipes/icons/astra_obliterator.png" width="32" height="32" align="top"> 아스트라 오브리터레이터
+
+![아스트라 오브리터레이터 조합법](recipes/astra_obliterator.png)
+
+재료: 네더의 별 3 + 아퀼라 성좌핵 1 + 네더라이트 검 1
+
+</details>

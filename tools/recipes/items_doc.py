@@ -52,6 +52,19 @@ CATEGORIES = [
     ("말", ["stable", "whistle", "iron_horseshoe", "diamond_horseshoe"]),
 ]
 
+HIDDEN = ["star_altair", "star_tarazed", "star_alshain", "star_deneb_el_okab", "star_bezek", "star_chesus",
+          "star_libertas", "star_phonix", "star_petra", "aquila_core", "astra_obliterator"]
+VANILLA_KO.update({
+    "diamond_block": "다이아몬드 블록", "end_crystal": "엔드 수정", "beacon": "신호기", "fire_charge": "화염구",
+    "blaze_rod": "블레이즈 막대기", "netherite_block": "네더라이트 블록", "gold_block": "금 블록", "totem_of_undying": "불사의 토템",
+    "shulker_shell": "셜커 껍데기", "dragon_head": "드래곤 머리", "sculk_catalyst": "스컬크 촉매", "amethyst_cluster": "자수정 군집",
+    "recovery_compass": "회생 나침반", "breeze_rod": "브리즈 막대기", "ominous_trial_key": "불길한 시련 열쇠", "heavy_core": "무거운 코어",
+    "nautilus_shell": "앵무조개 껍데기", "prismarine_crystals": "프리즈머린 수정", "sniffer_egg": "스니퍼 알", "heart_of_the_sea": "바다의 심장",
+    "ghast_tear": "가스트 눈물", "enchanted_golden_apple": "마법이 부여된 황금 사과", "netherite_ingot": "네더라이트 주괴",
+    "crying_obsidian": "우는 흑요석", "lodestone": "자석석", "nether_star": "네더의 별", "netherite_sword": "네더라이트 검",
+})
+
+
 def name(item):
     if item == "subway_guide":
         return "지하철 건설 안내서"
@@ -105,6 +118,8 @@ def main():
     crafted, found = [], []
     for _, items in CATEGORIES:
         for it in items:
+            if it in HIDDEN:
+                continue
             (crafted if os.path.exists(os.path.join(RECIPES, f"{it}.json")) else found).append(name(it))
     lines += [f"| 조합 ({len(crafted)}) | " + ", ".join(crafted) + " |", f"| 획득 ({len(found)}) | " + ", ".join(found) + " |", ""]
     lines += ["> 그림은 `recipe-images` 워크플로가 게임 jar 의 텍스처로 그려요(`tools/recipes/render_recipes.py`). "
@@ -129,6 +144,14 @@ def main():
                 if it in OTHER:
                     lines.append(f"- {OTHER[it]}")
                 lines.append("")
+    # 히든: 접어 두기(스포일러)
+    lines += ["## 히든", "", "<details><summary>스포일러: 독수리자리의 별을 모으는 극악의 조합법(펼치기)</summary>", "",
+              "창작 탭과 레시피 책에는 나오지 않아요. 모든 재료는 서바이벌에서 구할 수 있지만, 위더·엔더 드래곤·고대 도시·시련의 회당·고고학·바다 깊은 곳을 모두 거쳐야 해요.", ""]
+    for it in HIDDEN:
+        recipe = json.load(open(os.path.join(RECIPES, f"{it}.json"), encoding="utf-8"))
+        lines += [f"### <img src=\"recipes/icons/{it}.png\" width=\"32\" height=\"32\" align=\"top\"> {name(it)}", "",
+                  f"![{name(it)} 조합법](recipes/{it}.png)", "", f"재료: {ingredients(recipe)}", ""]
+    lines += ["</details>", ""]
     with open(os.path.join(REPO, "docs", "ITEMS.md"), "w", encoding="utf-8") as f:
         f.write("\n".join(lines).rstrip() + "\n")
     print("docs/ITEMS.md written:", len(crafted), "crafted,", len(found), "found")
