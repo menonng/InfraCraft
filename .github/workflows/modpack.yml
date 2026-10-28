@@ -1,0 +1,55 @@
+# 모드팩 빌드: tools/modpack/pack.json 의 모드를 모아 .mrpack 과 한국어 리소스팩을 만들고,
+# 모든 모드를 함께 넣은 서버를 띄워 충돌 없이 켜지는지 확인한 뒤 modpack 브랜치에 올린다.
+name: modpack
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pack:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "microsoft"
+      - uses: gradle/actions/setup-gradle@v6
+      - name: build InfraCraft
+        run: chmod +x ./gradlew && ./gradlew :mc26.2:build -x test
+      - name: build pack
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ic=$(ls versions/26.2/build/libs/*.jar | grep -vE "sources|dev" | head -1)
+          mc=""
+          for j in $(find ~/.gradle/caches -name "*.jar" -size +10M | grep -E "26\.2" | grep -viE "sources"); do
+            if unzip -Z1 "$j" 2>/dev/null | grep -q '^version.json'; then mc="$j"; break; fi
+          done
+          echo "minecraft jar: $mc"
+          python3 tools/modpack/build_pack.py --infracraft "$ic" --mc "$mc" --out /tmp/pack | tee /tmp/pack-build.log
+      - name: smoke test with every mod
+        env:
+          INFRACRAFT_SMOKE_CREATE: "true"
+        run: |
+          mkdir -p versions/26.2/run/mods
+          find /tmp/pack/mods -name "*.jar" ! -name "infracraft.jar" -exec cp {} versions/26.2/run/mods/ \;
+          ls versions/26.2/run/mods
+          timeout 1500 ./gradlew :mc26.2:runServer 2>&1 | tee server.log || true
+          grep -q "\[InfraCraft\] smoke test passed" server.log && echo "PACK_BOOT=ok" >> /tmp/pack/REPORT.md || echo "PACK_BOOT=failed" >> /tmp/pack/REPORT.md
+          grep -E "Incompatible|requires|Caused by|Exception|SMOKE FAIL|Mixin.*(fail|error)" server.log | sed -E 's/^.*\] //' | awk '!seen[$0]++' | head -60 > /tmp/pack/server-problems.txt || true
+          grep -E "Loading [0-9]+ mods" -A200 server.log | head -120 > /tmp/pack/loaded-mods.txt || true
+      - name: push to modpack branch
+        if: always()
+        run: |
+          url=$(git remote get-url origin)
+          auth=$(git config --get http.https://github.com/.extraheader || true)
+          rm -rf /tmp/pack/mods
+          cd /tmp/pack
+          git init -q -b modpack
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Modpack build"
+          git -c http.https://github.com/.extraheader="$auth" push -f "$url" HEAD:modpack

@@ -1,0 +1,31 @@
+{
+  "name": "InfraCraft: 낭만 교통",
+  "summary": "InfraCraft + Create Fly 26.2 와 애드온 모음. 겉날개 없이 길을 깔고 기차·배·말로 여행하는 모드팩",
+  "minecraft": "26.2",
+  "loader": "0.20.1",
+  "mods": [
+    {"id": "fabric-api", "modrinth": "fabric-api"},
+    {"id": "fabric-language-kotlin", "modrinth": "fabric-language-kotlin"},
+    {"id": "create", "modrinth": "create-fly", "version": "26.2-6.0.9-2", "original": "create"},
+    {"id": "railways", "modrinth": "f20AygJv", "github": "cat4blep/Create-Steam-n-Rails-Fly", "original": "create-steam-n-rails"},
+    {"id": "createaddition", "modrinth": "7bkhocI9", "original": "createaddition"},
+    {"id": "createdieselgenerators", "modrinth": "AfUI0xBG", "original": "create-diesel-generators"},
+    {"id": "powergrid", "modrinth": "create-fly-power-grid-unofficial-port", "original": "power-grid"},
+    {"id": "electro_energetics", "github": "cat4blep/Creaty-fly-Electro-Energetics"},
+    {"id": "createnuclear", "github": "GravisLudio/create-nuclear-fly-26.2", "original": "createnuclear"},
+    {"id": "create_connected", "github": "GravisLudio/create-connected-fly", "original": "create-connected"},
+    {"id": "copycats", "github": "zoom-packers/copycats-createfly", "original": "copycats"},
+    {"id": "bits_n_bobs", "github": "zoom-packers/Create-Bits-n-Bobs", "original": "create-bits-n-bobs"},
+    {"id": "create_dragons_plus", "github": "GravisLudio/create-dragons-plus-fly-26.2", "original": "create-dragons-plus"},
+    {"id": "create_enchantment_industry", "github": "GravisLudio/create-enchantment-industry-fly-26.2", "original": "create-enchantment-industry"},
+    {"id": "bellsandwhistles", "github": "zoom-packers/BellsAndWhistlesMod", "original": "bellsandwhistles"},
+    {"id": "create_central_kitchen", "github": "GravisLudio/create-central-kitchen-fly-26.2", "original": "create-central-kitchen"},
+    {"id": "createdeco", "curseforge": "create-fly-deco", "original": "create-deco"},
+    {"id": "blocks_bogies", "curseforge": "create-fly-blocks-bogies", "original": "blocks-bogies"},
+    {"id": "hypertube", "github": "meakaandre-tech/CreateHypertubes", "original": "hypertube"},
+    {"id": "alloyed", "modrinth": "create-alloyed", "original": "create-alloyed"},
+    {"id": "create_cyber_goggles", "modrinth": "create-cyber-goggles", "client": true},
+    {"id": "gravis_flying_hotfixes", "github": "GravisLudio/gravis-flying-hotfixes"},
+    {"id": "gravis_flying_config", "github": "GravisLudio/gravis-flying-config-menu", "client": true}
+  ]
+}
