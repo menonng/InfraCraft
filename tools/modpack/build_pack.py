@@ -112,7 +112,10 @@ def main():
     files, report, seen_projects = [], [], set()
     jars = {}
 
+    broken = {m["id"]: m["server_broken"] for m in pack["mods"] if m.get("server_broken")}
+
     def add_file(mod_id, url, name, data, client_only=False, source=""):
+        client_only = client_only or mod_id in broken
         path = f"mods/{name}"
         if any(f["path"] == path for f in files):
             return
@@ -220,7 +223,10 @@ def main():
             f.write(f"| {r[0]} | {r[1]} | {r[2]} |\n")
         f.write("\n## 찾지 못한 모드\n")
         for m in missing:
-            f.write(f"- {m['id']} ({m.get('curseforge') and 'CurseForge 전용: ' + m['curseforge'] or m.get('github') or m.get('modrinth')})\n")
+            f.write(f"- {m['id']} ({m.get('note') or (m.get('curseforge') and 'CurseForge 전용: ' + m['curseforge']) or m.get('github') or m.get('modrinth')})\n")
+        f.write("\n## 전용 서버에서 빠지는 모드\n")
+        for k, why in broken.items():
+            f.write(f"- {k}: {why}\n")
         f.write("\n## 한국어\n| 모드 | 네임스페이스 | 원래 ko | 채운 키 | 합계 | 영어 키 |\n|---|---|---|---|---|---|\n")
         for c in coverage:
             f.write(f"| {c[0]} | {c[1]} | {c[2]} | {c[3]} | {c[4]} ({100 * c[4] // max(c[5], 1)}%) | {c[5]} |\n")
