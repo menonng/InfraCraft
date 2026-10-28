@@ -495,6 +495,80 @@ save(img, "block/trading_post_side")
 img = new(); planks(img, SPRUCE, 45, 0, 0, 15, 15)
 save(img, "block/trading_post_bottom")
 
+
+# ═══════════════════ 옛 길(3등급) ═══════════════════
+
+# 포석: 화강암 각석을 부채꼴로 깐 길
+img = new("#4E4A47")
+r = random.Random(51)
+rows = [(0, 3), (4, 7), (8, 11), (12, 15)]
+for ri, (y0, y1) in enumerate(rows):
+    off = (ri % 2) * 2
+    x = -off
+    while x < 16:
+        w = 4
+        base = r.choice(["#9C8E86", "#A89A90", "#8E827B", "#B3A59A", "#968A84"])
+        for yy in range(y0, y1):
+            for xx in range(max(0, x), min(16, x + w - 1)):
+                curve = 1 if (xx - x) in (0, w - 2) and yy == y0 else 0
+                c = shade(hx(base), r.randint(-8, 8) - 18 * curve)
+                img.putpixel((xx, yy), c)
+        for xx in range(max(0, x), min(16, x + w - 1)):
+            img.putpixel((xx, y0), shade(hx(base), 18))
+        x += w
+save(img, "block/setts")
+
+# 벽돌 포장길: 붉은 벽돌을 바구니 짜임(가로 둘·세로 둘)으로 깐 길
+img = new("#7A6A5C")
+r = random.Random(55)
+for by in range(0, 16, 4):
+    for bx in range(0, 16, 4):
+        horiz = ((bx + by) // 4) % 2 == 0
+        for k in range(2):
+            base = r.choice(["#A4513A", "#B05A40", "#9A4A35", "#B9684B"])
+            x0, y0 = (bx, by + 2 * k) if horiz else (bx + 2 * k, by)
+            w, h = (4, 2) if horiz else (2, 4)
+            for y in range(y0, y0 + h):
+                for x in range(x0, x0 + w):
+                    last = (x == x0 + w - 1) if horiz else (y == y0 + h - 1)
+                    if last:
+                        continue
+                    c = shade(hx(base), r.randint(-7, 7) + (14 if (y == y0 if horiz else x == x0) else 0))
+                    img.putpixel((x, y), c)
+save(img, "block/brick_paving")
+
+# 판석길: 크기가 다른 납작한 돌, 틈에 이끼
+img = new("#4F6B3A")
+slabs = [(0, 0, 6, 5), (7, 0, 15, 3), (7, 4, 11, 8), (12, 4, 15, 9), (0, 6, 6, 11), (7, 9, 15, 15), (0, 12, 6, 15)]
+r = random.Random(52)
+for (x0, y0, x1, y1) in slabs:
+    base = r.choice(["#8F8C84", "#9A978E", "#85827A", "#A39F95"])
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            edge = x in (x0, x1) or y in (y0, y1)
+            if edge and r.random() < 0.55:
+                continue
+            img.putpixel((x, y), shade(hx(base), r.randint(-9, 9) + (12 if y == y0 else 0)))
+for _ in range(14):
+    x, y = r.randrange(16), r.randrange(16)
+    if img.getpixel((x, y))[1] > 90 and img.getpixel((x, y))[0] < 90:
+        img.putpixel((x, y), hx("#6E9447"))
+save(img, "block/flagstone")
+
+# 이정석: 풍화된 돌기둥, 숫자와 화살표를 새김
+img = new()
+noise(img, "#8E8B83", 7, 53)
+for y in range(16):
+    img.putpixel((0, y), hx("#77746D")); img.putpixel((15, y), hx("#6A675F"))
+px(img, [(5, 4), (6, 4), (7, 4), (8, 4), (9, 4), (10, 4), (9, 3), (9, 5)], "#55524C")
+px(img, [(5, 8), (5, 9), (5, 10), (5, 11), (8, 8), (9, 8), (10, 8), (10, 9), (8, 10), (9, 10), (10, 10), (8, 11), (8, 12), (9, 12), (10, 12)], "#55524C")
+px(img, [(2, 14), (3, 15), (12, 13), (13, 14)], "#6E9447")
+save(img, "block/milestone")
+img = new(); noise(img, "#9A978F", 6, 54)
+for i in range(16):
+    img.putpixel((i, 0), hx("#B0ADA5")); img.putpixel((0, i), hx("#B0ADA5"))
+save(img, "block/milestone_top")
+
 # 모드 아이콘(64x64): 특급 선로 위의 역 패널
 icon = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
 icon.alpha_composite(Image.open(os.path.join(TEX, "block/express_rail_on.png")))

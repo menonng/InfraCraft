@@ -26,7 +26,7 @@ VANILLA_KO = {
     "popped_chorus_fruit": "튀긴 후렴과", "ender_eye": "엔더의 눈", "redstone_block": "레드스톤 블록",
     "#stone_crafting_materials": "돌 종류", "clay_ball": "점토 덩이", "iron_nugget": "철 조각", "glass_pane": "유리판",
     "glowstone_dust": "발광석 가루", "yellow_dye": "노란색 염료", "blue_dye": "파란색 염료", "light_blue_dye": "하늘색 염료",
-    "red_dye": "빨간색 염료", "spruce_slab": "가문비나무 반 블록", "spruce_planks": "가문비나무 판자", "book": "책",
+    "red_dye": "빨간색 염료", "spruce_slab": "가문비나무 반 블록", "spruce_planks": "가문비나무 판자", "book": "책", "polished_granite": "윤나는 화강암", "cobblestone": "조약돌", "bricks": "벽돌", "moss_block": "이끼 블록", "stone_bricks": "석재 벽돌",
 }
 CREATE_KO = {"railway_casing": "기차 케이스"}
 
@@ -43,7 +43,7 @@ OTHER = {
 }
 
 CATEGORIES = [
-    ("도로", ["asphalt", "road_line", "street_lamp", "signpost", "road_paver"]),
+    ("도로", ["setts", "brick_paving", "flagstone", "asphalt", "road_line", "milestone", "street_lamp", "signpost", "road_paver"]),
     ("철도", ["high_speed_rail", "express_rail", "blaze_rail", "ender_rail_core", "station", "rail_switch", "ticket", "track_layer", "surveyor"]),
     ("지하철", ["tunnel_borer", "subway_shield", "tunnel_lining", "tunnel_light", "platform_edge", "screen_door", "station_elevator", "subway_guide"]),
     ("역사 설계도", ["station_blueprint", "ground_station_blueprint", "harbor_blueprint"]),

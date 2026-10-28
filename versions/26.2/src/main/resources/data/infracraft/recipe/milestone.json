@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "S",
+    "N",
+    "S"
+  ],
+  "key": {
+    "S": "minecraft:stone_bricks",
+    "N": "minecraft:compass"
+  },
+  "result": {
+    "id": "infracraft:milestone",
+    "count": 1
+  }
+}

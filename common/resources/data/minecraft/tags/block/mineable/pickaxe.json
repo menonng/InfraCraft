@@ -3,6 +3,10 @@
   "values": [
     "infracraft:asphalt",
     "infracraft:road_line",
+    "infracraft:setts",
+    "infracraft:brick_paving",
+    "infracraft:flagstone",
+    "infracraft:milestone",
     "infracraft:station",
     "infracraft:rail_switch",
     "infracraft:water_current",

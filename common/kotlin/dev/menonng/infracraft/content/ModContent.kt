@@ -3,6 +3,7 @@ package dev.menonng.infracraft.content
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import dev.menonng.infracraft.block.CurrentBlock
+import dev.menonng.infracraft.block.MilestoneBlock
 import dev.menonng.infracraft.block.RailSwitchBlock
 import dev.menonng.infracraft.block.RailTier
 import dev.menonng.infracraft.block.ScreenDoorBlock
@@ -44,6 +45,11 @@ object ModBlocks {
     val ROAD_LINE = Compat.block("road_line", Properties.ofFullCopy(Blocks.STONE), ::Block)
     val STREET_LAMP = Compat.block("street_lamp", Properties.ofFullCopy(Blocks.REDSTONE_LAMP).lightLevel { 15 }, ::Block)
     val SIGNPOST = Compat.block("signpost", Properties.ofFullCopy(Blocks.OAK_PLANKS), ::Block)
+    // 옛 길: 아스팔트와 같은 3등급이지만 손으로 놓은 돌의 정취
+    val SETTS = Compat.block("setts", Properties.ofFullCopy(Blocks.POLISHED_GRANITE), ::Block)
+    val BRICK_PAVING = Compat.block("brick_paving", Properties.ofFullCopy(Blocks.BRICKS), ::Block)
+    val FLAGSTONE = Compat.block("flagstone", Properties.ofFullCopy(Blocks.STONE_BRICKS), ::Block)
+    val MILESTONE = Compat.block("milestone", Properties.ofFullCopy(Blocks.STONE_BRICKS).noOcclusion(), ::MilestoneBlock)
 
     // 철도
     val HIGH_SPEED_RAIL = Compat.block("high_speed_rail", Properties.ofFullCopy(Blocks.POWERED_RAIL)) { TierRailBlock(it, RailTier.HIGH_SPEED) }
@@ -93,6 +99,7 @@ object ModItems {
     fun init() {
         Compat.creativeTab("main", { ItemStack(ModBlocks.EXPRESS_RAIL) }) {
             listOf(
+                ModBlocks.SETTS, ModBlocks.BRICK_PAVING, ModBlocks.FLAGSTONE, ModBlocks.MILESTONE,
                 ModBlocks.ASPHALT, ModBlocks.ROAD_LINE, ModBlocks.STREET_LAMP, ModBlocks.SIGNPOST,
                 ModBlocks.HIGH_SPEED_RAIL, ModBlocks.EXPRESS_RAIL, ModBlocks.BLAZE_RAIL,
                 ModBlocks.STATION, ModBlocks.RAIL_SWITCH,

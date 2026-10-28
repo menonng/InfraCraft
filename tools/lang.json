@@ -646,5 +646,29 @@
  "infracraft.book.subway.9": {
   "ko_kr": "8. 역과 이정표\n\n· 이정표 클릭: 가까운 역\n· 웅크리고 클릭: 노선망\n· 승차권으로 역 클릭:\n  목적지까지 경로\n· 분기기에 승차권: 그\n  목적지로 갈림길 전환\n\n순간이동은 없습니다.\n창밖을 즐기세요!",
   "en_us": "8. Stations & signs\n\n· Click a signpost: nearby\n  stations\n· Sneak-click: network\n· Ticket on a station:\n  route to destination\n· Ticket on a switch:\n  route that destination\n\nNo teleports here.\nEnjoy the view!"
+ },
+ "block.infracraft.setts": {
+  "ko_kr": "포석길",
+  "en_us": "Cobbled Setts"
+ },
+ "block.infracraft.brick_paving": {
+  "ko_kr": "벽돌 포장길",
+  "en_us": "Brick Paving"
+ },
+ "block.infracraft.flagstone": {
+  "ko_kr": "판석길",
+  "en_us": "Flagstone Path"
+ },
+ "block.infracraft.milestone": {
+  "ko_kr": "이정석",
+  "en_us": "Milestone"
+ },
+ "infracraft.msg.milestone.header": {
+  "ko_kr": "이정석",
+  "en_us": "Milestone"
+ },
+ "infracraft.msg.milestone.alone": {
+  "ko_kr": "이정석 — 아직 이어진 역이 없습니다. 길 끝에 무엇이 있을까요?",
+  "en_us": "Milestone — no stations yet. What lies at the end of this road?"
  }
 }

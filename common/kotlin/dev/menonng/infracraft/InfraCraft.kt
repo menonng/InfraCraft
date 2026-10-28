@@ -73,6 +73,7 @@ object InfraCraft : ModInitializer {
                 RoadSystem.tick(player)
                 Tools.tick(player)
                 Network.rememberPosition(player)
+                Network.tickMilestone(player)
                 if (server.tickCount % 40 == 0) ElytraBan.sweep(player)
             }
             CreateCompat.tick(server)

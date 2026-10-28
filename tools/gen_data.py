@@ -22,13 +22,13 @@ def write(base, path, obj):
 A = os.path.join(COMMON, "assets", NS)
 D = os.path.join(COMMON, "data")
 
-CUBE_ALL = ["asphalt", "road_line", "street_lamp", "signpost", "tunnel_lining", "tunnel_light", "platform_edge"]
+CUBE_ALL = ["setts", "brick_paving", "flagstone", "asphalt", "road_line", "street_lamp", "signpost", "tunnel_lining", "tunnel_light", "platform_edge"]
 RAILS = ["high_speed_rail", "express_rail", "blaze_rail"]
 ITEMS = ["ticket", "road_paver", "track_layer", "tunnel_borer", "surveyor", "whistle",
          "iron_horseshoe", "diamond_horseshoe", "ender_rail_core", "subway_shield", "station_blueprint",
          "ground_station_blueprint", "harbor_blueprint", "metro_car_blueprint", "coach_blueprint", "cargo_crate"]
 BLOCKS = CUBE_ALL + RAILS + ["station", "rail_switch", "water_current", "boat_lift", "stable", "station_elevator",
-                             "screen_door", "trading_post"]
+                             "screen_door", "trading_post", "milestone"]
 
 def item_def(name, model):
     # 1.21.4+ 아이템 정의(1.21.1 은 이 폴더를 무시한다)
@@ -63,6 +63,19 @@ write(A, "models/block/station_elevator.json", {"parent": "minecraft:block/cube_
     "top": f"{NS}:block/station_elevator_top", "bottom": f"{NS}:block/station_elevator_side", "side": f"{NS}:block/station_elevator_side"}})
 write(A, "blockstates/station_elevator.json", {"variants": {"": {"model": f"{NS}:block/station_elevator"}}})
 
+write(A, "models/block/milestone.json", {
+    "parent": "minecraft:block/block",
+    "textures": {"side": f"{NS}:block/milestone", "top": f"{NS}:block/milestone_top", "particle": f"{NS}:block/milestone"},
+    "elements": [
+        {"from": [4, 0, 4], "to": [12, 13, 12], "faces": {
+            "north": {"uv": [4, 3, 12, 16], "texture": "#side"}, "south": {"uv": [4, 3, 12, 16], "texture": "#side"},
+            "east": {"uv": [4, 3, 12, 16], "texture": "#side"}, "west": {"uv": [4, 3, 12, 16], "texture": "#side"},
+            "down": {"texture": "#top", "cullface": "down"}}},
+        {"from": [3, 13, 3], "to": [13, 16, 13], "faces": {
+            f: {"uv": [3, 0, 13, 3], "texture": "#side"} for f in ("north", "south", "east", "west")} | {
+            "up": {"texture": "#top"}, "down": {"texture": "#top"}}},
+    ]})
+write(A, "blockstates/milestone.json", {"variants": {"": {"model": f"{NS}:block/milestone"}}})
 write(A, "models/block/trading_post.json", {"parent": "minecraft:block/cube_bottom_top", "textures": {
     "top": f"{NS}:block/trading_post_top", "bottom": f"{NS}:block/trading_post_bottom", "side": f"{NS}:block/trading_post_side"}})
 write(A, "blockstates/trading_post.json", {"variants": {"": {"model": f"{NS}:block/trading_post"}}})
@@ -153,14 +166,14 @@ tag(f"{NS}/tags/block/road_tier_2.json", mc(
     "sandstone_slab", "smooth_sandstone_slab", "cobbled_deepslate_slab", "deepslate_brick_slab", "deepslate_tile_slab",
     "polished_blackstone_brick_slab", "nether_brick_slab", "end_stone_brick_slab", "quartz_slab")
     + [f"{NS}:tunnel_lining", f"{NS}:platform_edge"])
-tag(f"{NS}/tags/block/road_tier_3.json", [f"{NS}:asphalt", f"{NS}:road_line"])
+tag(f"{NS}/tags/block/road_tier_3.json", [f"{NS}:asphalt", f"{NS}:road_line", f"{NS}:setts", f"{NS}:brick_paving", f"{NS}:flagstone"])
 tag(f"{NS}/tags/block/paveable.json", mc(
     "dirt", "grass_block", "coarse_dirt", "podzol", "mycelium", "rooted_dirt", "mud", "clay", "moss_block",
     "sand", "red_sand", "gravel", "stone", "andesite", "diorite", "granite", "tuff", "deepslate", "calcite",
     "dirt_path", "snow_block", "netherrack", "soul_sand", "soul_soil", "blackstone", "basalt", "end_stone")
     + [f"#{NS}:road_tier_1", f"#{NS}:road_tier_2", f"#{NS}:road_tier_3"])
 tag("minecraft/tags/block/mineable/pickaxe.json", [f"{NS}:{b}" for b in
-    ("asphalt", "road_line", "station", "rail_switch", "water_current", "boat_lift", "tunnel_lining", "platform_edge", "station_elevator",
+    ("asphalt", "road_line", "setts", "brick_paving", "flagstone", "milestone", "station", "rail_switch", "water_current", "boat_lift", "tunnel_lining", "platform_edge", "station_elevator",
      "screen_door", *RAILS)])
 tag("minecraft/tags/block/mineable/axe.json", [f"{NS}:signpost", f"{NS}:trading_post"])
 tag("minecraft/tags/block/mineable/hoe.json", [f"{NS}:stable"])
@@ -229,6 +242,10 @@ for t in ("in_enchanting_table", "non_treasure", "tradeable", "on_random_loot", 
 # ── 레시피 ──
 RECIPES = [
     # (이름, 결과 수, 패턴, {키: 재료})  재료: "minecraft:x" 또는 "#minecraft:tag"
+    ("setts", 8, ["GCG", "C C", "GCG"], {"G": "minecraft:polished_granite", "C": "minecraft:cobblestone"}),
+    ("brick_paving", 8, ["BSB", "S S", "BSB"], {"B": "minecraft:bricks", "S": "minecraft:sand"}),
+    ("flagstone", 8, ["SMS", "M M", "SMS"], {"S": "minecraft:smooth_stone", "M": "minecraft:moss_block"}),
+    ("milestone", 1, ["S", "N", "S"], {"S": "minecraft:stone_bricks", "N": "minecraft:compass"}),
     ("asphalt", 8, ["GSG", "SCS", "GSG"], {"G": "minecraft:gravel", "S": "#minecraft:sand", "C": "#minecraft:coals"}),
     ("road_line", 4, [" W ", "AAA", " A "], {"W": "minecraft:white_dye", "A": f"{NS}:asphalt"}),
     ("street_lamp", 1, ["NLN", " I ", " I "], {"N": "minecraft:gold_nugget", "L": "minecraft:lantern", "I": "minecraft:iron_bars"}),

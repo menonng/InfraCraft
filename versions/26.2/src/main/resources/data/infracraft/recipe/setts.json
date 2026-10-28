@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "GCG",
+    "C C",
+    "GCG"
+  ],
+  "key": {
+    "G": "minecraft:polished_granite",
+    "C": "minecraft:cobblestone"
+  },
+  "result": {
+    "id": "infracraft:setts",
+    "count": 8
+  }
+}

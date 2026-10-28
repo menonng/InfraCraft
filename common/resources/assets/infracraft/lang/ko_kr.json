@@ -160,5 +160,11 @@
   "infracraft.msg.car.need_materials": "재료가 모자랍니다:",
   "infracraft.msg.car.built": "차체를 지었습니다. 대차 자리(%1$s)의 트랙에 기차 케이스를 대어 대차를 놓고, 옆 Create 기차 정거장을 조립 모드로 바꿔 조립하세요.",
   "infracraft.msg.car.built_no_glue": "차체를 지었습니다(접착제는 직접 붙이세요). 대차 자리(%1$s)의 트랙에 기차 케이스를 대어 대차를 놓고, 차체 전체에 강력 접착제를 바른 뒤 조립하세요.",
-  "infracraft.book.subway.9": "8. 역과 이정표\n\n· 이정표 클릭: 가까운 역\n· 웅크리고 클릭: 노선망\n· 승차권으로 역 클릭:\n  목적지까지 경로\n· 분기기에 승차권: 그\n  목적지로 갈림길 전환\n\n순간이동은 없습니다.\n창밖을 즐기세요!"
+  "infracraft.book.subway.9": "8. 역과 이정표\n\n· 이정표 클릭: 가까운 역\n· 웅크리고 클릭: 노선망\n· 승차권으로 역 클릭:\n  목적지까지 경로\n· 분기기에 승차권: 그\n  목적지로 갈림길 전환\n\n순간이동은 없습니다.\n창밖을 즐기세요!",
+  "block.infracraft.setts": "포석길",
+  "block.infracraft.brick_paving": "벽돌 포장길",
+  "block.infracraft.flagstone": "판석길",
+  "block.infracraft.milestone": "이정석",
+  "infracraft.msg.milestone.header": "이정석",
+  "infracraft.msg.milestone.alone": "이정석 — 아직 이어진 역이 없습니다. 길 끝에 무엇이 있을까요?"
 }

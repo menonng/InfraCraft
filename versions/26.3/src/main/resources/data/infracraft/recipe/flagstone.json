@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SMS",
+    "M M",
+    "SMS"
+  ],
+  "key": {
+    "S": "minecraft:smooth_stone",
+    "M": "minecraft:moss_block"
+  },
+  "result": {
+    "id": "infracraft:flagstone",
+    "count": 8
+  }
+}

@@ -160,5 +160,11 @@
   "infracraft.msg.car.need_materials": "Missing materials:",
   "infracraft.msg.car.built": "Car body built. Put bogeys on the track at (%1$s) with train casing, then assemble with a Create station in assembly mode.",
   "infracraft.msg.car.built_no_glue": "Car body built (apply glue yourself). Put bogeys at (%1$s) with train casing, glue the whole body with super glue, then assemble.",
-  "infracraft.book.subway.9": "8. Stations & signs\n\n· Click a signpost: nearby\n  stations\n· Sneak-click: network\n· Ticket on a station:\n  route to destination\n· Ticket on a switch:\n  route that destination\n\nNo teleports here.\nEnjoy the view!"
+  "infracraft.book.subway.9": "8. Stations & signs\n\n· Click a signpost: nearby\n  stations\n· Sneak-click: network\n· Ticket on a station:\n  route to destination\n· Ticket on a switch:\n  route that destination\n\nNo teleports here.\nEnjoy the view!",
+  "block.infracraft.setts": "Cobbled Setts",
+  "block.infracraft.brick_paving": "Brick Paving",
+  "block.infracraft.flagstone": "Flagstone Path",
+  "block.infracraft.milestone": "Milestone",
+  "infracraft.msg.milestone.header": "Milestone",
+  "infracraft.msg.milestone.alone": "Milestone — no stations yet. What lies at the end of this road?"
 }

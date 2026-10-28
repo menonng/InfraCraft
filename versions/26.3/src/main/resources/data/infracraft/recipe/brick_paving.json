@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "BSB",
+    "S S",
+    "BSB"
+  ],
+  "key": {
+    "B": "minecraft:bricks",
+    "S": "minecraft:sand"
+  },
+  "result": {
+    "id": "infracraft:brick_paving",
+    "count": 8
+  }
+}

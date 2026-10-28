@@ -144,6 +144,7 @@ object Interactions {
             }
             return null
         }
+        if (emptyMain && state.`is`(ModBlocks.MILESTONE)) return handled(player) { Network.showSignpost(it.level() as ServerLevel, pos, it) }
         if (emptyMain && state.`is`(ModBlocks.SIGNPOST)) return handled(player) {
             if (it.isShiftKeyDown) Network.showNetwork(it.level() as ServerLevel, pos, it)
             else Network.showSignpost(it.level() as ServerLevel, pos, it)

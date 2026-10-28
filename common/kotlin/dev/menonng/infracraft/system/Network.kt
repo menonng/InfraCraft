@@ -104,6 +104,36 @@ object Network {
         }
     }
 
+    // ───────────── 이정석 ─────────────
+
+    private val lastMilestone = WeakHashMap<ServerPlayer, BlockPos>()
+
+    /** 길을 걷다 이정석 곁(2칸 안)을 지나면 가까운 역·항구 두 곳의 방향과 거리를 한 줄로 보여 준다. */
+    fun tickMilestone(player: ServerPlayer) {
+        if (player.tickCount % 10 != 0) return
+        val level = player.level() as ServerLevel
+        val c = player.blockPosition()
+        var found: BlockPos? = null
+        loop@ for (dx in -2..2) for (dy in -1..1) for (dz in -2..2) {
+            val p = c.offset(dx, dy, dz)
+            if (level.getBlockState(p).`is`(ModBlocks.MILESTONE)) { found = p; break@loop }
+        }
+        val here = found ?: run { lastMilestone.remove(player); return }
+        if (lastMilestone[player] == here) return
+        lastMilestone[player] = here
+        val dim = Compat.dimensionId(level)
+        val near = data(level.server).stations.values.filter { it.dim == dim }.sortedBy { it.pos.distSqr(here) }.take(2)
+        if (near.isEmpty()) { Compat.overlay(player, msg("milestone.alone", Palette.SKY)); return }
+        val line = msg("milestone.header", Palette.SKY)
+        for (st in near) {
+            val dx = (st.x - here.x).toDouble()
+            val dz = (st.z - here.z).toDouble()
+            val km = sqrt(dx * dx + dz * dz) / 1000.0
+            line.append(lit("  ${arrow(dx, dz)} ${st.name} ", Palette.YELLOW)).append(lit(if (km < 1) "${(km * 1000).toInt()}m" else "${fmt1(km)}km", Palette.PINK))
+        }
+        Compat.overlay(player, line)
+    }
+
     /** 이정표를 웅크리고 클릭: 노선망 요약과 모든 역(가까운 순) */
     fun showNetwork(level: ServerLevel, pos: BlockPos, player: Player) {
         val data = data(level.server)

@@ -138,3 +138,12 @@ class ScreenDoorBlock(props: BlockBehaviour.Properties) : TickedBlock(props, DOO
         )
     }
 }
+
+/** 이정석: 길가에 세우는 낮은 돌기둥. 곁을 지나가면 가까운 역·항구까지의 방향과 거리를 알려 준다. */
+class MilestoneBlock(props: BlockBehaviour.Properties) : Block(props) {
+    override fun getShape(state: BlockState, level: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape = SHAPE
+
+    companion object {
+        private val SHAPE: VoxelShape = Shapes.or(Block.box(4.0, 0.0, 4.0, 12.0, 13.0, 12.0), Block.box(3.0, 13.0, 3.0, 13.0, 16.0, 13.0))
+    }
+}
