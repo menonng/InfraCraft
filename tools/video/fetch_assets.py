@@ -80,6 +80,23 @@ def main():
             img.putalpha(Image.eval(img.getchannel("A"), lambda v: min(v, alpha)))
         img.save(os.path.join(OUT, name + ".png"))
         done += 1
+    # 차량 창·문: 산업용 철 판에 유리를 끼운 모양으로 합성
+    body = load(jars[CR][0], "create", "block/industrial_iron_block")
+    glass = load(jars[MC][0], "minecraft", "block/glass")
+    if body is not None and glass is not None:
+        win = body.copy()
+        pane = Image.new("RGBA", (12, 8), (40, 62, 92, 255))
+        pane.alpha_composite(glass.crop((2, 2, 14, 10)))
+        win.alpha_composite(pane, (2, 2))
+        win.save(os.path.join(OUT, "car_window.png"))
+        door = body.copy()
+        for y in range(16):
+            for x in (7, 8):
+                door.putpixel((x, y), (30, 32, 36, 255))
+        small = Image.new("RGBA", (4, 6), (40, 62, 92, 255))
+        door.alpha_composite(small, (2, 2)); door.alpha_composite(small, (10, 2))
+        door.save(os.path.join(OUT, "car_door.png"))
+        done += 2
     print(f"{done} textures -> {OUT}")
 
 if __name__ == "__main__":
