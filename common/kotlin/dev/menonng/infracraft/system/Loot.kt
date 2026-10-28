@@ -9,7 +9,6 @@ import net.minecraft.world.level.storage.loot.LootPool
 import net.minecraft.world.level.storage.loot.LootTable
 import net.minecraft.world.level.storage.loot.entries.EmptyLootItem
 import net.minecraft.world.level.storage.loot.entries.LootItem
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue
 
 /**
  * 조합법이 없는 아이템의 획득처: 바닐라 구조물 상자에 한 칸(풀)을 덧붙인다.
@@ -37,7 +36,8 @@ object Loot {
             if (!source.isBuiltin) return@register
             val (item, percent) = TABLES[key] ?: return@register
             builder.withPool(
-                LootPool.lootPool().setRolls(ConstantValue.exactly(1f))
+                // 굴림 수는 기본값(1번). 26.3 에서 상수 공급자 클래스가 옮겨져 직접 지정하지 않는다.
+                LootPool.lootPool()
                     .add(LootItem.lootTableItem(item).setWeight(percent))
                     .add(EmptyLootItem.emptyItem().setWeight(100 - percent))
             )
