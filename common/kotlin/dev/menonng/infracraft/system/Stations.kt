@@ -35,8 +35,8 @@ object Stations {
     // ───────────── 지상 역사 ─────────────
 
     /**
-     * 선로 위에 서서 진행 방향을 보고 사용한다. 길이 16:
-     * 가운데 선로(바닐라면 아래에 역 블록), 차량이 지나는 폭 5, 양쪽에 선로보다 한 칸 높은 승강장(폭 3),
+     * 두 선로 사이 가운데 줄에 서서 진행 방향을 보고 사용한다. 길이 16 의 상대식 복선 역:
+     * 양옆 두 선로(바닐라면 아래에 역 블록 둘), 선로마다 차량이 지나는 폭 5, 바깥 양쪽에 선로보다 한 칸 높은 승강장(폭 3),
      * 바깥쪽 기둥과 가문비나무 지붕, 벤치, 매달린 등불, 이정표.
      */
     fun buildGround(player: ServerPlayer, hand: InteractionHand) {
@@ -50,19 +50,21 @@ object Stations {
         val air = Blocks.AIR.defaultBlockState()
         val bricks = Blocks.STONE_BRICKS.defaultBlockState()
         val roof = Blocks.SPRUCE_SLAB.defaultBlockState()
+        val edge = 6   // 승강장 안전선
+        val outer = 8  // 승강장 바깥 끝(기둥·벤치)
         var tracksPlaced = 0
-        for (k in -7..8) for (o in -5..5) {
+        for (k in -7..8) for (o in -outer..outer) {
             val ao = abs(o)
             val outward = if (o > 0) side else side.opposite
-            if (ao < 3) {
-                // 선로와 차량 통로
+            if (ao < edge) {
+                // 두 선로와 차량 통로
                 for (h in 0..4) {
                     val p = at(base, dir, side, k, o, h)
-                    if (h == 0 && o == 0) {
+                    if (h == 0 && ao == Subway.TRACK_O) {
                         if (!Subway.isTrack(level.getBlockState(p))) { plan.add(p to trackState); tracksPlaced++ }
                     } else plan.add(p to air)
                 }
-                if (o == 0 && k == 0 && createTrack == null) plan.add(at(base, dir, side, 0, 0, -1) to ModBlocks.STATION.defaultBlockState())
+                if (ao == Subway.TRACK_O && k == 0 && createTrack == null) plan.add(at(base, dir, side, 0, o, -1) to ModBlocks.STATION.defaultBlockState())
                 continue
             }
             // 승강장 기초: 땅에 닿을 때까지(최대 8칸)
@@ -73,16 +75,16 @@ object Stations {
                 plan.add(p to bricks)
             }
             plan.add(at(base, dir, side, k, o, 0) to bricks)
-            plan.add(at(base, dir, side, k, o, 1) to if (ao == 3) ModBlocks.PLATFORM_EDGE.defaultBlockState() else Blocks.SMOOTH_STONE.defaultBlockState())
+            plan.add(at(base, dir, side, k, o, 1) to if (ao == edge) ModBlocks.PLATFORM_EDGE.defaultBlockState() else Blocks.SMOOTH_STONE.defaultBlockState())
             for (h in 2..4) {
                 val p = at(base, dir, side, k, o, h)
                 plan.add(p to when {
-                    ao == 5 && Math.floorMod(k, 4) == 2 -> Blocks.SPRUCE_LOG.defaultBlockState()
-                    ao == 5 && h == 2 && Math.floorMod(k, 4) == 0 ->
+                    ao == outer && Math.floorMod(k, 4) == 2 -> Blocks.SPRUCE_LOG.defaultBlockState()
+                    ao == outer && h == 2 && Math.floorMod(k, 4) == 0 ->
                         Blocks.SPRUCE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, outward)
-                    ao == 4 && h == 4 && Math.floorMod(k, 4) == 0 ->
+                    ao == outer - 1 && h == 4 && Math.floorMod(k, 4) == 0 ->
                         Blocks.LANTERN.defaultBlockState().setValue(BlockStateProperties.HANGING, true)
-                    o == 4 && h == 2 && k == -7 -> ModBlocks.SIGNPOST.defaultBlockState()
+                    ao == outer - 1 && h == 2 && k == -7 -> ModBlocks.SIGNPOST.defaultBlockState()
                     else -> air
                 })
             }
@@ -94,8 +96,9 @@ object Stations {
             if (createTrack != null) Inventories.consume(player, tracksPlaced) { it.`is`(createTrack.asItem()) }
         }
         if (createTrack == null) {
-            val st = Network.registerStation(level, at(base, dir, side, 0, 0, -1), null)
-            Compat.chat(player, msg("ground_station.built", Palette.GREEN, st.name))
+            val data = Network.data(level.server)
+            val (a, b) = Subway.registerTwin(level, at(base, dir, side, 0, Subway.TRACK_O, -1), at(base, dir, side, 0, -Subway.TRACK_O, -1), "역 ${data.stations.size + 1}")
+            Compat.chat(player, msg("ground_station.built", Palette.GREEN, a.name, b.name))
         } else Compat.chat(player, msg("ground_station.built_create", Palette.GREEN))
     }
 
