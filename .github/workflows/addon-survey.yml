@@ -1,0 +1,99 @@
+# 개발용: Modrinth 에서 인기 Create 애드온을 모아 라이선스·소스·지원 버전을 probe-data 브랜치에 표로 올린다.
+name: addon-survey
+on:
+  workflow_dispatch:
+    inputs:
+      extra:
+        description: "추가로 볼 Modrinth 슬러그(쉼표 구분)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  survey:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: survey
+        env:
+          EXTRA: ${{ inputs.extra }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p /tmp/out
+          python3 - <<'PY'
+          import json, os, urllib.parse, urllib.request, time
+          API = "https://api.modrinth.com/v2"
+          H = {"User-Agent": "menonng/InfraCraft addon-survey"}
+          def get(u, headers=H):
+              for i in range(4):
+                  try:
+                      with urllib.request.urlopen(urllib.request.Request(u, headers=headers), timeout=60) as r:
+                          return json.loads(r.read())
+                  except Exception as e:
+                      err = e; time.sleep(2 ** i)
+              raise err
+          hits = []
+          for off in (0, 100, 200):
+              q = f"{API}/search?query=create&index=downloads&limit=100&offset={off}&facets=" + urllib.parse.quote(json.dumps([["project_type:mod"]]))
+              hits += get(q)["hits"]
+          wanted = [h for h in hits if "create" in (h["title"] + h["slug"]).lower()]
+          slugs = [h["slug"] for h in wanted] + [s.strip() for s in os.environ.get("EXTRA", "").split(",") if s.strip()]
+          rows, seen = [], set()
+          for s in slugs:
+              if s in seen: continue
+              seen.add(s)
+              try:
+                  p = get(f"{API}/project/{s}")
+              except Exception as e:
+                  rows.append({"slug": s, "error": str(e)}); continue
+              gv = p.get("game_versions", [])
+              vers = get(f"{API}/project/{s}/version")
+              fabric26 = sorted({g for v in vers if "fabric" in v["loaders"] for g in v["game_versions"] if g.startswith("26.")})
+              any26 = sorted({f'{g}/{",".join(v["loaders"])}' for v in vers for g in v["game_versions"] if g.startswith("26.")})
+              latest = {}
+              for v in vers:
+                  for g in v["game_versions"]:
+                      for l in v["loaders"]:
+                          latest.setdefault(l, set()).add(g)
+              lic = p.get("license", {})
+              src = p.get("source_url") or ""
+              ghlic = ""
+              if "github.com/" in src:
+                  repo = src.split("github.com/")[1].strip("/").split("/")
+                  if len(repo) >= 2:
+                      try:
+                          gl = get(f"https://api.github.com/repos/{repo[0]}/{repo[1]}/license",
+                                   {**H, "Authorization": "Bearer " + os.environ["GH_TOKEN"]})
+                          ghlic = gl.get("license", {}).get("spdx_id", "")
+                          import base64
+                          text = base64.b64decode(gl.get("content", "")).decode("utf-8", "replace")
+                          os.makedirs("/tmp/out/licenses", exist_ok=True)
+                          open(f"/tmp/out/licenses/{s}.txt", "w").write(text)
+                      except Exception as e:
+                          ghlic = "?"
+              rows.append({"slug": s, "title": p["title"], "downloads": p["downloads"], "license": lic.get("id"),
+                           "license_name": lic.get("name"), "license_url": lic.get("url"), "github_license": ghlic,
+                           "source": src, "fabric26": fabric26, "any26": any26,
+                           "loaders": {l: sorted(g, key=lambda x: [int(c) if c.isdigit() else 0 for c in x.split(".")])[-3:] for l, g in latest.items()}})
+          rows.sort(key=lambda r: -r.get("downloads", 0))
+          json.dump(rows, open("/tmp/out/addons.json", "w"), ensure_ascii=False, indent=1)
+          with open("/tmp/out/addons.md", "w") as f:
+              f.write("| downloads | slug | title | license | gh | fabric26 | any26 | newest | source |\n|---|---|---|---|---|---|---|---|---|\n")
+              for r in rows:
+                  if "error" in r: f.write(f"| | {r['slug']} | ERROR {r['error']} |\n"); continue
+                  newest = "; ".join(f"{l}:{','.join(g)}" for l, g in r["loaders"].items())
+                  f.write(f"| {r['downloads']} | {r['slug']} | {r['title']} | {r['license']} | {r['github_license']} | {','.join(r['fabric26'])} | {','.join(r['any26'])} | {newest} | {r['source']} |\n")
+          print(len(rows), "projects")
+          PY
+      - name: push to probe-data
+        run: |
+          url=$(git remote get-url origin)
+          auth=$(git config --get http.https://github.com/.extraheader || true)
+          cd /tmp/out
+          git init -q -b probe-data
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Addon survey"
+          git -c http.https://github.com/.extraheader="$auth" push -f "$url" HEAD:probe-data
