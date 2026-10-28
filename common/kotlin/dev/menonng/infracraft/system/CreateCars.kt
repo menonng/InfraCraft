@@ -92,6 +92,36 @@ object CreateCars {
         return out
     }
 
+    /** 설계대로 블록을 놓고 접착제를 붙인다. 접착제를 모두 붙였으면 true. */
+    private fun place(level: ServerLevel, plan: Map<BlockPos, BlockState>, base: BlockPos, dir: Direction, side: Direction): Boolean {
+        for ((p, st) in plan) level.setBlock(p, st, 3)
+        // 접착제: 차체(바닥~지붕) 전체와, 대차 자리 두 칸(트랙 → 대차)과 그 위 바닥만.
+        // 대차 사이 트랙까지 덮으면 조립할 때 트랙을 함께 들어 올리려 할 수 있어 빼 둔다.
+        var glued = CreateCompat.spawnGlue(level, box(at(base, dir, side, 0, -2, 1), at(base, dir, side, LENGTH - 1, 2, 4)))
+        for (k in BOGEYS) glued = CreateCompat.spawnGlue(level, box(at(base, dir, side, k, 0, 0), at(base, dir, side, k, 0, 1))) && glued
+        return glued
+    }
+
+    /** CI 스모크 테스트: 빈 곳에 트랙을 깔고 전동차 차체를 지어 블록과 접착제가 실제로 놓이는지 본다. */
+    fun selfTest(level: ServerLevel, base: BlockPos): String? {
+        val track = CreateCompat.trackBlock() ?: return "no track"
+        val dir = Direction.EAST
+        val side = dir.clockWise
+        for (k in 0 until LENGTH) level.setBlock(at(base, dir, side, k, 0, 0), CreateCompat.trackState(track, dir, 0), 3)
+        val plan = design(Style.METRO, base, dir, side) ?: return "design failed (missing blocks)"
+        if (!place(level, plan, base, dir, side)) return "glue not spawned"
+        val wrong = plan.entries.count { (p, st) -> level.getBlockState(p).block != st.block }
+        if (wrong > 0) return "$wrong blocks differ"
+        val glue = level.getEntities(null as net.minecraft.world.entity.Entity?, box(at(base, dir, side, 0, -2, 0), at(base, dir, side, LENGTH - 1, 2, 4))) {
+            it.javaClass.simpleName == "SuperGlueEntity"
+        }
+        return if (glue.size == 1 + BOGEYS.size) null else "glue entities: ${glue.size}"
+    }
+
+    /** 두 모서리 블록을 포함하는 상자 */
+    private fun box(a: BlockPos, b: BlockPos) = AABB(minOf(a.x, b.x).toDouble(), minOf(a.y, b.y).toDouble(), minOf(a.z, b.z).toDouble(),
+        maxOf(a.x, b.x) + 1.0, maxOf(a.y, b.y) + 1.0, maxOf(a.z, b.z) + 1.0)
+
     fun build(player: ServerPlayer, hand: InteractionHand, style: Style) {
         val level = player.level() as ServerLevel
         val track = CreateCompat.trackBlock()
@@ -139,12 +169,7 @@ object CreateCars {
             for ((item, n) in needed) Inventories.consume(player, n) { it.`is`(item) }
             player.getItemInHand(hand).shrink(1)
         }
-        for ((p, st) in plan) level.setBlock(p, st, 3)
-        val a = at(base, dir, side, 0, -2, 0)
-        val b = at(base, dir, side, LENGTH - 1, 2, 4)
-        val box = AABB(minOf(a.x, b.x).toDouble(), a.y.toDouble(), minOf(a.z, b.z).toDouble(),
-            maxOf(a.x, b.x) + 1.0, b.y + 1.0, maxOf(a.z, b.z) + 1.0)
-        val glued = CreateCompat.spawnGlue(level, box)
+        val glued = place(level, plan, base, dir, side)
         val bogeys = BOGEYS.map { at(base, dir, side, it, 0, 0) }
         Compat.chat(player, msg(if (glued) "car.built" else "car.built_no_glue", Palette.GREEN,
             bogeys.joinToString("  ") { "${it.x}, ${it.y}, ${it.z}" }))

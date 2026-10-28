@@ -66,25 +66,27 @@ const SUBWAY = (() => {
     background(ctx, t, 'rgba(255,204,17,0.07)');
     const a = inOut(t, 0, d);
     const items = [
-      { name: '실드 굴진기', note: '5×4 터널을 한 칸씩', sprite: 'subway_shield' },
+      { name: '실드 굴진기', note: '5×5 터널을 한 칸씩', sprite: 'subway_shield' },
       { name: '터널 라이닝', note: '돌 8 + 점토 → 16', cube: L },
       { name: '터널 조명', note: '천장 조명', cube: LIGHT, glow: 'rgba(220,240,255,0.5)' },
       { name: '승강장 안전선', note: '노란 점자 블록', cube: EDGE },
       { name: '역 승강기', note: '지상까지 오르내림', cube: { top: 'station_elevator_top', side: 'station_elevator_side' } },
+      { name: '승강장 안전문', note: '차량이 서면 열림', sprite: 'screen_door' },
       { name: '지하 역사 설계도', note: '역사를 한 번에', sprite: 'station_blueprint' },
+      { name: '전동차 도면', note: 'Create 블록으로 차체', sprite: 'metro_car_blueprint' },
     ];
     items.forEach((it, i) => {
-      const col = i % 3, row = Math.floor(i / 3);
-      const x = 190 + col * 300, y = 150 + row * 230;
-      const p = easeBack(seg(t, 0.2 + i * 0.18, 0.8 + i * 0.18));
-      panel(ctx, x, y, 260, 200, { alpha: a * clamp(p) });
-      if (it.sprite) sprite(ctx, it.sprite, x + 130, y + 78, 96 * p, a);
+      const col = i % 4, row = Math.floor(i / 4);
+      const x = 70 + col * 290, y = 140 + row * 230;
+      const p = easeBack(seg(t, 0.2 + i * 0.14, 0.8 + i * 0.14));
+      panel(ctx, x, y, 270, 200, { alpha: a * clamp(p) });
+      if (it.sprite) sprite(ctx, it.sprite, x + 135, y + 78, 96 * p, a);
       else {
-        const iso = new Iso(x + 130, y + 86, 40 * p);
+        const iso = new Iso(x + 135, y + 86, 40 * p);
         iso.cube(ctx, -0.5, 0, -0.5, it.cube, { alpha: a, glow: it.glow });
       }
-      text(ctx, it.name, x + 130, y + 158, { size: 26, weight: 800, align: 'center', alpha: a * clamp(p) });
-      text(ctx, it.note, x + 130, y + 186, { size: 18, align: 'center', color: C.dim, alpha: a * clamp(p) });
+      text(ctx, it.name, x + 135, y + 158, { size: 26, weight: 800, align: 'center', alpha: a * clamp(p) });
+      text(ctx, it.note, x + 135, y + 186, { size: 18, align: 'center', color: C.dim, alpha: a * clamp(p) });
     });
     caption(ctx, '02  키트 구성', '기차는 Create가, 터널과 역사는 InfraCraft가 맡습니다', a * seg(t, 0.4, 0.9), C.yellow);
   }
@@ -101,18 +103,18 @@ const SUBWAY = (() => {
     for (let x = 0; x < N; x++) {
       const tk = sliceAt(x);
       if (t >= tk) done = x + 1;
-      for (let z = -4; z <= 0; z++) for (let y = -2; y <= 5; y++) {
-        const interior = z >= -2 && y >= 0 && y <= 3;
-        const shell = !interior && ((z === -3 && y >= -1 && y <= 4) || ((y === -1 || y === 4) && z >= -3));
+      for (let z = -4; z <= 0; z++) for (let y = -2; y <= 6; y++) {
+        const interior = z >= -2 && y >= 0 && y <= 4;
+        const shell = !interior && ((z === -3 && y >= -1 && y <= 5) || ((y === -1 || y === 5) && z >= -3));
         const rock = (y <= -1 && z <= -3) ? DEEP : ROCK;
         // 단면도: 앞쪽 천장과 그 위 암반은 그리지 않는다(조명만 남김)
-        const isLightCell = y === 4 && z === 0 && x % 8 === 0;
-        if ((y === 4 && z >= -1 && !(isLightCell && t >= tk)) || (y === 5 && z >= -3)) continue;
+        const isLightCell = y === 5 && z === 0 && x % 8 === 0;
+        if ((y === 5 && z >= -1 && !(isLightCell && t >= tk)) || (y === 6 && z >= -3)) continue;
         if (interior) {
-          const v = vanish(t, tk + 0.12 + (3 - y) * 0.04 + (z + 2) * 0.03, 0.3);
+          const v = vanish(t, tk + 0.12 + (4 - y) * 0.04 + (z + 2) * 0.03, 0.3);
           if (v.alpha > 0) blocks.push({ x, y, z, tex: rock, ...v, alpha: v.alpha * a });
         } else if (shell) {
-          const isLight = y === 4 && z === 0 && x % 8 === 0;
+          const isLight = y === 5 && z === 0 && x % 8 === 0;
           if (t < tk) blocks.push({ x, y, z, tex: rock, alpha: a });
           else {
             const p = pop(t, tk, 0.3);
@@ -135,7 +137,7 @@ const SUBWAY = (() => {
     panel(ctx, 960, 100, 280, 112, { alpha: a, accent: C.blue });
     text(ctx, `단면 ${done} / ${N}`, 990, 144, { size: 28, weight: 800, alpha: a });
     text(ctx, `라이닝 ${lining}개 사용`, 990, 182, { size: 22, color: C.dim, alpha: a });
-    const cap = t < 5 ? '굴진기를 정면으로 쓸 때마다 5×4 단면이 한 칸씩 뚫립니다'
+    const cap = t < 5 ? '굴진기를 정면으로 쓸 때마다 5×5 단면이 한 칸씩 뚫립니다 (전동차가 지나는 크기)'
       : t < 10 ? '둘레는 터널 라이닝으로 감싸고, 바닥 가운데에 트랙을 깝니다'
         : '8칸마다 천장에 조명이 달립니다 (앞쪽 절반을 잘라 낸 단면도)';
     caption(ctx, '03  굴진', cap, a * seg(t, 0.3, 0.8), C.blue);
@@ -228,50 +230,72 @@ const SUBWAY = (() => {
   function station(ctx, t, d) {
     background(ctx, t, 'rgba(255,180,204,0.08)');
     const a = inOut(t, 0, d);
-    const iso = new Iso(610, 330, 22);
+    const iso = new Iso(520, 500, 24);
     const blocks = [];
-    const at = (k) => 0.6 + (k + 7) * 0.08;
-    const shaftTop = 9;
-    for (let k = -7; k <= 8; k++) for (let o = -5; o <= 0; o++) {
+    const at = (k) => 0.5 + (k + 7) * 0.07;
+    const shaftTop = 10;
+    const doorsOpen = t > 8.6 && t < 11.2;
+    const doorA = 1 - 0.85 * (seg(t, 8.4, 8.8) - seg(t, 11.0, 11.4));
+    for (let k = -7; k <= 8; k++) for (let o = -6; o <= 0; o++) {
       const tk = at(k);
-      const add = (y, tex, extra = {}) => { const p = pop(t, tk + y * 0.06, 0.35); blocks.push({ x: k, y, z: o, tex, alpha: a * p.alpha, lift: p.lift, ...extra }); };
+      const add = (y, tex, extra = {}) => { const p = pop(t, tk + Math.max(0, y) * 0.05, 0.35); blocks.push({ x: k, y, z: o, tex, alpha: a * p.alpha * (extra.fade ?? 1), lift: p.lift, ...extra }); };
       add(-1, k === 0 && o === 0 ? 'station' : L);
-      if (o === -5) for (let y = 0; y <= 4; y++) add(y, L);
-      if (o <= -2 && o >= -4) add(0, o === -2 ? EDGE : L);
+      if (o === -6) for (let y = 0; y <= 5; y++) add(y, L);
+      if (o <= -3 && o >= -5) {
+        add(0, L);
+        add(1, o === -3 ? EDGE : (k === 6 && o === -5 ? { top: 'station_elevator_top', side: 'station_elevator_side' } : L));
+      }
+      // 안전문(승강장 가장자리 두 칸)
+      if (o === -3) for (const y of [2, 3]) {
+        const p = pop(t, 2.4 + (k + 7) * 0.05, 0.3);
+        blocks.push({ x: k, y, z: o, tex: { top: 'screen_door_frame', side: 'screen_door_glass', front: 'screen_door_glass' }, alpha: a * p.alpha * doorA, lift: p.lift });
+      }
       // 천장은 뒤쪽 두 줄만(안이 보이도록)
-      if (o <= -4) add(5, Math.abs(o) === 4 && Math.floor(k) % 4 === 0 ? LIGHT : L, { glow: Math.abs(o) === 4 && k % 4 === 0 ? 'rgba(220,240,255,0.5)' : null });
+      if (o <= -5) add(6, o === -5 && Math.floor(k) % 4 === 0 ? LIGHT : L, { glow: o === -5 && k % 4 === 0 ? 'rgba(220,240,255,0.5)' : null });
       if (o === 0) blocks.push({ x: k, y: 0, z: 0, tex: TRACK, flat: true, rotate: true, alpha: a * seg(t, tk + 0.4, tk + 0.7), y: 0 });
     }
-    // 승강기와 수직구
-    const ev = { x: 6, z: -4 };
-    const shaftAt = 2.6;
-    const eP = pop(t, shaftAt, 0.4);
-    blocks.push({ x: ev.x, y: 0, z: ev.z, tex: { top: 'station_elevator_top', side: 'station_elevator_side' }, alpha: a * eP.alpha, lift: eP.lift });
-    for (let y = 6; y <= shaftTop; y++) {
-      const p = pop(t, shaftAt + 0.2 + (y - 6) * 0.12, 0.3);
+    // 전동차: 들어와서 역사 가운데에 선다(앞쪽 절반은 잘라 낸 단면)
+    const arrive = easeOut(seg(t, 5.0, 8.2));
+    const cx = lerp(-22, -4, arrive);
+    const carA = a * seg(t, 5.0, 5.4);
+    if (carA > 0) for (let i = 0; i < 9; i++) {
+      const x = cx + i;
+      if (x < -7.5) continue;
+      for (const o of [-2, -1, 0]) blocks.push({ x, y: 1, z: o, tex: 'car_body', alpha: carA });
+      const isDoor = i === 2 || i === 6;
+      for (const y of [2, 3]) {
+        if (isDoor && doorsOpen) continue;
+        blocks.push({ x, y, z: -2, tex: isDoor ? 'car_door' : (y === 3 ? 'car_window' : 'car_body'), alpha: carA });
+      }
+      for (const o of [-2, -1]) blocks.push({ x, y: 4, z: o, tex: 'car_body', alpha: carA });
+    }
+    // 승강기 수직구
+    const ev = { x: 6, z: -5 };
+    for (let y = 7; y <= shaftTop; y++) {
+      const p = pop(t, 1.8 + (y - 7) * 0.12, 0.3);
       for (const [dx, dz] of [[-1, 0], [0, -1], [1, 0]]) blocks.push({ x: ev.x + dx, y, z: ev.z + dz, tex: L, alpha: a * p.alpha * 0.9, lift: p.lift });
     }
-    // 지표(잔디)
-    for (let x = 3; x <= 9; x++) for (let z = -7; z <= -1; z++) {
+    for (let x = 3; x <= 9; x++) for (let z = -8; z <= -2; z++) {
       if (x === ev.x && z === ev.z) continue;
       const p = pop(t, 0.2, 0.4);
       blocks.push({ x, y: shaftTop + 1, z, tex: { top: 'grass_top', side: 'grass_side' }, alpha: a * p.alpha * 0.95 });
     }
     drawBlocks(ctx, iso, blocks);
-    // 승강기를 타고 오르는 플레이어(점)
-    const ride = seg(t, 5.2, 8.2);
-    if (ride > 0) {
-      const [px, py] = iso.pt(ev.x + 0.5, 1 + ride * (shaftTop + 0.2), ev.z + 0.5);
-      ctx.save();
-      ctx.globalAlpha = a;
-      ctx.fillStyle = C.yellow;
-      roundRect(ctx, px - 7, py - 30, 14, 30, 4); ctx.fill();
-      ctx.restore();
-      actionbar(ctx, '▲ 승강기', px + 60, py - 10, C.green, a);
+    // 내리는 승객 → 승강기로
+    const walk = seg(t, 9.0, 11.0);
+    const ride = seg(t, 11.6, 14.6);
+    if (walk > 0) {
+      const px0 = lerp(cx + 2.5, ev.x + 0.5, walk), pz0 = lerp(-1.5, ev.z + 0.5, walk);
+      const [px, py] = iso.pt(px0, 2 + ride * (shaftTop - 1), pz0);
+      ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = C.yellow; roundRect(ctx, px - 6, py - 26, 12, 26, 4); ctx.fill(); ctx.restore();
+      if (ride > 0) actionbar(ctx, '▲ 승강기 (순간이동 아님)', px + 110, py - 10, C.green, a);
     }
-    const cap = t < 2.6 ? '트랙 위에서 노선 방향을 보고 설계도를 쓰면 역사가 지어집니다'
-      : t < 5.2 ? '양쪽 승강장 · 안전선 · 천장 조명 · 승강기 수직구까지'
-        : '승강기에 서면 지상까지 올라가고, 웅크리면 내려갑니다';
+    if (t > 8.6 && t < 11.2) actionbar(ctx, '안전문 열림', 1000, 560, C.sky, a * inOut(t, 8.6, 11.2));
+    const cap = t < 2.4 ? '트랙 위에서 노선 방향을 보고 설계도를 쓰면 역사가 지어집니다'
+      : t < 5.0 ? '승강장은 선로보다 한 칸 높고, 가장자리에 안전선과 안전문이 섭니다'
+        : t < 8.6 ? 'Create 전동차의 바닥과 승강장 높이가 같아 턱 없이 탑니다'
+          : t < 11.4 ? '차량이 멈추면 안전문이 열리고, 떠나면 닫힙니다'
+            : '승강기는 수직구 안에서 실제로 올려 줍니다. 웅크리면 내려갑니다';
     caption(ctx, '06  지하 역사', cap, a * seg(t, 0.3, 0.8), C.pink);
   }
 
@@ -321,10 +345,10 @@ const SUBWAY = (() => {
     const pc = easeOut(seg(t, 7.4, 8.0));
     panel(ctx, 380, 520, 520, 92, { alpha: a * pc, accent: C.sky });
     text(ctx, '중앙역 → 항구역 → 광산역', 410, 558, { size: 24, weight: 800, color: C.yellow, alpha: a * pc });
-    text(ctx, '1.0km · 50.5초 · 웅크리고 승차권 → 급행 16.8초', 410, 592, { size: 20, color: C.dim, alpha: a * pc });
+    text(ctx, '1.0km · 50.5초 · 창밖을 보며 직접 갑니다', 410, 592, { size: 20, color: C.dim, alpha: a * pc });
     const cap = t < 3.0 ? 'Create 기차역은 InfraCraft 노선망에 자동으로 등록됩니다'
       : t < 7.4 ? '기차가 역 사이를 달리면 그 구간이 노선으로 측량됩니다'
-        : '승차권으로 역을 누르면 경로, 웅크리고 누르면 급행';
+        : '승차권으로 역을 누르면 경로를 알려 줍니다. 순간이동은 없습니다';
     caption(ctx, '07  기차와 노선망', cap, a * seg(t, 0.3, 0.8), C.green);
   }
 
@@ -363,9 +387,9 @@ const SUBWAY = (() => {
     { from: 19, to: 35, draw: boring },
     { from: 35, to: 42, draw: slope },
     { from: 42, to: 49, draw: water },
-    { from: 49, to: 60, draw: station },
-    { from: 60, to: 71, draw: network },
-    { from: 71, to: 77, draw: outro },
+    { from: 49, to: 65, draw: station },
+    { from: 65, to: 76, draw: network },
+    { from: 76, to: 82, draw: outro },
   ];
-  return { total: 77, scenes };
+  return { total: 82, scenes };
 })();

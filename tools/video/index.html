@@ -21,15 +21,18 @@
 <script>
   const MOD = '../../common/resources/assets/infracraft/textures/';
   const images = {};
-  for (const n of ['stone', 'deepslate', 'dirt', 'grass_top', 'grass_side', 'water', 'lava', 'rail', 'create_track', 'planks', 'sandstone', 'snow'])
+  for (const n of ['stone', 'deepslate', 'dirt', 'grass_top', 'grass_side', 'water', 'lava', 'rail', 'create_track', 'planks', 'sandstone', 'snow',
+    'stone_bricks', 'smooth_stone', 'spruce', 'car_body', 'car_window', 'car_door', 'door_glass'])
     images[n] = `assets/${n}.png`;
   for (const n of ['asphalt', 'road_line', 'street_lamp', 'signpost', 'station', 'station_side', 'rail_switch', 'rail_switch_on',
     'water_current_top', 'water_current_side', 'boat_lift_top', 'boat_lift_side', 'stable_top', 'stable_side',
     'high_speed_rail', 'high_speed_rail_on', 'express_rail', 'express_rail_on', 'blaze_rail', 'blaze_rail_on',
-    'tunnel_lining', 'tunnel_light', 'platform_edge', 'station_elevator_top', 'station_elevator_side'])
+    'tunnel_lining', 'tunnel_light', 'platform_edge', 'station_elevator_top', 'station_elevator_side',
+    'screen_door_frame', 'screen_door_glass', 'trading_post_top', 'trading_post_side'])
     images[n] = MOD + 'block/' + n + '.png';
   for (const n of ['ticket', 'road_paver', 'track_layer', 'tunnel_borer', 'surveyor', 'whistle', 'iron_horseshoe',
-    'diamond_horseshoe', 'ender_rail_core', 'subway_shield', 'station_blueprint'])
+    'diamond_horseshoe', 'ender_rail_core', 'subway_shield', 'station_blueprint', 'ground_station_blueprint',
+    'harbor_blueprint', 'metro_car_blueprint', 'coach_blueprint', 'cargo_crate', 'screen_door'])
     images[n] = MOD + 'item/' + n + '.png';
   const VIDEOS = { subway: SUBWAY, features: FEATURES };
   const video = VIDEOS[new URLSearchParams(location.search).get('video') || 'subway'];

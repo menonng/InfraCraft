@@ -67,4 +67,46 @@ for y in range(16):
     for x0 in (3, 11):
         track.putpixel((x0, y), hx("#d7dbd4")); track.putpixel((x0 + 1, y), hx("#9aa097")); track.putpixel((x0 + 2, y), hx("#6e726c"))
 save(track, "create_track")
+# 지상 역사·항구용
+save(noise("#7b7b7b", 6, 12, [("#666666", 14)]), "stone_bricks")
+sb = Image.open(os.path.join(OUT, "stone_bricks.png"))
+for x in range(16):
+    for y in (3, 7, 11, 15):
+        sb.putpixel((x, y), hx("#5a5a5a"))
+for y in range(16):
+    x0 = 7 if (y // 4) % 2 == 0 else 15
+    sb.putpixel((x0, y), hx("#5a5a5a"))
+save(sb, "stone_bricks")
+save(noise("#a9a9a9", 3, 13, [("#9a9a9a", 8)]), "smooth_stone")
+save(noise("#6b4c2e", 6, 14, [("#5a3f25", 18)]), "spruce")
+
+# 전동차 차체(Create 산업용 철 느낌의 단순화): 차체·창·문
+body = noise("#c9ced2", 3, 15, [("#b8bec3", 10)])
+for x in range(16):
+    body.putpixel((x, 0), hx("#e8ecef")); body.putpixel((x, 15), hx("#8d969c"))
+for x in range(16):
+    for y in (10, 11):
+        body.putpixel((x, y), hx("#39C5BB"))
+save(body, "car_body")
+win = Image.new("RGBA", (16, 16), hx("#c9ced2"))
+for y in range(2, 12):
+    for x in range(2, 14):
+        win.putpixel((x, y), hx("#2b3e57") if (x + y) % 9 else hx("#6f8db3"))
+for x in range(16):
+    for y in (12, 13):
+        win.putpixel((x, y), hx("#39C5BB"))
+save(win, "car_window")
+door = Image.new("RGBA", (16, 16), hx("#aab2b8"))
+for y in range(16):
+    door.putpixel((7, y), hx("#5b646a")); door.putpixel((8, y), hx("#5b646a"))
+for y in range(2, 9):
+    for x in (3, 4, 5, 10, 11, 12):
+        door.putpixel((x, y), hx("#2b3e57"))
+save(door, "car_door")
+glass = Image.new("RGBA", (16, 16), (170, 215, 235, 90))
+for x in range(16):
+    glass.putpixel((x, 0), hx("#9aa3a8")); glass.putpixel((x, 15), hx("#9aa3a8"))
+for y in range(16):
+    glass.putpixel((0, y), hx("#9aa3a8")); glass.putpixel((15, y), hx("#9aa3a8"))
+save(glass, "door_glass")
 print("video assets written")

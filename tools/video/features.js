@@ -14,7 +14,7 @@ const FEATURES = (() => {
     });
     text(ctx, 'InfraCraft', W / 2, 200, { size: 34, font: 'pixel', align: 'center', color: C.orange, alpha: a, shadow: true });
     text(ctx, '주요 기능 한눈에 보기', W / 2, 285, { size: 72, weight: 800, align: 'center', alpha: a * seg(t, 0.3, 1.0) });
-    text(ctx, '직접 깐 인프라가 곧 이동 속도', W / 2, 340, { size: 28, align: 'center', color: C.dim, alpha: a * seg(t, 0.7, 1.4) });
+    text(ctx, '순간이동 없이, 직접 깐 길로 세계를 여행합니다', W / 2, 340, { size: 28, align: 'center', color: C.dim, alpha: a * seg(t, 0.7, 1.4) });
   }
 
   // ── 도로 ──
@@ -136,7 +136,68 @@ const FEATURES = (() => {
     caption(ctx, '03  역 · 승차권 · 분기기', cap, a * seg(t, 0.3, 0.8), C.yellow);
   }
 
-  // ── 노선망·급행 ──
+  // ── 자동 열차 정지(ATS) ──
+  function ats(ctx, t, d) {
+    background(ctx, t, 'rgba(255,204,17,0.06)');
+    const a = inOut(t, 0, d);
+    const B = 40; // 한 칸
+    const rows = [[250, '같은 방향: 앞차와 4칸 간격'], [500, '단선 맞은편: 8칸 앞에서 둘 다 정지']];
+    for (const [y, label] of rows) {
+      ctx.save(); ctx.globalAlpha = a;
+      ctx.fillStyle = '#5a3d24';
+      for (let x = 80; x < 1200; x += 20) ctx.fillRect(x, y + 14, 12, 8);
+      ctx.fillStyle = '#c9c9c9'; ctx.fillRect(80, y + 12, 1120, 3);
+      ctx.restore();
+      text(ctx, label, 80, y - 52, { size: 22, weight: 800, alpha: a });
+    }
+    // 1) 같은 방향: 선두차는 역에서 서고, 뒤차는 간격을 지키며 따라간다 (1/60초 단위로 적분)
+    let lead = 120, fol = -60, vf = 0;
+    const dt = 1 / 60;
+    for (let s2 = 0; s2 < t; s2 += dt) {
+      const vl = s2 < 3.0 ? 220 : s2 < 5.6 ? 0 : 260;
+      lead = Math.min(lead + vl * dt, lead < 760 && s2 < 3.0 ? 760 : 1400);
+      const gap = lead - fol - 36;
+      const allowed = Math.max(0, (gap - 4 * B) * 2.2);
+      vf = Math.min(240, allowed, vf + 400 * dt);
+      fol += vf * dt;
+    }
+    const braking = (lead - fol - 36) < 4 * B + 60 && t > 1.5 && lead < 1250;
+    const cart = (x, y, col, badge) => {
+      ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = col; roundRect(ctx, x, y - 14, 36, 26, 6); ctx.fill(); ctx.restore();
+      if (badge) { ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = C.yellow; roundRect(ctx, x - 2, y - 44, 40, 22, 6); ctx.fill(); ctx.restore();
+        text(ctx, 'ATS', x + 18, y - 28, { size: 14, weight: 800, align: 'center', color: '#1a1a1a', alpha: a }); }
+    };
+    sprite(ctx, 'station', 778, 250 + 52, 30, a);
+    if (lead < 1250) cart(lead, 250, C.sky, false);
+    if (fol > 60 && fol < 1250) cart(fol, 250, C.orange, braking);
+    if (braking && lead < 1250) {
+      ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = C.yellow; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(fol + 36, 250 - 24); ctx.lineTo(lead, 250 - 24); ctx.stroke(); ctx.restore();
+      text(ctx, `${Math.round((lead - fol - 36) / B)}칸`, (fol + 36 + lead) / 2, 250 - 30, { size: 16, weight: 700, align: 'center', color: C.yellow, alpha: a });
+    }
+    // 2) 맞은편: 서로 다가오다 8칸 앞에서 정지, 뒤에 탄 사람이 물러난다
+    let l = 100, r = 1144;
+    for (let s2 = 0; s2 < t; s2 += dt) {
+      const gap = r - l - 36;
+      const v = Math.min(200, Math.max(0, (gap - 8 * B) * 2.2));
+      if (s2 < 6.5) { l += v * dt; r -= v * dt; } else { l -= 90 * dt; }
+    }
+    const stopped = (r - l - 36) <= 8 * B + 4;
+    cart(l, 500, C.orange, stopped && t < 6.5);
+    cart(r, 500, C.sky, stopped && t < 6.5);
+    if (stopped) {
+      ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = C.orange; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(l + 36, 500 - 24); ctx.lineTo(r, 500 - 24); ctx.stroke(); ctx.restore();
+      text(ctx, `${Math.round((r - l - 36) / B)}칸`, (l + 36 + r) / 2, 500 - 30, { size: 16, weight: 700, align: 'center', color: C.orange, alpha: a });
+    }
+    if (t > 6.5) actionbar(ctx, '◀ 탑승자가 반대로 몰면 물러날 수 있습니다', 360, 580, C.sky, a * seg(t, 6.5, 6.9));
+    const cap = t < 3.0 ? '카트가 선로를 따라 앞 24칸을 살핍니다'
+      : t < 6.0 ? '앞차가 서 있으면 4칸 뒤에서 기다렸다가, 앞이 비면 다시 출발합니다'
+        : '단선에서 맞은편 차가 오면 둘 다 섭니다. 복선이나 교행 구간을 두세요';
+    caption(ctx, '04  ATS · 충돌 방지', cap, a * seg(t, 0.3, 0.8), C.yellow);
+  }
+
+  // ── 노선망 ──
   function network(ctx, t, d) {
     background(ctx, t, 'rgba(85,187,68,0.08)');
     const a = inOut(t, 0, d);
@@ -162,17 +223,21 @@ const FEATURES = (() => {
       sprite(ctx, 'station', x, y, 46, a);
       text(ctx, k + '역', x, y + 46, { size: 18, weight: 700, align: 'center', alpha: a });
     }
-    // 급행 카운트다운
-    const ex = seg(t, 4.4, 7.4);
-    if (ex > 0) {
-      panel(ctx, 880, 560, 340, 70, { alpha: a, accent: C.sky });
-      ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = C.sky; ctx.lineWidth = 6;
-      ctx.beginPath(); ctx.arc(920, 595, 20, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * ex); ctx.stroke(); ctx.restore();
-      text(ctx, ex < 1 ? `급행 운행 중 → F역 ${(16.8 * (1 - ex)).toFixed(1)}초` : 'F역에 도착했습니다', 955, 603, { size: 20, weight: 700, alpha: a });
+    // 경로를 따라 실제로 달리는 기차
+    const ride = seg(t, 4.2, 7.6);
+    if (ride > 0) {
+      const legs = best.length - 1;
+      const f = Math.min(ride * legs, legs - 1e-6);
+      const i = Math.floor(f), u = f - i;
+      const [p, q] = [N[best[i]], N[best[i + 1]]];
+      const x = lerp(p[0], q[0], u), y = lerp(p[1], q[1], u);
+      ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = C.orange; roundRect(ctx, x - 16, y - 11, 32, 22, 6); ctx.fill(); ctx.restore();
+      panel(ctx, 860, 560, 360, 70, { alpha: a, accent: C.sky });
+      text(ctx, ride < 1 ? '창밖을 보며 F역으로 가는 중…' : 'F역에 도착했습니다', 890, 603, { size: 20, weight: 700, alpha: a });
     }
     const cap = t < 2.4 ? 'Create 기차와 카트가 실제로 달린 구간만 노선이 됩니다'
-      : t < 4.4 ? '목적지까지 가장 빠른 경로를 찾아 승차권으로 안내합니다' : '웅크리고 승차권을 쓰면 기록 시간의 1/3로 급행 이동';
-    caption(ctx, '04  노선망과 급행', cap, a * seg(t, 0.3, 0.8), C.green);
+      : t < 4.2 ? '목적지까지 가장 빠른 경로를 찾아 승차권으로 안내합니다' : '가는 건 직접 — 순간이동은 없습니다';
+    caption(ctx, '05  노선망', cap, a * seg(t, 0.3, 0.8), C.green);
   }
 
   // ── 건설 장비 ──
@@ -218,7 +283,7 @@ const FEATURES = (() => {
     ctx.restore();
     text(ctx, '수평 246m · 경사 45% · 블록 741개', 1040, 470, { size: 17, weight: 700, align: 'center', color: C.dim, alpha: a * seg(t, 1.8, 2.2) });
     text(ctx, '웅크리고 찍으면 교량 건설', 1040, 500, { size: 20, weight: 700, align: 'center', color: C.yellow, alpha: a * seg(t, 2.5, 3.0) });
-    caption(ctx, '05  건설 장비', '걸으면서 도로·선로를 깔고, 터널을 뚫고, 교량을 놓습니다', a * seg(t, 0.3, 0.8), C.blue);
+    caption(ctx, '06  건설 장비', '걸으면서 도로·선로를 깔고, 터널을 뚫고, 교량을 놓습니다', a * seg(t, 0.3, 0.8), C.blue);
   }
 
   // ── 말 ──
@@ -233,7 +298,7 @@ const FEATURES = (() => {
       text(ctx, name, x + 120, 365, { size: 26, weight: 800, align: 'center', alpha: a * clamp(p) });
       text(ctx, note, x + 120, 400, { size: 18, align: 'center', color: C.dim, alpha: a * clamp(p) });
     });
-    caption(ctx, '06  말', '측량기로 말을 클릭하면 속도·점프·체력을 감정합니다', a * seg(t, 0.3, 0.8), C.pink);
+    caption(ctx, '08  말', '측량기로 말을 클릭하면 속도·점프·체력을 감정합니다', a * seg(t, 0.3, 0.8), C.pink);
   }
 
   // ── 수운 ──
@@ -260,7 +325,106 @@ const FEATURES = (() => {
     ctx.restore();
     text(ctx, '물살 블록', 390, 440, { size: 24, weight: 800, align: 'center', alpha: a });
     text(ctx, '보트 리프트', 944, 500, { size: 24, weight: 800, align: 'center', alpha: a });
-    caption(ctx, '07  수운', '물살 블록이 보트를 밀고, 보트 리프트가 물기둥으로 올립니다. 물속 역은 항구', a * seg(t, 0.3, 0.8), C.sky);
+    caption(ctx, '09  수운', '물살 블록이 보트를 밀고, 보트 리프트가 물기둥으로 올립니다. 물속 역은 항구', a * seg(t, 0.3, 0.8), C.sky);
+  }
+
+  // ── 역사 세 가지 ──
+  function stations(ctx, t, d) {
+    background(ctx, t, 'rgba(255,180,204,0.07)');
+    const a = inOut(t, 0, d);
+    const cards = [[50, '지하 역사', 'station_blueprint', C.pink], [460, '지상 역사', 'ground_station_blueprint', C.orange], [870, '항구', 'harbor_blueprint', C.sky]];
+    cards.forEach(([x, name, icon, col], i) => {
+      const p = clamp(easeBack(seg(t, 0.2 + i * 0.25, 0.8 + i * 0.25)));
+      panel(ctx, x, 100, 360, 470, { alpha: a * p, accent: col });
+      sprite(ctx, icon, x + 50, 145, 48, a * p);
+      text(ctx, name, x + 86, 155, { size: 26, weight: 800, alpha: a * p });
+    });
+    const build = (i) => seg(t, 0.8 + i * 0.6, 2.4 + i * 0.6);
+    // 지하: 단면(선로·높은 승강장·안전문)
+    {
+      const iso = new Iso(170, 400, 22), bl = [], g = build(0);
+      for (let x = 0; x < 6; x++) {
+        for (let z = -4; z <= 0; z++) bl.push({ x, y: -1, z, tex: 'tunnel_lining', alpha: a * g });
+        for (const z of [-4, -3]) bl.push({ x, y: 0, z, tex: z === -3 ? 'platform_edge' : 'tunnel_lining', alpha: a * g });
+        for (const y of [1, 2]) bl.push({ x, y, z: -3, tex: { top: 'screen_door_frame', side: 'screen_door_glass', front: 'screen_door_glass' }, alpha: a * g * 0.9 });
+        for (let y = 0; y <= 3; y++) bl.push({ x, y, z: -5, tex: 'tunnel_lining', alpha: a * g });
+        bl.push({ x, y: 0, z: 0, tex: 'create_track', flat: true, rotate: true, alpha: a * g });
+      }
+      for (const b of bl) if (b.flat) b.y = -0.04;
+      drawBlocks(ctx, iso, bl);
+    }
+    // 지상: 돌벽돌 승강장, 가문비나무 기둥과 지붕
+    {
+      const iso = new Iso(590, 420, 22), bl = [], g = build(1);
+      for (let x = 0; x < 6; x++) {
+        for (let z = -4; z <= -2; z++) {
+          bl.push({ x, y: 0, z, tex: z === -2 ? 'platform_edge' : 'stone_bricks', alpha: a * g });
+          bl.push({ x, y: 4, z, tex: 'spruce', alpha: a * seg(t, 2.4, 3.2) });
+        }
+        if (x % 3 === 1) for (let y = 1; y <= 3; y++) bl.push({ x, y, z: -4, tex: 'spruce', alpha: a * g });
+        bl.push({ x, y: 0, z: 0, tex: 'rail', flat: true, rotate: true, alpha: a * g });
+        bl.push({ x, y: -1, z: 0, tex: { top: 'grass_top', side: 'grass_side' }, alpha: a * g });
+        bl.push({ x, y: -1, z: -1, tex: { top: 'grass_top', side: 'grass_side' }, alpha: a * g });
+      }
+      for (const b of bl) if (b.flat) b.y = -0.04;
+      drawBlocks(ctx, iso, bl);
+      for (const x of [1, 4]) { const [lx, ly] = iso.pt(x + 0.5, 3.4, -2.5); ctx.save(); ctx.globalAlpha = a * seg(t, 2.6, 3.2);
+        const r = ctx.createRadialGradient(lx, ly, 1, lx, ly, 30); r.addColorStop(0, 'rgba(255,200,90,0.9)'); r.addColorStop(1, 'rgba(255,200,90,0)');
+        ctx.fillStyle = r; ctx.fillRect(lx - 30, ly - 30, 60, 60); ctx.restore(); }
+    }
+    // 항구: 물 위 잔교와 교역소
+    {
+      const iso = new Iso(990, 400, 22), bl = [], g = build(2);
+      for (let x = 0; x < 7; x++) for (let z = -4; z <= 1; z++) bl.push({ x, y: -1, z, tex: 'water', alpha: a });
+      for (let x = 0; x < 6; x++) for (let z = -2; z <= -1; z++) bl.push({ x, y: 0, z, tex: 'planks', alpha: a * g });
+      bl.push({ x: 0, y: 1, z: -2, tex: { top: 'trading_post_top', side: 'trading_post_side' }, alpha: a * seg(t, 2.8, 3.3) });
+      drawBlocks(ctx, iso, bl);
+      const bx = lerp(1060, 1010, easeOut(seg(t, 3.4, 5.4)));
+      ctx.save(); ctx.globalAlpha = a * seg(t, 3.4, 3.8); ctx.fillStyle = '#9a6b3f'; roundRect(ctx, bx, 455, 56, 16, 6); ctx.fill(); ctx.restore();
+    }
+    const notes = [[230, '높은 승강장 · 안전문 · 승강기'], [640, '지붕 · 벤치 · 등불 · 이정표'], [1050, '잔교 · 계선주 · 교역소']];
+    notes.forEach(([x, s2], i) => text(ctx, s2, x, 540, { size: 19, weight: 700, align: 'center', color: C.dim, alpha: a * build(i) }));
+    const cap = t < 4.5 ? '설계도 하나로 지하·지상·항구 역사를 짓습니다'
+      : '승강장은 선로보다 한 칸 높아 Create 차량과 턱 없이 이어집니다. 항구 설계도는 난파선에서 찾습니다';
+    caption(ctx, '07  역사 세 가지', cap, a * seg(t, 0.3, 0.8), C.pink);
+  }
+
+  // ── 항구 교역 ──
+  function trade(ctx, t, d) {
+    background(ctx, t, 'rgba(57,197,187,0.09)');
+    const a = inOut(t, 0, d);
+    // 바다 지도
+    panel(ctx, 60, 80, 1160, 440, { alpha: a, accent: C.sky });
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = 'rgba(61,111,214,0.35)'; roundRect(ctx, 80, 100, 1120, 400, 12); ctx.fill();
+    ctx.fillStyle = '#4f8a30'; ctx.beginPath(); ctx.ellipse(210, 400, 120, 90, 0.3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#e8eef2'; ctx.beginPath(); ctx.ellipse(1070, 210, 120, 80, -0.2, 0, Math.PI * 2); ctx.fill();
+    ctx.restore();
+    text(ctx, '열대우림 항구', 210, 330, { size: 22, weight: 800, align: 'center', alpha: a });
+    text(ctx, '설원 항구', 1070, 150, { size: 22, weight: 800, align: 'center', color: '#1a2333', alpha: a });
+    sprite(ctx, 'trading_post_side', 250, 410, 40, a);
+    // 항로
+    const route = (u) => { const x = lerp(300, 990, u); return [x, 400 - 190 * u + Math.sin(u * Math.PI) * -60]; };
+    ctx.save(); ctx.globalAlpha = a * 0.7; ctx.strokeStyle = '#ffffff'; ctx.setLineDash([8, 10]); ctx.lineWidth = 3; ctx.beginPath();
+    for (let i = 0; i <= 40; i++) { const [x, y] = route(i / 40); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
+    ctx.stroke(); ctx.restore();
+    const sail = easeInOut(seg(t, 2.6, 6.4));
+    const [bx, by] = route(sail);
+    ctx.save(); ctx.globalAlpha = a * seg(t, 2.4, 2.8); ctx.fillStyle = '#9a6b3f'; roundRect(ctx, bx - 28, by - 8, 56, 16, 6); ctx.fill(); ctx.restore();
+    if (t > 1.0) sprite(ctx, 'cargo_crate', bx, by - 26, 30, a * seg(t, 1.0, 1.4));
+    text(ctx, `항해 ${Math.round(2600 * sail).toLocaleString()}m`, 640, 480, { size: 22, weight: 800, align: 'center', color: C.yellow, alpha: a * seg(t, 2.6, 3.0) });
+    // 선적·정산 카드
+    const c1 = easeOut(seg(t, 0.6, 1.2));
+    panel(ctx, 100, 540, 520, 60, { alpha: a * c1, accent: C.green });
+    text(ctx, '선적: 코코아 콩 ×64 → 화물 상자', 125, 578, { size: 20, weight: 700, alpha: a * c1 });
+    const c2 = easeOut(seg(t, 6.6, 7.2));
+    panel(ctx, 660, 540, 520, 60, { alpha: a * c2, accent: C.sky });
+    text(ctx, '하역: 얼음 39 · 꽁꽁 언 얼음 38 · 눈덩이 38 (1.8배)', 685, 578, { size: 20, weight: 700, alpha: a * c2 });
+    if (t > 7.6) actionbar(ctx, '먼 항해의 선물: 스니퍼 알', 1000, 300, C.pink, a * seg(t, 7.6, 8.0));
+    const cap = t < 2.4 ? '교역소에 그 항구의 특산품을 들고 쓰면 화물 상자가 됩니다'
+      : t < 6.6 ? '배를 타고 200블록 넘게 떨어진 다른 지역 항구로 직접 갑니다'
+        : '도착하면 그곳 특산품으로 바뀝니다. 멀수록 많이, 가끔 진귀품도';
+    caption(ctx, '10  항구 교역', cap, a * seg(t, 0.3, 0.8), C.sky);
   }
 
   // ── 규칙과 네더 ──
@@ -284,7 +448,7 @@ const FEATURES = (() => {
     panel(ctx, 760, 350, 420, 110, { alpha: a * seg(t, 1.5, 2.0), accent: C.purple });
     text(ctx, '포탈 양쪽 16블록 안의 역 → 포탈 노선', 790, 395, { size: 20, weight: 700, alpha: a * seg(t, 1.5, 2.0) });
     text(ctx, '네더 좌표는 오버월드와 1:1', 790, 430, { size: 20, color: C.dim, alpha: a * seg(t, 1.5, 2.0) });
-    caption(ctx, '08  네더', '네더는 지름길이 아니라, 연료를 태우는 위험한 고속 노선입니다', a * seg(t, 0.3, 0.8), C.red);
+    caption(ctx, '11  네더', '네더는 지름길이 아니라, 연료를 태우는 위험한 고속 노선입니다', a * seg(t, 0.3, 0.8), C.red);
   }
 
   // ── Create 연동과 인챈트 ──
@@ -293,7 +457,7 @@ const FEATURES = (() => {
     const a = inOut(t, 0, d);
     panel(ctx, 80, 110, 540, 460, { alpha: a, accent: C.sky });
     text(ctx, 'Create 연동', 110, 160, { size: 30, weight: 800, alpha: a });
-    const lines = ['Create 기차역 → 노선망 역 자동 등록', 'Create 기차 운행 → 노선 자동 측량', 'Steam \'n\' Rails 트랙도 그대로', '지하철 키트가 Create 트랙을 깝니다', 'Create 장식 돌 = 도로 2등급', '차량은 Create와 애드온에 맡깁니다'];
+    const lines = ['Create 기차 정거장 → 노선망 역 자동 등록', 'Create 기차 운행 → 노선 자동 측량', '전동차·객차 도면 → Create 블록으로 차체', '지하철 키트가 Create 트랙을 깝니다', 'Create 장식 돌 = 도로 2등급', '차량 자체는 Create와 애드온의 것'];
     lines.forEach((s, i) => text(ctx, '• ' + s, 110, 215 + i * 54, { size: 22, weight: 600, alpha: a * seg(t, 0.4 + i * 0.25, 0.8 + i * 0.25) }));
     panel(ctx, 660, 110, 540, 460, { alpha: a, accent: C.purple });
     text(ctx, '인챈트', 690, 160, { size: 30, weight: 800, alpha: a });
@@ -303,7 +467,7 @@ const FEATURES = (() => {
       text(ctx, n, 690, 212 + i * 44, { size: 22, weight: 800, color: C.pink, alpha: al });
       text(ctx, note, 870, 212 + i * 44, { size: 20, color: C.dim, alpha: al });
     });
-    caption(ctx, '09  Create 연동 · 인챈트', 'Enchantment Industry 블레이즈 마법부여기로도 붙일 수 있습니다', a * seg(t, 0.3, 0.8), C.purple);
+    caption(ctx, '12  Create 연동 · 인챈트', 'Enchantment Industry 블레이즈 마법부여기로도 붙일 수 있습니다', a * seg(t, 0.3, 0.8), C.purple);
   }
 
   function outro(ctx, t, d) {
@@ -319,13 +483,16 @@ const FEATURES = (() => {
     { from: 4, to: 14, draw: roads },
     { from: 14, to: 24, draw: rails },
     { from: 24, to: 32, draw: switching },
-    { from: 32, to: 40, draw: network },
-    { from: 40, to: 49, draw: tools },
-    { from: 49, to: 54, draw: horses },
-    { from: 54, to: 60, draw: water },
-    { from: 60, to: 66, draw: nether },
-    { from: 66, to: 74, draw: compat },
-    { from: 74, to: 78, draw: outro },
+    { from: 32, to: 41, draw: ats },
+    { from: 41, to: 49, draw: network },
+    { from: 49, to: 58, draw: tools },
+    { from: 58, to: 67, draw: stations },
+    { from: 67, to: 72, draw: horses },
+    { from: 72, to: 78, draw: water },
+    { from: 78, to: 88, draw: trade },
+    { from: 88, to: 94, draw: nether },
+    { from: 94, to: 102, draw: compat },
+    { from: 102, to: 106, draw: outro },
   ];
-  return { total: 78, scenes };
+  return { total: 106, scenes };
 })();

@@ -92,7 +92,8 @@ object Interactions {
         if (stack.`is`(ModItems.HARBOR_BLUEPRINT)) return handled(player) { Stations.buildHarbor(it, hand) }
         if (stack.`is`(ModItems.METRO_CAR_BLUEPRINT)) return handled(player) { CreateCars.build(it, hand, CreateCars.Style.METRO) }
         if (stack.`is`(ModItems.COACH_BLUEPRINT)) return handled(player) { CreateCars.build(it, hand, CreateCars.Style.COACH) }
-        if (state.`is`(ModBlocks.TRADING_POST) && hand == InteractionHand.MAIN_HAND) {
+        // 교역소: 웅크리면 바닐라 동작(옆에 블록 놓기 등)
+        if (state.`is`(ModBlocks.TRADING_POST) && hand == InteractionHand.MAIN_HAND && !player.isShiftKeyDown) {
             return handled(player) { Trade.useTradingPost(it.level() as ServerLevel, pos, it, stack) }
         }
         if (stack.`is`(ModItems.SURVEYOR)) return handled(player) { Tools.survey(it, stack, pos) }

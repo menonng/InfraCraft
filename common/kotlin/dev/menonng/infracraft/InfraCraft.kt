@@ -126,6 +126,10 @@ object InfraCraft : ModInitializer {
             check("create train API (reflection)", CreateCompat.selfCheck())
             val track = CreateCompat.trackBlock()
             check("create car blocks & glue: ${CreateCompat.carCheck()}", CreateCompat.carCheck().isEmpty())
+            val carBase = net.minecraft.core.BlockPos(0, 290, 0)
+            overworld.getChunk(0, 0)
+            val carError = dev.menonng.infracraft.system.CreateCars.selfTest(overworld, carBase)
+            check("create metro car built in world (${carError ?: "ok"})", carError == null)
             check("create track shape", track != null &&
                 CreateCompat.trackState(track, net.minecraft.core.Direction.EAST, 0).toString().contains("shape=xo") &&
                 CreateCompat.trackState(track, net.minecraft.core.Direction.NORTH, 1).toString().contains("shape=an"))
