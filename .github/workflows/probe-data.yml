@@ -70,6 +70,14 @@ jobs:
             fi
           done
           echo "$jars" | tr ' ' '\n' > jars.txt
+          # 효과음·텍스처 이름 목록(파일 자체는 올리지 않는다)
+          (cd $GITHUB_WORKSPACE && ./gradlew :mc26.2:downloadAssets -q) || true
+          idx=$(find ~/.gradle/caches -path "*assets/indexes/*.json" | head -1)
+          echo "$idx" > mc-asset-index-path.txt
+          [ -n "$idx" ] && python3 -c "import json,sys; d=json.load(open('$idx'))['objects']; print('\n'.join(sorted(k for k in d if k.startswith('minecraft/sounds/'))))" > mc-sounds.txt
+          grep -E '^assets/create/sounds/' create-files.txt > create-sounds.txt || true
+          grep -E '^assets/create/textures/block/' create-files.txt | sed 's#assets/create/textures/##' > create-block-textures.txt || true
+          [ -f "$(cat mc-client-jar.txt 2>/dev/null)" ] && unzip -Z1 "$(cat mc-client-jar.txt)" | grep '^assets/minecraft/textures/block/' | sed 's#.*/##' > mc-block-textures.txt || true
       - name: push to probe-data
         # 작업 폴더(.gradle 캐시 등)가 섞이지 않도록 결과 폴더만 따로 저장소로 만들어 올린다
         run: |
