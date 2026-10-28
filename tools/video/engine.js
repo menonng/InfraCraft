@@ -7,13 +7,42 @@ const C = {
 };
 const IMG = {};
 
+// map 값은 경로 하나 또는 [우선 경로, 대체 경로, …]. 앞의 것이 없으면(예: CI 에서 뽑은 실제 텍스처가 없을 때) 다음 것을 쓴다.
 function loadImages(map) {
-  return Promise.all(Object.entries(map).map(([name, src]) => new Promise((ok, fail) => {
-    const im = new Image();
-    im.onload = () => { IMG[name] = im; ok(); };
-    im.onerror = () => fail(new Error('image ' + src));
-    im.src = src;
+  return Promise.all(Object.entries(map).map(([name, srcs]) => new Promise((ok, fail) => {
+    const list = Array.isArray(srcs) ? srcs.slice() : [srcs];
+    const next = () => {
+      if (!list.length) return fail(new Error('image ' + name));
+      const im = new Image();
+      im.onload = () => { IMG[name] = im; ok(); };
+      im.onerror = next;
+      im.src = list.shift();
+    };
+    next();
   })));
+}
+
+// ── 효과음 ──
+// 장면마다 sfx(d) 가 [[장면 안 시각, 이름, 음량, 음높이], …] 를 돌려준다. render.mjs 가 모아 오디오 트랙으로 섞는다.
+// 장면이 바뀔 때의 휙 소리는 자동으로 붙는다.
+function collectSfx(scenes) {
+  const out = [];
+  for (const s of scenes) {
+    const d = s.to - s.from;
+    if (s.from > 0) out.push([s.from, 'whoosh', 0.35, 1.0]);
+    for (const e of (s.sfx ? s.sfx(d) : [])) {
+      const [t, name, vol = 1, pitch = 1] = e;
+      if (t >= 0 && t <= d) out.push([s.from + t, name, vol, pitch]);
+    }
+  }
+  return out.sort((a, b) => a[0] - b[0]);
+}
+// 같은 소리를 일정 간격으로 여러 번
+function every(from, to, step, name, vol = 1, pitch = 1, jitter = 0) {
+  const out = [];
+  let i = 0;
+  for (let t = from; t < to; t += step, i++) out.push([t, name, vol, pitch + (jitter ? ((i * 7919) % 5 - 2) * jitter : 0)]);
+  return out;
 }
 
 // ── 시간 도우미 ──

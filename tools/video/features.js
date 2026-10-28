@@ -473,21 +473,22 @@ const FEATURES = (() => {
     text(ctx, '26.2 · 26.3 Fabric  ·  Create Fly와 함께', W / 2, 400, { size: 24, align: 'center', color: C.dim, alpha: a * seg(t, 0.6, 1.2) });
   }
 
+  const fromGuide = (id) => ({ draw: (c, t, d) => GUIDES[id].scenes[1].draw(c, t, d), sfx: (d) => GUIDES[id].scenes[1].sfx(d) });
   const scenes = [
-    { from: 0, to: 4, draw: intro },
-    { from: 4, to: 14, draw: roads },
-    { from: 14, to: 24, draw: rails },
-    { from: 24, to: 32, draw: switching },
-    { from: 32, to: 41, draw: ats },
-    { from: 41, to: 49, draw: network },
-    { from: 49, to: 58, draw: tools },
-    { from: 58, to: 67, draw: stations },
-    { from: 67, to: 72, draw: horses },
-    { from: 72, to: 78, draw: water },
-    { from: 78, to: 88, draw: trade },
-    { from: 88, to: 94, draw: nether },
-    { from: 94, to: 102, draw: compat },
-    { from: 102, to: 106, draw: outro },
+    { from: 0, to: 4, draw: intro, sfx: () => Array.from({ length: 10 }, (_, i) => [0.2 + i * 0.07, 'pop', 0.35, 0.9 + i * 0.05]).concat([[1.0, 'pling', 0.4, 1.33]]) },
+    { from: 4, to: 16, ...fromGuide('g_roads') },
+    { from: 16, to: 26, draw: rails, sfx: () => [[0.5, 'minecart', 0.45, 1.0, 9.0], [5.0, 'piston_in', 0.3, 1.0]] },
+    { from: 26, to: 34, draw: switching, sfx: () => [[0.8, 'minecart', 0.45, 1.0, 5.2], [2.4, 'piston_out', 0.5, 1.0], [6.0, 'bell', 0.6, 1.0]] },
+    { from: 34, to: 46, ...fromGuide('g_ats') },
+    { from: 46, to: 54, draw: network, sfx: () => [...[0.2, 0.32, 0.44, 0.56, 0.68, 0.8, 0.92].map((t) => [t, 'draw', 0.4, 1.0]), [4.2, 'minecart', 0.4, 1.0, 3.4], [7.6, 'bell', 0.5, 1.0]] },
+    { from: 54, to: 63, draw: tools, sfx: () => every(0.8, 7.0, 0.3, 'place_stone', 0.25, 1.0, 0.04) },
+    { from: 63, to: 72, draw: stations, sfx: () => [...every(0.8, 2.4, 0.1, 'place_stone', 0.25, 1.0, 0.04), [2.6, 'lantern', 0.5, 1.0], [2.8, 'barrel', 0.5, 1.0], [3.4, 'paddle', 0.4, 1.0]] },
+    { from: 72, to: 77, draw: horses, sfx: () => every(0.3, 4.6, 0.32, 'gallop', 0.45, 1.0, 0.03) },
+    { from: 77, to: 83, draw: water, sfx: () => [[0.2, 'water', 0.4, 1.0, 5.6], [2.0, 'swim', 0.3, 1.0]] },
+    { from: 83, to: 93, draw: trade, sfx: () => [[0.6, 'barrel', 0.5, 1.0], [1.0, 'pop', 0.4, 1.0], ...every(2.6, 6.4, 0.7, 'paddle', 0.45, 1.0, 0.03), [6.6, 'bell', 0.6, 1.0], [6.8, 'orb', 0.5, 1.0], [7.6, 'twinkle', 0.6, 1.0]] },
+    { from: 93, to: 99, draw: nether, sfx: () => [[0.3, 'portal', 0.35, 1.0], [0.6, 'fire', 0.4, 1.0, 4.0]] },
+    { from: 99, to: 107, draw: compat, sfx: () => [[0.4, 'cogs', 0.4, 1.0], [1.0, 'enchant', 0.4, 1.0], [2.0, 'enchant', 0.4, 1.1]] },
+    { from: 107, to: 111, draw: outro, sfx: () => [[0.3, 'note_bell', 0.4, 1.0], [0.6, 'note_bell', 0.4, 1.26], [0.9, 'note_bell', 0.4, 1.5]] },
   ];
-  return { total: 106, scenes };
+  return { total: 111, scenes };
 })();

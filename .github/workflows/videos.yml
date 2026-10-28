@@ -1,0 +1,107 @@
+# 설명 영상 렌더링: 게임 jar 의 실제 텍스처와 소리(마인크래프트·Create)로 영상을 그리고 효과음을 섞어 videos 브랜치에 올린다.
+# 텍스처·소리 파일 자체는 저장소에 넣지 않는다(영상만 올린다). 결과는 docs/videos 로 옮겨 커밋한다.
+name: videos
+on:
+  workflow_dispatch:
+    inputs:
+      videos:
+        description: "렌더링할 영상(쉼표 구분, 비우면 tools/video/videos.json 전부)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  list:
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.m.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v6
+      - id: m
+        env:
+          PICK: ${{ inputs.videos }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_OUTPUT"
+          import json, os
+          pick = [v.strip() for v in os.environ.get("PICK", "").split(",") if v.strip()]
+          ids = pick or [v["id"] for v in json.load(open("tools/video/videos.json"))]
+          print("matrix=" + json.dumps(ids))
+          PY
+
+  render:
+    needs: list
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        video: ${{ fromJson(needs.list.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "microsoft"
+      - uses: gradle/actions/setup-gradle@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+      - name: game assets (jar, sounds)
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :mc26.2:downloadAssets -q || true
+          mkdir -p /tmp/jars
+          curl -fsSL -o /tmp/jars/create.jar \
+            https://api.modrinth.com/maven/maven/modrinth/create-fly/26.2-6.0.9-2/create-fly-26.2-6.0.9-2.jar
+          mc=""
+          for j in $(find ~/.gradle/caches -name "*.jar" -size +10M | grep -E "26\.2" | grep -viE "sources"); do
+            if unzip -Z1 "$j" 2>/dev/null | grep -q '^assets/minecraft/textures/block/stone.png'; then mc="$j"; break; fi
+          done
+          idx=$(find ~/.gradle/caches -path "*assets/indexes/26.2*.json" | head -1)
+          echo "MC_JAR=$mc" >> $GITHUB_ENV
+          echo "ASSET_INDEX=$idx" >> $GITHUB_ENV
+          echo "ASSET_OBJECTS=$(dirname $(dirname $idx))/objects" >> $GITHUB_ENV
+          test -n "$mc" && test -n "$idx"
+      - name: tools
+        run: |
+          pip install --quiet numpy pillow
+          npm i --no-save playwright@1.49.1
+          npx playwright install --with-deps chromium
+      - name: render
+        run: |
+          python3 tools/video/fetch_assets.py --mc "$MC_JAR" --create /tmp/jars/create.jar
+          node tools/video/render.mjs ${{ matrix.video }} --out /tmp/v
+          python3 tools/video/mix_audio.py /tmp/v/${{ matrix.video }}.sfx.json --index "$ASSET_INDEX" --objects "$ASSET_OBJECTS" \
+            --create /tmp/jars/create.jar --out /tmp/v/${{ matrix.video }}.wav
+          mkdir -p /tmp/out
+          ffmpeg -y -v error -i /tmp/v/${{ matrix.video }}.mp4 -i /tmp/v/${{ matrix.video }}.wav \
+            -c:v copy -c:a aac -b:a 160k -shortest -movflags +faststart /tmp/out/${{ matrix.video }}.mp4
+          ffmpeg -y -v error -ss 4 -i /tmp/out/${{ matrix.video }}.mp4 -frames:v 1 -vf scale=640:-1 /tmp/out/${{ matrix.video }}.jpg
+      - uses: actions/upload-artifact@v7
+        with:
+          name: video-${{ matrix.video }}
+          path: /tmp/out/
+
+  publish:
+    needs: render
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v7
+        with:
+          path: /tmp/all
+          pattern: video-*
+          merge-multiple: true
+      - name: push to videos branch
+        run: |
+          url=$(git remote get-url origin)
+          auth=$(git config --get http.https://github.com/.extraheader || true)
+          cd /tmp/all
+          ls -la
+          git init -q -b videos
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add -A && git commit -qm "Rendered videos"
+          git -c http.https://github.com/.extraheader="$auth" push -f "$url" HEAD:videos

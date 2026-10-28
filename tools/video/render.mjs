@@ -61,6 +61,9 @@ if (preview) {
   }
   ff.stdin.end();
   await new Promise((r) => ff.on('close', r));
+  // 효과음 이벤트(초, 이름, 음량, 음높이) — mix_audio.py 가 오디오 트랙으로 섞어 영상에 붙인다
+  const events = await page.evaluate(() => window.sfxEvents());
+  fs.writeFileSync(path.join(outDir, `${video}.sfx.json`), JSON.stringify({ total, events }));
   console.log('wrote', out);
 }
 await browser.close();

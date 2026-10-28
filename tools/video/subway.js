@@ -380,16 +380,18 @@ const SUBWAY = (() => {
     text(ctx, 'InfraCraft', W / 2, 150, { size: 30, font: 'pixel', align: 'center', color: C.sky, alpha: a, shadow: true });
   }
 
+  // 굴진·지하 역사는 기능별 가이드(guides.js)의 복선 장면을 그대로 쓴다(불러올 때 GUIDES 가 준비돼 있다)
+  const fromGuide = (id) => ({ draw: (c, t, d) => GUIDES[id].scenes[1].draw(c, t, d), sfx: (d) => GUIDES[id].scenes[1].sfx(d) });
   const scenes = [
-    { from: 0, to: 5, draw: intro },
-    { from: 5, to: 12, draw: why },
-    { from: 12, to: 19, draw: kit },
-    { from: 19, to: 35, draw: boring },
-    { from: 35, to: 42, draw: slope },
-    { from: 42, to: 49, draw: water },
-    { from: 49, to: 65, draw: station },
-    { from: 65, to: 76, draw: network },
-    { from: 76, to: 82, draw: outro },
+    { from: 0, to: 5, draw: intro, sfx: () => [[0.3, 'place_stone', 0.5, 1.0], [0.5, 'place_stone', 0.5, 1.1], [0.7, 'place_stone', 0.5, 1.2], [1.0, 'pling', 0.5, 1.33], [1.3, 'chain', 0.4, 1.0]] },
+    { from: 5, to: 12, draw: why, sfx: () => [[0.5, 'shimmer', 0.4, 1.0], [3.6, 'note_bell', 0.4, 1.0]] },
+    { from: 12, to: 19, draw: kit, sfx: () => Array.from({ length: 8 }, (_, i) => [0.2 + i * 0.14, 'pop', 0.45, 1.0 + i * 0.04]) },
+    { from: 19, to: 34, ...fromGuide('g_shield') },
+    { from: 34, to: 41, draw: slope, sfx: () => every(0.6, 6.0, 0.55, 'place_stone', 0.4, 0.9, 0.04) },
+    { from: 41, to: 48, draw: water, sfx: () => [[0.3, 'water', 0.4, 1.0, 6.5], [2.0, 'place_stone', 0.6, 0.8], [3.5, 'fire', 0.4, 1.0, 2.0], [4.5, 'place_stone', 0.6, 0.8], ] },
+    { from: 48, to: 64, ...fromGuide('g_hall') },
+    { from: 64, to: 75, draw: network, sfx: () => [[1.0, 'minecart', 0.45, 1.0, 4.8], [3.0, 'bell', 0.5, 1.0], [5.6, 'bell', 0.5, 1.1], [7.4, 'pling', 0.4, 1.2]] },
+    { from: 75, to: 81, draw: outro, sfx: () => [[0.3, 'pop', 0.5, 1.0], [0.5, 'pop', 0.5, 1.1], [0.7, 'levelup', 0.4, 1.0]] },
   ];
-  return { total: 82, scenes };
+  return { total: 81, scenes };
 })();
