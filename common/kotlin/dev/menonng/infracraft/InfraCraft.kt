@@ -12,6 +12,7 @@ import dev.menonng.infracraft.content.ModItems
 import dev.menonng.infracraft.content.ModStats
 import dev.menonng.infracraft.content.ModEnchantments
 import dev.menonng.infracraft.content.ModTags
+import dev.menonng.infracraft.system.TradeRules
 import dev.menonng.infracraft.system.Enchants
 import dev.menonng.infracraft.system.CreateCompat
 import dev.menonng.infracraft.system.ElytraBan
@@ -52,6 +53,7 @@ object InfraCraft : ModInitializer {
         FabricDefaultAttributeRegistry.register(Compat.playerType, Player.createAttributes().add(ModAttributes.ROAD_AFFINITY))
 
         CreateCompat.init()
+        dev.menonng.infracraft.system.Loot.init()
 
         EntityElytraEvents.ALLOW.register { !Config.c.banElytra }
 
@@ -73,7 +75,6 @@ object InfraCraft : ModInitializer {
                 Network.rememberPosition(player)
                 if (server.tickCount % 40 == 0) ElytraBan.sweep(player)
             }
-            Network.tickTransits(server)
             CreateCompat.tick(server)
         }
         Compat.onLevelTick { level -> tickLevel(level) }
@@ -111,10 +112,20 @@ object InfraCraft : ModInitializer {
         check("asphalt tier 3", ModBlocks.ASPHALT.defaultBlockState().`is`(ModTags.ROAD_TIER_3))
         check("rails tag", ModBlocks.EXPRESS_RAIL.defaultBlockState().`is`(net.minecraft.tags.BlockTags.RAILS))
         check("network attachment", Network.data(server).stations.isEmpty())
+        check("screen door states", ModBlocks.SCREEN_DOOR.stateDefinition.possibleStates.size == 16)
+        check("trade regions", TradeRules.region("snowy_taiga") == TradeRules.Region.SNOWY &&
+            TradeRules.region("mangrove_swamp") == TradeRules.Region.SWAMP && TradeRules.region("plains") == TradeRules.Region.TEMPERATE)
+        for (r in TradeRules.Region.entries) for (s in r.specialties) {
+            check("trade item minecraft:$s", net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(Compat.id("minecraft", s)))
+        }
+        for (s in listOf("nautilus_shell", "name_tag", "tropical_fish_bucket", "sniffer_egg", "saddle", "heart_of_the_sea")) {
+            check("exotic item minecraft:$s", net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(Compat.id("minecraft", s)))
+        }
         if (System.getenv("INFRACRAFT_SMOKE_CREATE") == "true") {
             check("create loaded", CreateCompat.loaded)
             check("create train API (reflection)", CreateCompat.selfCheck())
             val track = CreateCompat.trackBlock()
+            check("create car blocks & glue: ${CreateCompat.carCheck()}", CreateCompat.carCheck().isEmpty())
             check("create track shape", track != null &&
                 CreateCompat.trackState(track, net.minecraft.core.Direction.EAST, 0).toString().contains("shape=xo") &&
                 CreateCompat.trackState(track, net.minecraft.core.Direction.NORTH, 1).toString().contains("shape=an"))
@@ -136,7 +147,7 @@ object InfraCraft : ModInitializer {
         }
         val data = Network.data(level.server)
         val dim = Compat.dimensionId(level)
-        for (kind in listOf(TickedBlock.SWITCH, TickedBlock.CURRENT, TickedBlock.LIFT, TickedBlock.ELEVATOR)) {
+        for (kind in listOf(TickedBlock.SWITCH, TickedBlock.CURRENT, TickedBlock.LIFT, TickedBlock.ELEVATOR, TickedBlock.DOOR)) {
             if (kind == TickedBlock.SWITCH && level.gameTime % 2 != 0L) continue
             val keys = data.tickers[kind] ?: continue
             for (key in keys.toList()) {
@@ -147,6 +158,7 @@ object InfraCraft : ModInitializer {
                     TickedBlock.CURRENT -> Water.tickCurrent(level, pos, key, data)
                     TickedBlock.LIFT -> Water.tickLift(level, pos, key, data)
                     TickedBlock.ELEVATOR -> dev.menonng.infracraft.system.Subway.tickElevator(level, pos, key, data)
+                    TickedBlock.DOOR -> dev.menonng.infracraft.system.Subway.tickDoor(level, pos, key, data)
                 }
             }
         }

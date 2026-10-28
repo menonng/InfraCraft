@@ -3,7 +3,7 @@
   "id": "infracraft",
   "version": "${version}",
   "name": "InfraCraft",
-  "description": "교통 인프라 중심 모드: 겉날개 금지, 네더 1:1, 도로·철도·운하·말·급행 노선망.",
+  "description": "낭만 교통 인프라 모드: 겉날개 금지, 네더 1:1, 순간이동 없이 도로·철도·지하철·항구·말로 세계를 여행합니다.",
   "authors": ["menonng"],
   "contact": { "sources": "https://github.com/menonng/InfraCraft" },
   "license": "All-Rights-Reserved",

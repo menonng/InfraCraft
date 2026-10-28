@@ -2,15 +2,15 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "pattern": [
-    "D D",
-    "D D",
-    "DDD"
+    "IPI",
+    "IPI"
   ],
   "key": {
-    "D": "minecraft:diamond"
+    "I": "minecraft:iron_ingot",
+    "P": "minecraft:glass_pane"
   },
   "result": {
-    "id": "infracraft:diamond_horseshoe",
+    "id": "infracraft:screen_door",
     "count": 2
   }
 }

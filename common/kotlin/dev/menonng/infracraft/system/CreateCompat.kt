@@ -7,9 +7,13 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.resources.ResourceKey
 import net.minecraft.server.MinecraftServer
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.level.Level
+import net.minecraft.world.phys.AABB
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.properties.Property
+import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.UUID
@@ -62,6 +66,11 @@ object CreateCompat {
                 getPoints = graph.getMethod("getPoints", pointType)
                 stationType = pointType.getField("STATION").get(null)
                 ready = true
+                try {
+                    glueCtor = Class.forName("$pkg.content.contraptions.glue.SuperGlueEntity").getConstructor(Level::class.java, AABB::class.java)
+                } catch (e: Throwable) {
+                    InfraCraft.LOGGER.warn("[InfraCraft] Create 초강력 접착제를 찾지 못해 차량 도면이 접착제를 붙이지 않습니다", e)
+                }
                 InfraCraft.LOGGER.info("[InfraCraft] Create 연동 활성화 ({})", pkg)
                 return
             } catch (_: ClassNotFoundException) {
@@ -71,6 +80,21 @@ object CreateCompat {
             }
         }
         InfraCraft.LOGGER.warn("[InfraCraft] Create 모드는 있지만 기차 클래스를 찾지 못했습니다")
+    }
+
+    // ───────────── 초강력 접착제 ─────────────
+
+    private var glueCtor: Constructor<*>? = null
+
+    /** 상자 범위 전체에 Create 초강력 접착제를 붙인다(차체를 한 덩어리로 조립하게). */
+    fun spawnGlue(level: Level, box: AABB): Boolean {
+        val ctor = glueCtor ?: return false
+        return try {
+            level.addFreshEntity(ctor.newInstance(level, box) as Entity)
+        } catch (e: Throwable) {
+            InfraCraft.LOGGER.warn("[InfraCraft] 초강력 접착제를 붙이지 못했습니다", e)
+            false
+        }
     }
 
     // ───────────── 트랙 블록 ─────────────
@@ -189,4 +213,11 @@ object CreateCompat {
 
     /** CI 스모크 테스트용 */
     fun selfCheck(): Boolean = ready && manager() != null && trackBlock() != null
+
+    /** CI 스모크 테스트용: 차량 도면이 쓰는 블록과 접착제 */
+    fun carCheck(): List<String> {
+        val missing = CreateCars.requiredBlocks().filter { Compat.blockById("create", it) == null }.toMutableList()
+        if (glueCtor == null) missing.add("SuperGlueEntity(Level, AABB)")
+        return missing
+    }
 }

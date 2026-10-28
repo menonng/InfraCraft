@@ -70,10 +70,13 @@ jobs:
           done
           echo "$jars" | tr ' ' '\n' > jars.txt
       - name: push to probe-data
+        # 작업 폴더(.gradle 캐시 등)가 섞이지 않도록 결과 폴더만 따로 저장소로 만들어 올린다
         run: |
+          url=$(git remote get-url origin)
+          auth=$(git config --get http.https://github.com/.extraheader || true)
+          cd /tmp/out
+          git init -q -b probe-data
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
-          git checkout --orphan probe-data-new
-          git rm -rfq . && rm -rf ./*
-          cp -r /tmp/out/* .
-          git add -A && git commit -qm "Probe data" && git push -f origin HEAD:probe-data
+          git add -A && git commit -qm "Probe data"
+          git -c http.https://github.com/.extraheader="$auth" push -f "$url" HEAD:probe-data

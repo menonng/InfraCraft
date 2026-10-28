@@ -71,6 +71,7 @@ object Water {
             if (st != null && inHarbor[boat] != st.key) {
                 inHarbor[boat] = st.key
                 Network.arriveAt(level, boat, st, "water")
+                Trade.onHarborArrival(level, boat, st)
             }
         } else {
             inHarbor.remove(boat)

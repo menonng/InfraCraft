@@ -123,10 +123,6 @@
   "ko_kr": "도로 이동 거리",
   "en_us": "Distance on Roads"
  },
- "stat.infracraft.express_trips": {
-  "ko_kr": "급행 이용 횟수",
-  "en_us": "Express Trips"
- },
  "stat.infracraft.stations_arrived": {
   "ko_kr": "역 도착 횟수",
   "en_us": "Station Arrivals"
@@ -222,30 +218,6 @@
  "infracraft.msg.ticket.blank": {
   "ko_kr": "승차권에 목적지가 없습니다. 허공에 우클릭해 고르거나 역을 우클릭하세요.",
   "en_us": "This ticket has no destination. Right-click in the air to pick one, or click a station."
- },
- "infracraft.msg.express.no_route": {
-  "ko_kr": "%1$s에서 %2$s까지 이어진 노선이 없습니다.",
-  "en_us": "No connected route from %1$s to %2$s."
- },
- "infracraft.msg.express.start": {
-  "ko_kr": "급행 출발! %1$s까지 %2$s초. 자리에서 움직이지 마세요.",
-  "en_us": "Express departing! %2$ss to %1$s. Stay where you are."
- },
- "infracraft.msg.express.cancelled": {
-  "ko_kr": "자리를 벗어나 급행이 취소되었습니다.",
-  "en_us": "You left the platform; express cancelled."
- },
- "infracraft.msg.express.riding": {
-  "ko_kr": "급행 운행 중 → %1$s  (%2$s초)",
-  "en_us": "Express → %1$s  (%2$ss)"
- },
- "infracraft.msg.express.station_gone": {
-  "ko_kr": "도착역 %1$s이(가) 사라져 급행이 멈췄습니다.",
-  "en_us": "Destination %1$s no longer exists; express stopped."
- },
- "infracraft.msg.express.arrived": {
-  "ko_kr": "%1$s에 도착했습니다.",
-  "en_us": "Arrived at %1$s."
  },
  "infracraft.msg.rail.need_fuel": {
   "ko_kr": "블레이즈 선로를 달리려면 블레이즈 가루가 필요합니다.",
@@ -448,24 +420,24 @@
   "en_us": "2. Planning\n\nClick both station sites\nwith the surveyor to get\ndistance and height.\nCreate track likes gentle\ncurves, so plan long\nstraight runs."
  },
  "infracraft.book.subway.4": {
-  "ko_kr": "3. 굴진\n\n실드 굴진기를 정면으로\n쓰면 5×4 터널이 뚫리고\n라이닝, 트랙, 조명(8칸\n마다)이 깔립니다. 아래나\n위를 보면 경사 터널이\n됩니다. Create 트랙이\n있으면 먼저 씁니다.",
-  "en_us": "3. Boring\n\nUse the shield facing\nforward: a 5×4 slice\nwith lining, track and a\nlight every 8 blocks.\nLook down/up for a ramp.\nCreate track is used\nfirst when you carry it."
+  "ko_kr": "3. 굴진\n\n실드 굴진기를 정면으로\n쓰면 5×5 터널이 뚫리고\n라이닝, 트랙, 조명(8칸\n마다)이 깔립니다. 아래나\n위를 보면 경사 터널.\n같은 방향으로 옆에 한\n번 더 뚫으면 복선이\n됩니다(상행·하행 분리).",
+  "en_us": "3. Boring\n\nUse the shield facing\nforward: a 5×5 slice\nwith lining, track and a\nlight every 8 blocks.\nLook down/up for a ramp.\nBore a second tunnel\nalongside for double\ntrack (one per way)."
  },
  "infracraft.book.subway.5": {
   "ko_kr": "4. 물과 용암\n\n라이닝을 먼저 깔고\n안쪽을 비우기 때문에\n지하수와 용암이 터널로\n새지 않습니다. 기반암과\n상자 같은 블록은\n그대로 남깁니다.",
   "en_us": "4. Water & lava\n\nLining is placed before\nthe slice is cleared, so\naquifers and lava stay\nout. Bedrock and block\nentities are left alone."
  },
  "infracraft.book.subway.6": {
-  "ko_kr": "5. 역사 짓기\n\n트랙 위에 서서 노선\n방향을 보고 설계도를\n쓰면 승강장, 조명,\n지상까지의 승강기가\n생깁니다. Create 트랙\n이면 트랙에 Create\n기차역을 놓으세요.",
-  "en_us": "5. Stations\n\nStand on the track facing\nalong the line and use\nthe blueprint: platforms,\nlights and an elevator to\nthe surface. With Create\ntrack, add a Create\ntrain station."
+  "ko_kr": "5. 역사 짓기\n\n트랙 위에서 노선 방향을\n보고 설계도를 쓰면\n높은 승강장(차량 바닥과\n같은 높이), 안전문,\n조명, 지상 승강기가\n생깁니다. Create 트랙\n이면 Create 기차역을\n트랙 옆에 놓으세요.",
+  "en_us": "5. Stations\n\nStand on the track facing\nalong the line and use\nthe blueprint: raised\nplatforms (level with the\ncar floor), screen doors,\nlights and an elevator.\nWith Create track, add a\nCreate train station."
  },
  "infracraft.book.subway.7": {
-  "ko_kr": "6. 기차 운행\n\n기차는 Create 기차역과\n기차 계획표로 달립니다.\n기차가 역 사이를 달리면\n노선이 자동 측량되어\n경로 안내, 이정표,\n급행에 쓰입니다.",
-  "en_us": "6. Running trains\n\nTrains use Create\nstations and schedules.\nEach run between two\nstations is surveyed for\nroute hints, signposts\nand express travel."
+  "ko_kr": "6. 차량\n\n전동차 도면을 트랙 위\n에서 쓰면 Create 블록\n으로 차체(5×9)를 짓고\n접착제를 붙입니다. 표시\n된 두 칸에 기차 케이스\n로 대차를 놓고 역의\n조립 모드로 조립하면\n지하철이 됩니다.",
+  "en_us": "6. Cars\n\nUse a metro car plan on\nCreate track: it builds a\n5×9 body from Create\nblocks and glues it. Put\nbogeys on the two marked\nblocks with train casing\nand assemble at the\nstation."
  },
  "infracraft.book.subway.8": {
-  "ko_kr": "7. 역과 이정표\n\n· 이정표 클릭: 가까운 역\n· 웅크리고 클릭: 노선망\n· 승차권으로 역 클릭:\n  목적지까지 경로\n· 웅크리고 승차권: 급행\n  (Create 기차역도 가능)\n\n좋은 여행 되세요!",
-  "en_us": "7. Stations & signs\n\n· Click a signpost: nearby\n  stations\n· Sneak-click: network\n· Ticket on a station:\n  route to destination\n· Sneak + ticket: express\n  (Create stations too)\n\nHave a good trip!"
+  "ko_kr": "7. 안전 운행\n\nCreate 기차는 서로\n부딪치면 탈선합니다.\n역 앞뒤에 신호기를 두고\n계획표로 운행하세요.\n마인카트는 ATS가 앞차를\n감지해 멈춥니다.\n안전문은 차량이 멈추면\n열립니다.",
+  "en_us": "7. Safe running\n\nCreate trains derail when\nthey collide: put signals\nbefore and after stations\nand run on schedules.\nMinecarts stop for the\ncart ahead (ATS).\nScreen doors open when a\nvehicle stops."
  },
  "infracraft.msg.mode.create_train": {
   "ko_kr": "Create 기차",
@@ -479,12 +451,200 @@
   "ko_kr": "%1$s → %2$s 가장 빠른 경로:",
   "en_us": "Fastest route %1$s → %2$s:"
  },
- "infracraft.msg.route.express_hint": {
-  "ko_kr": "웅크리고 같은 승차권을 쓰면 급행으로 갈 수 있습니다.",
-  "en_us": "Sneak-use the same ticket to ride express."
- },
  "infracraft.msg.create.station_pending": {
   "ko_kr": "이 Create 기차역은 아직 노선망에 등록되지 않았습니다. 잠시 후 다시 시도하세요.",
   "en_us": "This Create station has not joined the network yet. Try again in a moment."
+ },
+ "infracraft.msg.route.none": {
+  "ko_kr": "%1$s에서 %2$s까지 이어진 노선이 없습니다.",
+  "en_us": "No connected route from %1$s to %2$s."
+ },
+ "infracraft.msg.route.ride_hint": {
+  "ko_kr": "기차나 배를 타고 가 보세요. 분기기에 목적지를 등록해 두면 갈림길에서 알아서 갈아탑니다.",
+  "en_us": "Ride there by train or boat. Switches set to this destination will route you at junctions."
+ },
+ "infracraft.msg.ats.ahead": {
+  "ko_kr": "ATS: 앞 차량 %1$s칸 — 감속합니다.",
+  "en_us": "ATS: vehicle %1$s blocks ahead — slowing down."
+ },
+ "infracraft.msg.ats.head_on": {
+  "ko_kr": "ATS: 단선 구간에 맞은편 차량이 있어 멈춥니다. 뒤로 물러나거나 교행 구간을 두세요.",
+  "en_us": "ATS: oncoming vehicle on single track — stopped. Back off or add a passing loop."
+ },
+ "block.infracraft.screen_door": {
+  "ko_kr": "승강장 안전문",
+  "en_us": "Platform Screen Door"
+ },
+ "block.infracraft.trading_post": {
+  "ko_kr": "교역소",
+  "en_us": "Trading Post"
+ },
+ "item.infracraft.ground_station_blueprint": {
+  "ko_kr": "지상 역사 설계도",
+  "en_us": "Surface Station Blueprint"
+ },
+ "item.infracraft.harbor_blueprint": {
+  "ko_kr": "항구 설계도",
+  "en_us": "Harbor Blueprint"
+ },
+ "item.infracraft.metro_car_blueprint": {
+  "ko_kr": "전동차 도면",
+  "en_us": "Metro Car Plan"
+ },
+ "item.infracraft.coach_blueprint": {
+  "ko_kr": "객차 도면",
+  "en_us": "Passenger Coach Plan"
+ },
+ "item.infracraft.cargo_crate": {
+  "ko_kr": "화물 상자",
+  "en_us": "Cargo Crate"
+ },
+ "stat.infracraft.cargo_delivered": {
+  "ko_kr": "배달한 화물",
+  "en_us": "Cargo Delivered"
+ },
+ "stat.infracraft.trade_one_cm": {
+  "ko_kr": "교역 항해 거리",
+  "en_us": "Trade Voyage Distance"
+ },
+ "infracraft.msg.ground_station.built": {
+  "ko_kr": "지상 역사 '%1$s' 완성! 이름표로 역 이름을 바꾸세요.",
+  "en_us": "Surface station '%1$s' built! Rename it with a name tag."
+ },
+ "infracraft.msg.ground_station.built_create": {
+  "ko_kr": "지상 역사 완성(Create 트랙)! 승강장 옆 트랙에 Create 기차역을 놓고 이름을 지으세요.",
+  "en_us": "Surface station built (Create track)! Place a Create train station by the track and name it."
+ },
+ "infracraft.msg.harbor.need_water": {
+  "ko_kr": "물가에 서서 물 쪽을 보고 쓰세요.",
+  "en_us": "Stand at the shore facing the water."
+ },
+ "infracraft.msg.harbor.need_open_water": {
+  "ko_kr": "잔교 끝 옆에 배가 댈 물이 없습니다. 더 넓은 물을 보고 쓰세요.",
+  "en_us": "No open water beside the pier end for boats. Face wider water."
+ },
+ "infracraft.msg.harbor.built": {
+  "ko_kr": "항구 '%1$s' 완성! 잔교 끝 옆 물 위가 정박 자리입니다.",
+  "en_us": "Harbor '%1$s' built! Boats berth beside the end of the pier."
+ },
+ "infracraft.msg.region.mushroom": {
+  "ko_kr": "버섯섬",
+  "en_us": "Mushroom Isles"
+ },
+ "infracraft.msg.region.swamp": {
+  "ko_kr": "늪·맹그로브",
+  "en_us": "Swamps"
+ },
+ "infracraft.msg.region.snowy": {
+  "ko_kr": "설원",
+  "en_us": "Snowlands"
+ },
+ "infracraft.msg.region.jungle": {
+  "ko_kr": "열대우림",
+  "en_us": "Jungle"
+ },
+ "infracraft.msg.region.desert": {
+  "ko_kr": "사막",
+  "en_us": "Desert"
+ },
+ "infracraft.msg.region.badlands": {
+  "ko_kr": "악지",
+  "en_us": "Badlands"
+ },
+ "infracraft.msg.region.savanna": {
+  "ko_kr": "사바나",
+  "en_us": "Savanna"
+ },
+ "infracraft.msg.region.cherry": {
+  "ko_kr": "벚나무 숲",
+  "en_us": "Cherry Grove"
+ },
+ "infracraft.msg.region.taiga": {
+  "ko_kr": "타이가",
+  "en_us": "Taiga"
+ },
+ "infracraft.msg.region.coast": {
+  "ko_kr": "해안",
+  "en_us": "Coast"
+ },
+ "infracraft.msg.region.temperate": {
+  "ko_kr": "온대",
+  "en_us": "Temperate"
+ },
+ "infracraft.msg.trade.no_harbor": {
+  "ko_kr": "%1$s칸 안에 항구(물속 역 블록)가 없습니다.",
+  "en_us": "No harbor (station block under water) within %1$s blocks."
+ },
+ "infracraft.msg.trade.post_info": {
+  "ko_kr": "교역소 — %1$s",
+  "en_us": "Trading post — %1$s"
+ },
+ "infracraft.msg.trade.specialties": {
+  "ko_kr": "이 항구의 특산품: ",
+  "en_us": "Local specialties: "
+ },
+ "infracraft.msg.trade.how": {
+  "ko_kr": "특산품을 들고 교역소를 쓰면 화물 상자가 됩니다. 배를 타고 %1$s블록 넘게 떨어진 다른 지역 항구에 닿으면 그곳 특산품으로 바꿔 줍니다. 멀수록 더 많이, 가끔 진귀품도 얹어 줍니다.",
+  "en_us": "Use a local specialty on the trading post to pack a cargo crate. Sail to a harbor in another region more than %1$s blocks away and it is exchanged for their specialties. The farther, the more — sometimes with a rare find."
+ },
+ "infracraft.msg.trade.not_specialty": {
+  "ko_kr": "%1$s의 특산품만 실을 수 있습니다: ",
+  "en_us": "Only local specialties of %1$s can be loaded: "
+ },
+ "infracraft.msg.trade.loaded": {
+  "ko_kr": "%1$s개를 화물 상자에 실었습니다(출발: %2$s). 배를 타고 다른 지역 항구로 가세요.",
+  "en_us": "Packed %1$s into a cargo crate (from %2$s). Sail it to a harbor in another region."
+ },
+ "infracraft.msg.trade.lore_from": {
+  "ko_kr": "출발: %1$s",
+  "en_us": "From: %1$s"
+ },
+ "infracraft.msg.trade.delivered": {
+  "ko_kr": "화물 하역: %1$s → %2$s, 항해 %3$sm. 대가로 특산품 %4$s개를 받았습니다.",
+  "en_us": "Cargo unloaded: %1$s → %2$s, %3$sm voyage. Received %4$s local goods."
+ },
+ "infracraft.msg.trade.exotic": {
+  "ko_kr": "먼 항해의 선물: ",
+  "en_us": "A gift for the long voyage: "
+ },
+ "infracraft.msg.trade.refuse.same_region": {
+  "ko_kr": "%1$s도 같은 지역이라 이 화물을 사지 않습니다.",
+  "en_us": "%1$s is in the same region and will not buy this cargo."
+ },
+ "infracraft.msg.trade.refuse.too_close": {
+  "ko_kr": "%1$s는 출발 항구와 너무 가깝습니다.",
+  "en_us": "%1$s is too close to the origin harbor."
+ },
+ "infracraft.msg.trade.refuse.other_dimension": {
+  "ko_kr": "다른 차원의 화물은 %1$s에서 받지 않습니다.",
+  "en_us": "%1$s does not accept cargo from another dimension."
+ },
+ "infracraft.msg.car.need_create": {
+  "ko_kr": "Create(Create Fly)가 있어야 쓸 수 있는 도면입니다.",
+  "en_us": "This plan needs Create (Create Fly)."
+ },
+ "infracraft.msg.car.need_track": {
+  "ko_kr": "앞으로 %1$s칸이 곧은 Create 트랙이어야 합니다. 트랙 위에서 진행 방향을 보고 쓰세요.",
+  "en_us": "The next %1$s blocks ahead must be straight Create track. Stand on the track facing along it."
+ },
+ "infracraft.msg.car.blocked": {
+  "ko_kr": "차체 자리가 막혀 있습니다(%1$s, %2$s, %3$s).",
+  "en_us": "Something is in the way (%1$s, %2$s, %3$s)."
+ },
+ "infracraft.msg.car.need_materials": {
+  "ko_kr": "재료가 모자랍니다:",
+  "en_us": "Missing materials:"
+ },
+ "infracraft.msg.car.built": {
+  "ko_kr": "차체를 지었습니다. 대차 자리(%1$s)의 트랙에 기차 케이스를 대어 대차를 놓고, 옆 Create 기차역을 조립 모드로 바꿔 조립하세요.",
+  "en_us": "Car body built. Put bogeys on the track at (%1$s) with train casing, then assemble with a Create station in assembly mode."
+ },
+ "infracraft.msg.car.built_no_glue": {
+  "ko_kr": "차체를 지었습니다(접착제는 직접 붙이세요). 대차 자리(%1$s)의 트랙에 기차 케이스를 대어 대차를 놓고, 차체 전체에 초강력 접착제를 바른 뒤 조립하세요.",
+  "en_us": "Car body built (apply glue yourself). Put bogeys at (%1$s) with train casing, glue the whole body with super glue, then assemble."
+ },
+ "infracraft.book.subway.9": {
+  "ko_kr": "8. 역과 이정표\n\n· 이정표 클릭: 가까운 역\n· 웅크리고 클릭: 노선망\n· 승차권으로 역 클릭:\n  목적지까지 경로\n· 분기기에 승차권: 그\n  목적지로 갈림길 전환\n\n순간이동은 없습니다.\n창밖을 즐기세요!",
+  "en_us": "8. Stations & signs\n\n· Click a signpost: nearby\n  stations\n· Sneak-click: network\n· Ticket on a station:\n  route to destination\n· Ticket on a switch:\n  route that destination\n\nNo teleports here.\nEnjoy the view!"
  }
 }

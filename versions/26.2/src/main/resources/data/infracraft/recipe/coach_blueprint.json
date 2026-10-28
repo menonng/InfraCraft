@@ -1,0 +1,27 @@
+{
+  "fabric:load_conditions": [
+    {
+      "condition": "fabric:all_mods_loaded",
+      "values": [
+        "create"
+      ]
+    }
+  ],
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "RPR",
+    "PCP",
+    "RWR"
+  ],
+  "key": {
+    "R": "minecraft:red_dye",
+    "P": "minecraft:paper",
+    "C": "create:railway_casing",
+    "W": "minecraft:spruce_planks"
+  },
+  "result": {
+    "id": "infracraft:coach_blueprint",
+    "count": 1
+  }
+}

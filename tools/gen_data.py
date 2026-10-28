@@ -25,8 +25,10 @@ D = os.path.join(COMMON, "data")
 CUBE_ALL = ["asphalt", "road_line", "street_lamp", "signpost", "tunnel_lining", "tunnel_light", "platform_edge"]
 RAILS = ["high_speed_rail", "express_rail", "blaze_rail"]
 ITEMS = ["ticket", "road_paver", "track_layer", "tunnel_borer", "surveyor", "whistle",
-         "iron_horseshoe", "diamond_horseshoe", "ender_rail_core", "subway_shield", "station_blueprint"]
-BLOCKS = CUBE_ALL + RAILS + ["station", "rail_switch", "water_current", "boat_lift", "stable", "station_elevator"]
+         "iron_horseshoe", "diamond_horseshoe", "ender_rail_core", "subway_shield", "station_blueprint",
+         "ground_station_blueprint", "harbor_blueprint", "metro_car_blueprint", "coach_blueprint", "cargo_crate"]
+BLOCKS = CUBE_ALL + RAILS + ["station", "rail_switch", "water_current", "boat_lift", "stable", "station_elevator",
+                             "screen_door", "trading_post"]
 
 def item_def(name, model):
     # 1.21.4+ 아이템 정의(1.21.1 은 이 폴더를 무시한다)
@@ -61,6 +63,35 @@ write(A, "models/block/station_elevator.json", {"parent": "minecraft:block/cube_
     "top": f"{NS}:block/station_elevator_top", "bottom": f"{NS}:block/station_elevator_side", "side": f"{NS}:block/station_elevator_side"}})
 write(A, "blockstates/station_elevator.json", {"variants": {"": {"model": f"{NS}:block/station_elevator"}}})
 
+write(A, "models/block/trading_post.json", {"parent": "minecraft:block/cube_bottom_top", "textures": {
+    "top": f"{NS}:block/trading_post_top", "bottom": f"{NS}:block/trading_post_bottom", "side": f"{NS}:block/trading_post_side"}})
+write(A, "blockstates/trading_post.json", {"variants": {"": {"model": f"{NS}:block/trading_post"}}})
+
+# 승강장 안전문: 북쪽(선로 쪽)을 향한 모델을 돌려 쓴다. 판은 북쪽 면 0..2 에 붙는다.
+def cuboid(a, b, tex):
+    return {"from": a, "to": b, "faces": {f: {"texture": tex} for f in ("north", "south", "east", "west", "up", "down")}}
+POSTS = [cuboid([0, 0, 0], [2, 16, 2], "#frame"), cuboid([14, 0, 0], [16, 16, 2], "#frame")]
+DOOR_PARTS = {
+    "lower": POSTS + [cuboid([2, 0, 0], [14, 3, 2], "#frame"), cuboid([2, 3, 0.5], [14, 16, 1.5], "#glass")],
+    "upper": POSTS + [cuboid([2, 12, 0], [14, 16, 2], "#frame"), cuboid([2, 0, 0.5], [14, 12, 1.5], "#glass")],
+    "lower_open": POSTS,
+    "upper_open": POSTS + [cuboid([2, 12, 0], [14, 16, 2], "#frame")],
+}
+for name, elements in DOOR_PARTS.items():
+    write(A, f"models/block/screen_door_{name}.json", {
+        "textures": {"frame": f"{NS}:block/screen_door_frame", "glass": f"{NS}:block/screen_door_glass",
+                     "particle": f"{NS}:block/screen_door_frame"},
+        "elements": elements})
+door_variants = {}
+for facing, y in (("north", 0), ("east", 90), ("south", 180), ("west", 270)):
+    for half in ("lower", "upper"):
+        for open_ in ("false", "true"):
+            v = {"model": f"{NS}:block/screen_door_{half}{'_open' if open_ == 'true' else ''}"}
+            if y:
+                v["y"] = y
+            door_variants[f"facing={facing},half={half},open={open_}"] = v
+write(A, "blockstates/screen_door.json", {"variants": door_variants})
+
 # 선로: 바닐라 전동 레일과 같은 모양 템플릿을 쓴다
 for r in RAILS:
     for sfx in ("", "_on"):
@@ -84,6 +115,10 @@ for r in RAILS:
 
 for b in BLOCKS:
     if b in RAILS:
+        continue
+    if b == "screen_door":
+        write(A, "models/item/screen_door.json", {"parent": "minecraft:item/generated", "textures": {"layer0": f"{NS}:item/screen_door"}})
+        item_def(b, f"{NS}:item/{b}")
         continue
     write(A, f"models/item/{b}.json", {"parent": f"{NS}:block/{b}"})
     item_def(b, f"{NS}:item/{b}")
@@ -125,8 +160,9 @@ tag(f"{NS}/tags/block/paveable.json", mc(
     "dirt_path", "snow_block", "netherrack", "soul_sand", "soul_soil", "blackstone", "basalt", "end_stone")
     + [f"#{NS}:road_tier_1", f"#{NS}:road_tier_2", f"#{NS}:road_tier_3"])
 tag("minecraft/tags/block/mineable/pickaxe.json", [f"{NS}:{b}" for b in
-    ("asphalt", "road_line", "station", "rail_switch", "water_current", "boat_lift", "tunnel_lining", "platform_edge", "station_elevator", *RAILS)])
-tag("minecraft/tags/block/mineable/axe.json", [f"{NS}:signpost"])
+    ("asphalt", "road_line", "station", "rail_switch", "water_current", "boat_lift", "tunnel_lining", "platform_edge", "station_elevator",
+     "screen_door", *RAILS)])
+tag("minecraft/tags/block/mineable/axe.json", [f"{NS}:signpost", f"{NS}:trading_post"])
 tag("minecraft/tags/block/mineable/hoe.json", [f"{NS}:stable"])
 tag("minecraft/tags/block/rails.json", [f"{NS}:{r}" for r in RAILS])
 tag("minecraft/tags/item/rails.json", [f"{NS}:{r}" for r in RAILS])
@@ -212,7 +248,6 @@ RECIPES = [
     ("surveyor", 1, [" A ", "CSC", " S "], {"A": "minecraft:amethyst_shard", "C": "minecraft:copper_ingot", "S": "minecraft:stick"}),
     ("whistle", 1, [" GS"], {"G": "minecraft:gold_ingot", "S": "minecraft:string"}),
     ("iron_horseshoe", 2, ["I I", "I I", "III"], {"I": "minecraft:iron_ingot"}),
-    ("diamond_horseshoe", 2, ["D D", "D D", "DDD"], {"D": "minecraft:diamond"}),
     ("ender_rail_core", 1, ["PEP", "ERE", "PEP"], {"P": "minecraft:popped_chorus_fruit", "E": "minecraft:ender_eye", "R": "minecraft:redstone_block"}),
     # 지하철 키트
     ("tunnel_lining", 16, ["SSS", "SCS", "SSS"], {"S": "#minecraft:stone_crafting_materials", "C": "minecraft:clay_ball"}),
@@ -221,13 +256,29 @@ RECIPES = [
     ("station_elevator", 1, ["IPI", "IRI", "IPI"], {"I": "minecraft:iron_ingot", "P": "minecraft:piston", "R": "minecraft:redstone_block"}),
     ("subway_shield", 1, ["III", "DTD", "III"], {"I": "minecraft:iron_block", "D": "minecraft:diamond", "T": f"{NS}:tunnel_borer"}),
     ("station_blueprint", 1, ["BPB", "PSP", "BPB"], {"B": "minecraft:blue_dye", "P": "minecraft:paper", "S": f"{NS}:station"}),
+    ("screen_door", 2, ["IPI", "IPI"], {"I": "minecraft:iron_ingot", "P": "minecraft:glass_pane"}),
+    ("ground_station_blueprint", 1, ["BLB", "PSP", "BWB"], {"B": "minecraft:blue_dye", "L": "minecraft:lantern", "P": "minecraft:paper",
+                                                            "S": f"{NS}:station", "W": "minecraft:spruce_slab"}),
 ]
 
-GUIDE_PAGES = 8
+# Create 가 있을 때만 쓰이는 레시피(없으면 fabric 조건으로 빠진다)
+CREATE_RECIPES = [
+    ("metro_car_blueprint", 1, ["BPB", "PCP", "BPB"], {"B": "minecraft:light_blue_dye", "P": "minecraft:paper", "C": "create:railway_casing"}),
+    ("coach_blueprint", 1, ["RPR", "PCP", "RWR"], {"R": "minecraft:red_dye", "P": "minecraft:paper", "C": "create:railway_casing",
+                                                   "W": "minecraft:spruce_planks"}),
+]
+# 조합법이 없는 아이템(획득처는 Loot.kt·교역·설계도)
+REMOVED_RECIPES = ["diamond_horseshoe"]
+
+GUIDE_PAGES = 9
 
 def recipes(version_dir, new_format, chain_id=None):
     base = os.path.join(REPO, "versions", version_dir, "src", "main", "resources", "data", NS, "recipe")
-    for name, count, pattern, key in RECIPES:
+    for name in REMOVED_RECIPES:
+        stale = os.path.join(base, f"{name}.json")
+        if os.path.exists(stale):
+            os.remove(stale)
+    for name, count, pattern, key in RECIPES + CREATE_RECIPES:
         k = {}
         for sym, ing in key.items():
             if ing == "CHAIN":
@@ -238,6 +289,8 @@ def recipes(version_dir, new_format, chain_id=None):
                 k[sym] = {"tag": ing[1:]} if ing.startswith("#") else {"item": ing}
         obj = {"type": "minecraft:crafting_shaped", "category": "misc", "pattern": pattern, "key": k,
                "result": {"id": f"{NS}:{name}", "count": count}}
+        if any(v.startswith("create:") for v in key.values()):
+            obj = {"fabric:load_conditions": [{"condition": "fabric:all_mods_loaded", "values": ["create"]}], **obj}
         full = os.path.join(base, f"{name}.json")
         os.makedirs(os.path.dirname(full), exist_ok=True)
         with open(full, "w", encoding="utf-8") as f:

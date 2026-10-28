@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "infracraft:signpost"
+    "infracraft:signpost",
+    "infracraft:trading_post"
   ]
 }

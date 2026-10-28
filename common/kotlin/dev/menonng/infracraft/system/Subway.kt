@@ -2,7 +2,9 @@ package dev.menonng.infracraft.system
 
 import dev.menonng.infracraft.Config
 import dev.menonng.infracraft.Palette
+import dev.menonng.infracraft.block.ScreenDoorBlock
 import dev.menonng.infracraft.block.TickedBlock
+import dev.menonng.infracraft.compat.Minecart
 import dev.menonng.infracraft.compat.Compat
 import dev.menonng.infracraft.content.ModBlocks
 import dev.menonng.infracraft.content.ModEnchantments
@@ -12,7 +14,10 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.BlockItem
@@ -21,6 +26,7 @@ import net.minecraft.world.level.block.BaseRailBlock
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 import kotlin.math.abs
@@ -32,21 +38,23 @@ import kotlin.math.abs
  * 좌표 표기: dir = 진행 방향, side = 진행 방향의 오른쪽, o = 옆 칸 수, h = 선로 높이 기준 높이, k = 진행 방향 칸 수.
  */
 object Subway {
-    private const val TUNNEL_HALF = 2      // 터널 내부 폭 5 (-2..2)
-    private const val TUNNEL_HEIGHT = 4    // 터널 내부 높이 4 (0..3)
-    private const val HALL_HALF = 4        // 역사 내부 폭 9 (-4..4)
-    private const val HALL_HEIGHT = 5      // 역사 천장 높이
+    // 규격: Create 전동차(폭 5, 바닥은 선로 +1, 천장은 선로 +4)가 그대로 지나가도록 맞춘다.
+    const val TUNNEL_HALF = 2      // 터널 내부 폭 5 (-2..2)
+    const val TUNNEL_HEIGHT = 5    // 터널 내부 높이 5 (0..4)
+    private const val HALL_HALF = 5        // 역사 내부 폭 11 (-5..5)
+    private const val HALL_HEIGHT = 6      // 역사 천장 높이
+    private const val PLATFORM_O = 3       // 승강장 안전선(그 위에 안전문)이 놓이는 옆 칸 수
 
     private fun at(base: BlockPos, dir: Direction, side: Direction, k: Int, o: Int, h: Int): BlockPos =
         base.relative(dir, k).relative(side, o).above(h)
 
     /** 바닐라 선로 또는 Create 트랙 */
-    private fun isTrack(s: BlockState) = BaseRailBlock.isRail(s) || (CreateCompat.trackBlock()?.let { s.block == it } ?: false)
+    internal fun isTrack(s: BlockState) = BaseRailBlock.isRail(s) || (CreateCompat.trackBlock()?.let { s.block == it } ?: false)
 
     private fun isLining(s: BlockState) = s.`is`(ModBlocks.TUNNEL_LINING) || s.`is`(ModBlocks.TUNNEL_LIGHT)
 
     /** 바꿔도 되는 블록인가(기반암·블록 엔티티는 건드리지 않는다) */
-    private fun replaceable(level: ServerLevel, p: BlockPos, s: BlockState): Boolean =
+    internal fun replaceable(level: ServerLevel, p: BlockPos, s: BlockState): Boolean =
         s.getDestroySpeed(level, p) >= 0 && level.getBlockEntity(p) == null
 
     private fun liningItem(stack: ItemStack) = stack.`is`(ModBlocks.TUNNEL_LINING.asItem())
@@ -162,7 +170,7 @@ object Subway {
     }
 
     /** 설계도가 Create 트랙으로 역사를 지을지: 설정이 허용하고, 트랙이 16개 이상 있거나 창작 모드 */
-    private fun useCreateTrack(player: ServerPlayer): Block? {
+    internal fun useCreateTrack(player: ServerPlayer): Block? {
         if (Config.c.subwayTrack == "vanilla" || Config.c.subwayTrack == "none") return null
         val track = CreateCompat.trackBlock() ?: return null
         return if (player.isCreative || Inventories.count(player) { it.`is`(track.asItem()) } >= 16) track else null
@@ -177,8 +185,11 @@ object Subway {
 
     /**
      * 선로 위에 서서 진행 방향을 보고 사용한다.
-     * 길이 16, 폭 11(벽 포함), 높이 6 의 역사: 가운데 선로와 역 블록, 양쪽 승강장(안전선),
-     * 천장 조명, 그리고 승강장 끝의 역 승강기와 지상까지 뚫린 수직구.
+     * 길이 16, 폭 13(벽 포함), 높이 7 의 역사:
+     *  - 가운데 선로(바닐라면 아래에 역 블록), 차량이 지나는 폭 5 는 비워 둔다.
+     *  - 양쪽 승강장은 선로보다 한 칸 높다(차량 바닥과 같은 높이라 턱 없이 탄다).
+     *  - 승강장 가장자리에 안전선과 두 칸 높이 안전문, 천장 조명.
+     *  - 한쪽 승강장 끝에 역 승강기와 지상까지 뚫린 수직구.
      */
     fun buildStation(player: ServerPlayer, hand: InteractionHand) {
         val level = player.level() as ServerLevel
@@ -192,6 +203,7 @@ object Subway {
 
         val solids = ArrayList<Pair<BlockPos, BlockState>>()
         val clears = ArrayList<BlockPos>()
+        val doors = ArrayList<BlockPos>()
         val lining = ModBlocks.TUNNEL_LINING.defaultBlockState()
         // Create 트랙을 쓰면 역은 Create 기차역(트랙 옆)으로 두므로 InfraCraft 역 블록은 놓지 않는다
         val createTrack = useCreateTrack(player)
@@ -199,43 +211,52 @@ object Subway {
         for (k in -7..8) for (o in -wall..wall) for (h in -1..HALL_HEIGHT) {
             val p = at(base, dir, side, k, o, h)
             val ao = abs(o)
+            // 안전문은 선로 쪽을 바라본다
+            val towardTrack = if (o > 0) side.opposite else side
             when {
                 h == -1 -> solids.add(p to if (k == 0 && o == 0 && createTrack == null) ModBlocks.STATION.defaultBlockState() else lining)
                 h == HALL_HEIGHT -> when {
                     k == elevatorK && o == elevatorO -> clears.add(p)
-                    ao == 3 && Math.floorMod(k, 4) == 0 -> solids.add(p to ModBlocks.TUNNEL_LIGHT.defaultBlockState())
+                    ao == PLATFORM_O + 1 && Math.floorMod(k, 4) == 0 -> solids.add(p to ModBlocks.TUNNEL_LIGHT.defaultBlockState())
+                    ao == 0 && Math.floorMod(k, 4) == 2 -> solids.add(p to ModBlocks.TUNNEL_LIGHT.defaultBlockState())
                     else -> solids.add(p to lining)
                 }
                 ao == wall -> solids.add(p to lining)
-                h == 0 -> when (ao) {
-                    0 -> {
-                        val cur = level.getBlockState(p)
-                        if (!isTrack(cur)) solids.add(p to trackState)
-                    }
-                    1 -> clears.add(p)
-                    2 -> solids.add(p to ModBlocks.PLATFORM_EDGE.defaultBlockState())
-                    else -> solids.add(p to if (k == elevatorK && o == elevatorO) ModBlocks.STATION_ELEVATOR.defaultBlockState() else lining)
+                ao < PLATFORM_O -> when {
+                    h == 0 && ao == 0 -> if (!isTrack(level.getBlockState(p))) solids.add(p to trackState)
+                    else -> clears.add(p)
+                }
+                h == 0 -> solids.add(p to lining)
+                h == 1 -> solids.add(p to when {
+                    ao == PLATFORM_O -> ModBlocks.PLATFORM_EDGE.defaultBlockState()
+                    k == elevatorK && o == elevatorO -> ModBlocks.STATION_ELEVATOR.defaultBlockState()
+                    else -> lining
+                })
+                ao == PLATFORM_O && (h == 2 || h == 3) -> {
+                    val half = if (h == 2) DoubleBlockHalf.LOWER else DoubleBlockHalf.UPPER
+                    solids.add(p to ModBlocks.SCREEN_DOOR.defaultBlockState().setValue(ScreenDoorBlock.FACING, towardTrack).setValue(ScreenDoorBlock.HALF, half))
+                    if (h == 2) doors.add(p)
                 }
                 else -> clears.add(p)
             }
         }
         // 승강기 수직구: 역사 천장 위로 하늘이 보일 때까지
-        val elevatorPos = at(base, dir, side, elevatorK, elevatorO, 0)
-        var y = HALL_HEIGHT + 1
-        while (y < 200) {
-            val p = elevatorPos.above(y)
+        val elevatorPos = at(base, dir, side, elevatorK, elevatorO, 1)
+        var h = HALL_HEIGHT + 1
+        while (h < 200) {
+            val p = at(base, dir, side, elevatorK, elevatorO, h)
             if (level.canSeeSky(p) && level.getBlockState(p).isAir) break
             clears.add(p)
             for (n in listOf(p.relative(dir), p.relative(dir.opposite), p.relative(side), p.relative(side.opposite))) {
                 val s = level.getBlockState(n)
                 if (s.isAir || !s.fluidState.isEmpty || s.canBeReplaced()) solids.add(n to lining)
             }
-            y++
+            h++
         }
 
         val todo = solids.filter { (p, want) ->
             val s = level.getBlockState(p)
-            s.block != want.block && replaceable(level, p, s)
+            s != want && replaceable(level, p, s)
         }
         val liningNeeded = todo.count { it.second.`is`(ModBlocks.TUNNEL_LINING) }
         if (!payLining(player, liningNeeded, null)) {
@@ -247,7 +268,10 @@ object Subway {
             if (s.isAir || !replaceable(level, p, s)) continue
             level.setBlock(p, Blocks.AIR.defaultBlockState(), 3)
         }
-        Network.data(level.server).addTicker(TickedBlock.ELEVATOR, Compat.dimensionId(level), elevatorPos)
+        val data = Network.data(level.server)
+        val dim = Compat.dimensionId(level)
+        data.addTicker(TickedBlock.ELEVATOR, dim, elevatorPos)
+        for (d in doors) data.addTicker(TickedBlock.DOOR, dim, d)
         if (!player.isCreative) {
             blueprint.shrink(1)
             if (createTrack != null) {
@@ -255,11 +279,49 @@ object Subway {
                 Inventories.consume(player, placed) { it.`is`(createTrack.asItem()) }
             }
         }
+        val depth = (h - 1).toString()
         if (createTrack == null) {
             val st = Network.registerStation(level, at(base, dir, side, 0, 0, -1), null)
-            Compat.chat(player, msg("station_hall.built", Palette.GREEN, st.name, (y - 1).toString()))
-        } else Compat.chat(player, msg("station_hall.built_create", Palette.GREEN, (y - 1).toString()))
+            Compat.chat(player, msg("station_hall.built", Palette.GREEN, st.name, depth))
+        } else Compat.chat(player, msg("station_hall.built_create", Palette.GREEN, depth))
     }
+
+    // ───────────── 승강장 안전문 ─────────────
+
+    /** 아래 칸 안전문이 위 칸까지 함께 연다. 앞 1~3칸 선로에 멈춘 마인카트나 Create 객차가 있으면 열린다. */
+    fun tickDoor(level: ServerLevel, pos: BlockPos, key: String, data: NetworkData) {
+        if (level.gameTime % 5 != 0L) return
+        val state = level.getBlockState(pos)
+        if (state.block !is ScreenDoorBlock) {
+            data.tickers[TickedBlock.DOOR]?.remove(key); return
+        }
+        if (state.getValue(ScreenDoorBlock.HALF) == DoubleBlockHalf.UPPER) {
+            val below = level.getBlockState(pos.below())
+            if (below.block is ScreenDoorBlock && below.getValue(ScreenDoorBlock.HALF) == DoubleBlockHalf.LOWER) {
+                data.tickers[TickedBlock.DOOR]?.remove(key); return
+            }
+        }
+        val facing = state.getValue(ScreenDoorBlock.FACING)
+        val a = pos.relative(facing, 1).below(2)
+        val b = pos.relative(facing, 3).above(2)
+        val box = AABB(minOf(a.x, b.x).toDouble(), a.y.toDouble(), minOf(a.z, b.z).toDouble(),
+            maxOf(a.x, b.x) + 1.0, b.y + 1.0, maxOf(a.z, b.z) + 1.0)
+        val open = level.getEntities(null as Entity?, box) { isVehicle(it) }.any { e ->
+            val dx = e.x - e.xo
+            val dz = e.z - e.zo
+            dx * dx + dz * dz < 0.0004
+        }
+        if (state.getValue(ScreenDoorBlock.OPEN) == open) return
+        level.setBlock(pos, state.setValue(ScreenDoorBlock.OPEN, open), 3)
+        val above = level.getBlockState(pos.above())
+        if (above.block is ScreenDoorBlock && above.getValue(ScreenDoorBlock.HALF) == DoubleBlockHalf.UPPER) {
+            level.setBlock(pos.above(), above.setValue(ScreenDoorBlock.OPEN, open), 3)
+        }
+        level.playSound(null, pos, if (open) SoundEvents.IRON_DOOR_OPEN else SoundEvents.IRON_DOOR_CLOSE, SoundSource.BLOCKS, 0.6f, 1.4f)
+    }
+
+    /** 마인카트 또는 Create 객차(클래스 이름으로만 판단해 Create 가 없어도 된다) */
+    private fun isVehicle(e: Entity): Boolean = e is Minecart || e.javaClass.simpleName == "CarriageContraptionEntity"
 
     // ───────────── 역 승강기 ─────────────
 

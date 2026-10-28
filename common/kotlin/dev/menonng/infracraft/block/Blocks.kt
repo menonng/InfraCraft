@@ -17,6 +17,10 @@ import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf
+import net.minecraft.world.phys.shapes.CollisionContext
+import net.minecraft.world.phys.shapes.Shapes
+import net.minecraft.world.phys.shapes.VoxelShape
 
 enum class RailTier {
     HIGH_SPEED, EXPRESS, BLAZE;
@@ -46,6 +50,7 @@ open class TickedBlock(props: BlockBehaviour.Properties, val kind: String) : Blo
         const val CURRENT = "current"
         const val LIFT = "lift"
         const val ELEVATOR = "elevator"
+        const val DOOR = "door"
     }
 }
 
@@ -92,5 +97,44 @@ class CurrentBlock(props: BlockBehaviour.Properties) : TickedBlock(props, CURREN
 
     companion object {
         val FACING = BlockStateProperties.HORIZONTAL_FACING
+    }
+}
+
+/**
+ * 승강장 안전문: 승강장 가장자리에 두 칸 높이로 세우는 유리문. FACING 은 선로 쪽.
+ * 바로 앞 선로에 멈춘 마인카트나 Create 객차가 있으면 열린다(열리면 양쪽 기둥만 남아 지나갈 수 있다).
+ * 아래 칸 위에 놓으면 저절로 윗부분이 된다.
+ */
+class ScreenDoorBlock(props: BlockBehaviour.Properties) : TickedBlock(props, DOOR) {
+    init {
+        registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(OPEN, false).setValue(HALF, DoubleBlockHalf.LOWER))
+    }
+
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
+        builder.add(FACING, OPEN, HALF)
+    }
+
+    override fun getStateForPlacement(context: BlockPlaceContext): BlockState? {
+        val below = context.level.getBlockState(context.clickedPos.below())
+        val half = if (below.block is ScreenDoorBlock && below.getValue(HALF) == DoubleBlockHalf.LOWER) DoubleBlockHalf.UPPER else DoubleBlockHalf.LOWER
+        val facing = if (half == DoubleBlockHalf.UPPER) below.getValue(FACING) else context.horizontalDirection
+        return defaultBlockState().setValue(FACING, facing).setValue(HALF, half)
+    }
+
+    override fun getShape(state: BlockState, level: BlockGetter, pos: BlockPos, context: CollisionContext): VoxelShape =
+        SHAPES[state.getValue(FACING)]!![if (state.getValue(OPEN)) 1 else 0]
+
+    companion object {
+        val FACING = BlockStateProperties.HORIZONTAL_FACING
+        val OPEN = BlockStateProperties.OPEN
+        val HALF = BlockStateProperties.DOUBLE_BLOCK_HALF
+
+        /** 방향별 [닫힘(판), 열림(양쪽 기둥)] */
+        private val SHAPES: Map<Direction, Array<VoxelShape>> = mapOf(
+            Direction.NORTH to arrayOf(Block.box(0.0, 0.0, 0.0, 16.0, 16.0, 2.0), Shapes.or(Block.box(0.0, 0.0, 0.0, 2.0, 16.0, 2.0), Block.box(14.0, 0.0, 0.0, 16.0, 16.0, 2.0))),
+            Direction.SOUTH to arrayOf(Block.box(0.0, 0.0, 14.0, 16.0, 16.0, 16.0), Shapes.or(Block.box(0.0, 0.0, 14.0, 2.0, 16.0, 16.0), Block.box(14.0, 0.0, 14.0, 16.0, 16.0, 16.0))),
+            Direction.WEST to arrayOf(Block.box(0.0, 0.0, 0.0, 2.0, 16.0, 16.0), Shapes.or(Block.box(0.0, 0.0, 0.0, 2.0, 16.0, 2.0), Block.box(0.0, 0.0, 14.0, 2.0, 16.0, 16.0))),
+            Direction.EAST to arrayOf(Block.box(14.0, 0.0, 0.0, 16.0, 16.0, 16.0), Shapes.or(Block.box(14.0, 0.0, 0.0, 16.0, 16.0, 2.0), Block.box(14.0, 0.0, 14.0, 16.0, 16.0, 16.0))),
+        )
     }
 }

@@ -22,7 +22,7 @@ import java.util.WeakHashMap
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-/** 역 등록, 실제 운행으로 구간 측량, 경로 탐색, 급행 운행 */
+/** 역 등록, 실제 운행으로 구간 측량, 경로 탐색. 순간이동은 하지 않는다(타고 가야 도착한다). */
 object Network {
     fun data(server: MinecraftServer): NetworkData =
         server.overworld().getAttachedOrCreate(ModAttachments.NETWORK) { NetworkData() }
@@ -129,11 +129,11 @@ object Network {
         }
         val r = route(data, from.key, to.key)
         if (r == null) {
-            Compat.chat(player, msg("express.no_route", Palette.RED, from.name, to.name)); return
+            Compat.chat(player, msg("route.none", Palette.RED, from.name, to.name)); return
         }
         Compat.chat(player, msg("route.header", Palette.SKY, from.name, to.name))
         Compat.chat(player, describeRoute(r))
-        Compat.chat(player, msg("route.express_hint", Palette.PINK))
+        Compat.chat(player, msg("route.ride_hint", Palette.PINK))
     }
 
     private fun arrow(dx: Double, dz: Double): String {
@@ -277,65 +277,5 @@ object Network {
     fun describeRoute(route: Route): Component {
         val c = lit(route.stations.joinToString(" → ") { it.name }, Palette.YELLOW)
         return c.append(lit("  (${route.distance.toInt()}m · ${fmt1(route.seconds)}s)", Palette.BLUE))
-    }
-
-    // ───────────── 급행 운행 ─────────────
-
-    private class Transit(val target: StationRec, val endTick: Long, val originX: Double, val originY: Double, val originZ: Double)
-
-    private val transits = HashMap<UUID, Transit>()
-
-    fun startExpress(level: ServerLevel, player: ServerPlayer, from: StationRec, destinationName: String) {
-        val data = data(level.server)
-        val to = data.stationByName(destinationName)
-        if (to == null) {
-            Compat.chat(player, msg("ticket.unknown", Palette.RED, destinationName))
-            return
-        }
-        val route = route(data, from.key, to.key)
-        if (route == null) {
-            Compat.chat(player, msg("express.no_route", Palette.RED, from.name, to.name))
-            return
-        }
-        val seconds = maxOf(Config.c.expressMinSeconds.toDouble(), route.seconds / Config.c.expressCompression)
-        transits[player.uuid] = Transit(to, level.gameTime + (seconds * 20).toLong(), player.x, player.y, player.z)
-        Compat.chat(player, msg("express.start", Palette.SKY, to.name, fmt1(seconds)))
-        Compat.chat(player, describeRoute(route))
-    }
-
-    fun tickTransits(server: MinecraftServer) {
-        if (transits.isEmpty()) return
-        val it = transits.entries.iterator()
-        while (it.hasNext()) {
-            val (uuid, t) = it.next()
-            val player = server.playerList.getPlayer(uuid)
-            if (player == null) {
-                it.remove(); continue
-            }
-            val level = player.level() as ServerLevel
-            val dx = player.x - t.originX
-            val dy = player.y - t.originY
-            val dz = player.z - t.originZ
-            if (dx * dx + dy * dy + dz * dz > 4.0) {
-                Compat.overlay(player, msg("express.cancelled", Palette.RED))
-                it.remove(); continue
-            }
-            val remaining = t.endTick - level.gameTime
-            if (remaining > 0) {
-                if (remaining % 10 == 0L) Compat.overlay(player, msg("express.riding", Palette.SKY, t.target.name, fmt1(remaining / 20.0)))
-                continue
-            }
-            it.remove()
-            val dest = Compat.level(server, t.target.dim)
-            val exists = dest != null && (t.target.source == StationRec.CREATE || dest.getBlockState(t.target.pos).`is`(ModBlocks.STATION))
-            if (dest == null || !exists) {
-                Compat.chat(player, msg("express.station_gone", Palette.RED, t.target.name))
-                continue
-            }
-            player.stopRiding()
-            Compat.teleport(player, dest, t.target.x + 0.5, t.target.y + 1.0, t.target.z + 0.5)
-            player.awardStat(ModStats.EXPRESS_TRIPS, 1)
-            Compat.chat(player, msg("express.arrived", Palette.GREEN, t.target.name))
-        }
     }
 }

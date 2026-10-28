@@ -23,10 +23,12 @@ class InfraConfig {
     var curveSpeedCap = 0.4
     var blazeFuelBlocks = 128
     var cartChunkLoading = true
+    /** 자동 열차 정지 장치: 앞차·맞은편 차를 선로를 따라 감지해 스스로 감속·정지 */
+    var ats = true
+    var atsLookahead = 24
+    var atsGap = 4
 
-    // ── 노선망과 급행 ──
-    var expressCompression = 3.0
-    var expressMinSeconds = 3
+    // ── 노선망 ──
     var stationScanRadius = 16
 
     // ── 건설 장비 ──

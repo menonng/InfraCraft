@@ -41,6 +41,10 @@ object Interactions {
             stack.`is`(ModItems.ROAD_PAVER) || stack.`is`(ModItems.TRACK_LAYER) -> handled(player) { Tools.toggle(it, stack) }
             stack.`is`(ModItems.SUBWAY_SHIELD) -> handled(player) { Subway.shield(it, hand) }
             stack.`is`(ModItems.STATION_BLUEPRINT) -> handled(player) { Subway.buildStation(it, hand) }
+            stack.`is`(ModItems.GROUND_STATION_BLUEPRINT) -> handled(player) { Stations.buildGround(it, hand) }
+            stack.`is`(ModItems.HARBOR_BLUEPRINT) -> handled(player) { Stations.buildHarbor(it, hand) }
+            stack.`is`(ModItems.METRO_CAR_BLUEPRINT) -> handled(player) { CreateCars.build(it, hand, CreateCars.Style.METRO) }
+            stack.`is`(ModItems.COACH_BLUEPRINT) -> handled(player) { CreateCars.build(it, hand, CreateCars.Style.COACH) }
             stack.`is`(ModItems.TICKET) -> handled(player) { cycleTicket(it.level() as ServerLevel, it, stack) }
             stack.`is`(ModItems.WHISTLE) -> handled(player) {
                 if (it.isShiftKeyDown) {
@@ -84,6 +88,13 @@ object Interactions {
         if (stack.`is`(ModItems.TUNNEL_BORER)) return handled(player) { Tools.bore(it, hand, pos, hit.direction) }
         if (stack.`is`(ModItems.SUBWAY_SHIELD)) return handled(player) { Subway.shield(it, hand) }
         if (stack.`is`(ModItems.STATION_BLUEPRINT)) return handled(player) { Subway.buildStation(it, hand) }
+        if (stack.`is`(ModItems.GROUND_STATION_BLUEPRINT)) return handled(player) { Stations.buildGround(it, hand) }
+        if (stack.`is`(ModItems.HARBOR_BLUEPRINT)) return handled(player) { Stations.buildHarbor(it, hand) }
+        if (stack.`is`(ModItems.METRO_CAR_BLUEPRINT)) return handled(player) { CreateCars.build(it, hand, CreateCars.Style.METRO) }
+        if (stack.`is`(ModItems.COACH_BLUEPRINT)) return handled(player) { CreateCars.build(it, hand, CreateCars.Style.COACH) }
+        if (state.`is`(ModBlocks.TRADING_POST) && hand == InteractionHand.MAIN_HAND) {
+            return handled(player) { Trade.useTradingPost(it.level() as ServerLevel, pos, it, stack) }
+        }
         if (stack.`is`(ModItems.SURVEYOR)) return handled(player) { Tools.survey(it, stack, pos) }
 
         // Create 기차역: 빈손 클릭은 Create 역 화면에 맡기고, 승차권일 때만 가로챈다
@@ -142,18 +153,9 @@ object Interactions {
         return null
     }
 
-    /**
-     * 역에서 승차권 사용:
-     *  - 웅크리고: 승차권 목적지로 급행
-     *  - 그냥: 목적지가 있으면 이 역에서 가는 경로를 보여 주고, 비어 있거나 이 역이면 이 역을 목적지로 정한다
-     */
+    /** 역에서 승차권 사용: 목적지가 있으면 이 역에서 가는 경로를 보여 주고, 비어 있거나 이 역이면 이 역을 목적지로 정한다 */
     private fun useTicketAt(level: ServerLevel, player: ServerPlayer, stack: ItemStack, st: StationRec) {
         val dest = stack.get(ModComponents.DESTINATION)
-        if (player.isShiftKeyDown) {
-            if (dest == null) Compat.overlay(player, msg("ticket.blank", Palette.ORANGE))
-            else Network.startExpress(level, player, st, dest)
-            return
-        }
         if (dest == null || dest.equals(st.name, ignoreCase = true)) {
             stack.set(ModComponents.DESTINATION, st.name)
             Compat.overlay(player, msg("ticket.set", Palette.GREEN, st.name))

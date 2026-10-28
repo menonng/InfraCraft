@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "BLB",
+    "PSP",
+    "BWB"
+  ],
+  "key": {
+    "B": "minecraft:blue_dye",
+    "L": "minecraft:lantern",
+    "P": "minecraft:paper",
+    "S": "infracraft:station",
+    "W": "minecraft:spruce_slab"
+  },
+  "result": {
+    "id": "infracraft:ground_station_blueprint",
+    "count": 1
+  }
+}

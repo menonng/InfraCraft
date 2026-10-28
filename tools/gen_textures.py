@@ -397,6 +397,104 @@ px(img, [(5, 6), (9, 6), (6, 9), (10, 9)], "#FFFFFF")
 px(img, [(13, 3), (12, 3), (13, 4)], "#FFCC11")
 save(img, "item/station_blueprint")
 
+
+# ═══════════════════ 낭만 업데이트: 역·항구·차량 ═══════════════════
+
+def paper(fill, edge):
+    img = new()
+    rect(img, 1, 2, 14, 13, fill)
+    for x in range(1, 15):
+        img.putpixel((x, 2), hx(edge)); img.putpixel((x, 13), hx(edge))
+    for y in range(2, 14):
+        img.putpixel((1, y), hx(edge)); img.putpixel((14, y), hx(edge))
+    return img
+
+# 지상 역사 설계도: 청사진에 지붕(삼각)과 승강장 두 줄
+img = paper("#2E5C9E", "#1E3F70")
+px(img, [(7, 4), (8, 4), (6, 5), (9, 5), (5, 6), (10, 6), (4, 7), (11, 7)], "#CFE3FF")
+px(img, [(5, y) for y in range(8, 11)] + [(10, y) for y in range(8, 11)], "#CFE3FF")
+px(img, [(x, 11) for x in range(3, 13)], "#8FB6E8")
+px(img, [(13, 3), (12, 3), (13, 4)], "#FF7E00")
+save(img, "item/ground_station_blueprint")
+
+# 항구 설계도: 바랜 양피지에 물결과 잔교(난파선에서 건진 옛 도면)
+img = paper("#D9C08A", "#9C7B45")
+for x in range(2, 14):
+    img.putpixel((x, 9 + (x % 3 == 0)), hx("#3A6FB0"))
+    img.putpixel((x, 12 - (x % 3 == 1)), hx("#5C8ECC"))
+px(img, [(x, 6) for x in range(3, 11)], "#6B4A26")
+px(img, [(4, 7), (4, 8), (7, 7), (7, 8), (10, 7), (10, 8)], "#4A3218")
+px(img, [(12, 4), (12, 5), (11, 5), (13, 5), (12, 6), (11, 7), (13, 7), (12, 7)], "#8A2A1E")
+save(img, "item/harbor_blueprint")
+
+def car_sheet(body, body_dark, tag):
+    img = paper("#2E5C9E", "#1E3F70")
+    rect(img, 3, 5, 12, 10, body)
+    for x in range(3, 13):
+        img.putpixel((x, 5), hx("#FFFFFF")); img.putpixel((x, 10), hx(body_dark))
+    for x in (4, 6, 9, 11):
+        rect(img, x, 6, x, 7, "#CFE3FF")
+    rect(img, 7, 6, 8, 9, body_dark)
+    px(img, [(5, 11), (6, 11), (10, 11), (11, 11)], "#1A1A1A")
+    px(img, [(13, 3), (12, 3), (13, 4)], tag)
+    return img
+save(car_sheet("#B9C2C8", "#6E7A82", "#39C5BB"), "item/metro_car_blueprint")
+save(car_sheet("#8A5A33", "#5A3A1E", "#FF0045"), "item/coach_blueprint")
+
+# 화물 상자: 가문비나무 판자 + 쇠 모서리 + 꼬리표
+img = new()
+planks(img, SPRUCE, 41, 2, 3, 13, 13)
+for i in range(2, 14):
+    img.putpixel((i, 3), hx(SPRUCE[3])); img.putpixel((i, 13), hx(SPRUCE[3]))
+    img.putpixel((2, min(13, i + 1)), hx(SPRUCE[3])); img.putpixel((13, min(13, i + 1)), hx(SPRUCE[3]))
+for (x, y) in [(2, 3), (13, 3), (2, 13), (13, 13), (3, 4), (12, 4), (3, 12), (12, 12)]:
+    img.putpixel((x, y), hx(IRON[2]))
+px(img, [(x, x + 1) for x in range(3, 12)], SPRUCE[2])
+rect(img, 9, 1, 12, 3, "#F2E6C8"); px(img, [(8, 2)], "#C8B48A"); px(img, [(10, 2), (11, 2)], "#8A2A1E")
+save(img, "item/cargo_crate")
+
+# 승강장 안전문: 틀(밝은 철 + 노란 표시등)과 반투명 유리
+img = new("#000000"); casing(img, IRON, 42)
+rect(img, 3, 3, 12, 12, "#9AA3A8")
+px(img, [(7, 7), (8, 7), (7, 8), (8, 8)], "#FFCC11")
+save(img, "block/screen_door_frame")
+img = Image.new("RGBA", (16, 16), (170, 215, 235, 96))
+for i in range(5):
+    if 3 + i < 16:
+        img.putpixel((3 + i, 9 - i), (255, 255, 255, 150))
+        img.putpixel((4 + i, 9 - i), (255, 255, 255, 110))
+save(img, "block/screen_door_glass")
+img = new()
+rect(img, 3, 0, 12, 15, "#A8A8A8")
+rect(img, 4, 1, 11, 14, (170, 215, 235, 200))
+rect(img, 4, 11, 11, 14, "#727272")
+px(img, [(5, 6), (6, 5), (7, 4)], (255, 255, 255, 220))
+px(img, [(7, 0), (8, 0)], "#FFCC11")
+save(img, "item/screen_door")
+
+# 교역소: 가문비나무 통 + 닻 표식, 옆면엔 장부 판
+img = new()
+planks(img, SPRUCE, 43, 0, 0, 15, 15)
+for i in range(16):
+    img.putpixel((i, 0), hx(SPRUCE[3])); img.putpixel((i, 15), hx(SPRUCE[3]))
+    img.putpixel((0, i), hx(SPRUCE[3])); img.putpixel((15, i), hx(SPRUCE[3]))
+anchor = [(7, 3), (8, 3), (7, 4), (8, 4), (5, 5), (6, 5), (7, 5), (8, 5), (9, 5), (10, 5)] + \
+         [(7, y) for y in range(6, 12)] + [(8, y) for y in range(6, 12)] + \
+         [(4, 10), (5, 11), (6, 12), (11, 10), (10, 11), (9, 12), (7, 12), (8, 12)]
+px(img, anchor, IRON[1])
+save(img, "block/trading_post_top")
+img = new()
+planks(img, SPRUCE, 44, 0, 0, 15, 15, horizontal=False)
+for x in range(16):
+    img.putpixel((x, 1), hx(IRON[3])); img.putpixel((x, 14), hx(IRON[3]))
+rect(img, 4, 4, 11, 11, "#E9DDBB")
+for y in (6, 8, 10):
+    px(img, [(x, y) for x in range(5, 11)], "#8C7A55")
+px(img, [(10, 5), (9, 5)], "#8A2A1E")
+save(img, "block/trading_post_side")
+img = new(); planks(img, SPRUCE, 45, 0, 0, 15, 15)
+save(img, "block/trading_post_bottom")
+
 # 모드 아이콘(64x64): 특급 선로 위의 역 패널
 icon = Image.new("RGBA", (16, 16), (0, 0, 0, 0))
 icon.alpha_composite(Image.open(os.path.join(TEX, "block/express_rail_on.png")))
