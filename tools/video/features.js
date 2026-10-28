@@ -140,57 +140,47 @@ const FEATURES = (() => {
   function ats(ctx, t, d) {
     background(ctx, t, 'rgba(255,204,17,0.06)');
     const a = inOut(t, 0, d);
-    const B = 40; // 한 칸
-    const rows = [[250, '같은 방향: 앞차와 4칸 간격'], [500, '단선 맞은편: 8칸 앞에서 둘 다 정지']];
-    for (const [y, label] of rows) {
-      ctx.save(); ctx.globalAlpha = a;
-      ctx.fillStyle = '#5a3d24';
-      for (let x = 80; x < 1200; x += 20) ctx.fillRect(x, y + 14, 12, 8);
-      ctx.fillStyle = '#c9c9c9'; ctx.fillRect(80, y + 12, 1120, 3);
-      ctx.restore();
-      text(ctx, label, 80, y - 52, { size: 22, weight: 800, alpha: a });
+    const iso = new Iso(250, 225, 30);
+    const N = 22;
+    const bl = [];
+    for (let x = 0; x < N; x++) for (const z of [0, -5]) {
+      const p = pop(t, 0.1 + x * 0.02, 0.3);
+      bl.push({ x, y: -1, z, tex: x === 13 && z === 0 ? 'station' : 'stone', alpha: a * p.alpha, lift: p.lift });
+      bl.push({ x, y: 0, z, tex: 'rail', flat: true, rotate: true, alpha: a * p.alpha });
     }
-    // 1) 같은 방향: 선두차는 역에서 서고, 뒤차는 간격을 지키며 따라간다 (1/60초 단위로 적분)
-    let lead = 120, fol = -60, vf = 0;
+    // 1/60초 단위 적분(칸/초). 위: 같은 방향, 아래: 단선 맞은편
     const dt = 1 / 60;
+    let lead = 2, fol = -4, vf = 0, l = 0, r = N - 1;
     for (let s2 = 0; s2 < t; s2 += dt) {
-      const vl = s2 < 3.0 ? 220 : s2 < 5.6 ? 0 : 260;
-      lead = Math.min(lead + vl * dt, lead < 760 && s2 < 3.0 ? 760 : 1400);
-      const gap = lead - fol - 36;
-      const allowed = Math.max(0, (gap - 4 * B) * 2.2);
-      vf = Math.min(240, allowed, vf + 400 * dt);
+      const vl = s2 < 5.6 ? 6 : 7;
+      lead = s2 < 5.6 ? Math.min(13, lead + vl * dt) : lead + vl * dt;
+      vf = Math.min(6, Math.max(0, (lead - fol - 1 - 4) * 3), vf + 10 * dt);
       fol += vf * dt;
+      const gap = r - l - 1;
+      if (s2 < 6.5) { const v = Math.min(6, Math.max(0, (gap - 8) * 3)); l += v * dt; r -= v * dt; } else l -= 2 * dt;
     }
-    const braking = (lead - fol - 36) < 4 * B + 60 && t > 1.5 && lead < 1250;
-    const cart = (x, y, col, badge) => {
-      ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = col; roundRect(ctx, x, y - 14, 36, 26, 6); ctx.fill(); ctx.restore();
-      if (badge) { ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = C.yellow; roundRect(ctx, x - 2, y - 44, 40, 22, 6); ctx.fill(); ctx.restore();
-        text(ctx, 'ATS', x + 18, y - 28, { size: 14, weight: 800, align: 'center', color: '#1a1a1a', alpha: a }); }
+    const cart = (x, z) => { if (x > -0.5 && x < N - 0.5) bl.push({ x, y: 0, z, tex: { top: 'cart_top', side: 'cart_side' }, scale: 0.8, alpha: a }); };
+    cart(lead, 0); cart(fol, 0); cart(l, -5); cart(r, -5);
+    drawBlocks(ctx, iso, bl);
+    const gapLabel = (x0, x1, z, col, show) => {
+      if (!show) return;
+      const [ax, ay] = iso.pt(x0 + 0.9, 1.3, z + 0.5), [bx, by] = iso.pt(x1 + 0.1, 1.3, z + 0.5);
+      ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.setLineDash([6, 5]);
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke(); ctx.restore();
+      text(ctx, `${Math.round(x1 - x0 - 1)}칸`, (ax + bx) / 2, (ay + by) / 2 - 10, { size: 20, weight: 800, align: 'center', color: col, alpha: a, shadow: true });
     };
-    sprite(ctx, 'station', 778, 250 + 52, 30, a);
-    if (lead < 1250) cart(lead, 250, C.sky, false);
-    if (fol > 60 && fol < 1250) cart(fol, 250, C.orange, braking);
-    if (braking && lead < 1250) {
-      ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = C.yellow; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(fol + 36, 250 - 24); ctx.lineTo(lead, 250 - 24); ctx.stroke(); ctx.restore();
-      text(ctx, `${Math.round((lead - fol - 36) / B)}칸`, (fol + 36 + lead) / 2, 250 - 30, { size: 16, weight: 700, align: 'center', color: C.yellow, alpha: a });
-    }
-    // 2) 맞은편: 서로 다가오다 8칸 앞에서 정지, 뒤에 탄 사람이 물러난다
-    let l = 100, r = 1144;
-    for (let s2 = 0; s2 < t; s2 += dt) {
-      const gap = r - l - 36;
-      const v = Math.min(200, Math.max(0, (gap - 8 * B) * 2.2));
-      if (s2 < 6.5) { l += v * dt; r -= v * dt; } else { l -= 90 * dt; }
-    }
-    const stopped = (r - l - 36) <= 8 * B + 4;
-    cart(l, 500, C.orange, stopped && t < 6.5);
-    cart(r, 500, C.sky, stopped && t < 6.5);
-    if (stopped) {
-      ctx.save(); ctx.globalAlpha = a; ctx.strokeStyle = C.orange; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(l + 36, 500 - 24); ctx.lineTo(r, 500 - 24); ctx.stroke(); ctx.restore();
-      text(ctx, `${Math.round((r - l - 36) / B)}칸`, (l + 36 + r) / 2, 500 - 30, { size: 16, weight: 700, align: 'center', color: C.orange, alpha: a });
-    }
-    if (t > 6.5) actionbar(ctx, '◀ 탑승자가 반대로 몰면 물러날 수 있습니다', 360, 580, C.sky, a * seg(t, 6.5, 6.9));
+    const folGap = lead - fol - 1;
+    const braking = t > 1.2 && folGap < 7 && lead < N - 0.5;
+    gapLabel(fol, lead, 0, C.yellow, braking && fol > -0.5);
+    if (braking && fol > -0.5) { const [px, py] = iso.pt(fol + 0.5, 2.2, 0.5); actionbar(ctx, 'ATS', px, py, C.yellow, a); }
+    const stopped = r - l - 1 <= 8.1;
+    gapLabel(l, r, -5, C.orange, stopped);
+    if (stopped && t < 6.5) for (const x of [l, r]) { const [px, py] = iso.pt(x + 0.5, 2.2, -4.5); actionbar(ctx, 'ATS', px, py, C.orange, a); }
+    if (t > 6.5) { const [px, py] = iso.pt(l + 0.5, 2.2, -4.5); actionbar(ctx, '◀ 물러남', px, py, C.sky, a * seg(t, 6.5, 6.9)); }
+    panel(ctx, 940, 100, 300, 150, { alpha: a, accent: C.yellow });
+    text(ctx, '자동 열차 정지 (ATS)', 970, 142, { size: 24, weight: 800, alpha: a });
+    text(ctx, '앞: 같은 방향 · 4칸 간격', 970, 180, { size: 19, color: C.dim, alpha: a });
+    text(ctx, '뒤: 단선 맞은편 · 8칸 정지', 970, 212, { size: 19, color: C.dim, alpha: a });
     const cap = t < 3.0 ? '카트가 선로를 따라 앞 24칸을 살핍니다'
       : t < 6.0 ? '앞차가 서 있으면 4칸 뒤에서 기다렸다가, 앞이 비면 다시 출발합니다'
         : '단선에서 맞은편 차가 오면 둘 다 섭니다. 복선이나 교행 구간을 두세요';
@@ -393,34 +383,39 @@ const FEATURES = (() => {
   function trade(ctx, t, d) {
     background(ctx, t, 'rgba(57,197,187,0.09)');
     const a = inOut(t, 0, d);
-    // 바다 지도
-    panel(ctx, 60, 80, 1160, 440, { alpha: a, accent: C.sky });
-    ctx.save(); ctx.globalAlpha = a;
-    ctx.fillStyle = 'rgba(61,111,214,0.35)'; roundRect(ctx, 80, 100, 1120, 400, 12); ctx.fill();
-    ctx.fillStyle = '#4f8a30'; ctx.beginPath(); ctx.ellipse(210, 400, 120, 90, 0.3, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#e8eef2'; ctx.beginPath(); ctx.ellipse(1070, 210, 120, 80, -0.2, 0, Math.PI * 2); ctx.fill();
-    ctx.restore();
-    text(ctx, '열대우림 항구', 210, 330, { size: 22, weight: 800, align: 'center', alpha: a });
-    text(ctx, '설원 항구', 1070, 150, { size: 22, weight: 800, align: 'center', color: '#1a2333', alpha: a });
-    sprite(ctx, 'trading_post_side', 250, 410, 40, a);
-    // 항로
-    const route = (u) => { const x = lerp(300, 990, u); return [x, 400 - 190 * u + Math.sin(u * Math.PI) * -60]; };
-    ctx.save(); ctx.globalAlpha = a * 0.7; ctx.strokeStyle = '#ffffff'; ctx.setLineDash([8, 10]); ctx.lineWidth = 3; ctx.beginPath();
-    for (let i = 0; i <= 40; i++) { const [x, y] = route(i / 40); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }
-    ctx.stroke(); ctx.restore();
+    const iso = new Iso(330, 215, 26);
+    const bl = [];
+    const GRASS = { top: 'grass_top', side: 'grass_side' }, SNOW = { top: 'snow', side: 'dirt' };
+    for (let x = 0; x <= 17; x++) for (let z = -7; z <= 0; z++) {
+      const left = x <= 3, right = x >= 14;
+      const pierL = x >= 4 && x <= 6 && (z === -4 || z === -3);
+      const pierR = x >= 11 && x <= 13 && (z === -4 || z === -3);
+      if (left || right) {
+        const p = pop(t, 0.1 + (left ? x : 17 - x) * 0.05, 0.35);
+        bl.push({ x, y: -1, z, tex: 'dirt', alpha: a * p.alpha, lift: p.lift });
+        bl.push({ x, y: 0, z, tex: left ? GRASS : SNOW, alpha: a * p.alpha, lift: p.lift });
+      } else bl.push({ x, y: -1, z, tex: pierL || pierR ? 'planks' : 'water', alpha: a });
+    }
+    bl.push({ x: 4, y: 0, z: -4, tex: { top: 'trading_post_top', side: 'trading_post_side' }, alpha: a * seg(t, 0.4, 0.8) });
+    bl.push({ x: 13, y: 0, z: -4, tex: { top: 'trading_post_top', side: 'trading_post_side' }, alpha: a * seg(t, 0.4, 0.8) });
     const sail = easeInOut(seg(t, 2.6, 6.4));
-    const [bx, by] = route(sail);
-    ctx.save(); ctx.globalAlpha = a * seg(t, 2.4, 2.8); ctx.fillStyle = '#9a6b3f'; roundRect(ctx, bx - 28, by - 8, 56, 16, 6); ctx.fill(); ctx.restore();
-    if (t > 1.0) sprite(ctx, 'cargo_crate', bx, by - 26, 30, a * seg(t, 1.0, 1.4));
-    text(ctx, `항해 ${Math.round(2600 * sail).toLocaleString()}m`, 640, 480, { size: 22, weight: 800, align: 'center', color: C.yellow, alpha: a * seg(t, 2.6, 3.0) });
-    // 선적·정산 카드
+    const bx = lerp(6.8, 10.2, sail), bz = -2 + Math.sin(sail * Math.PI) * -1.2;
+    bl.push({ x: bx, y: -0.45, z: bz, tex: 'planks', scale: 0.75, alpha: a * seg(t, 2.2, 2.6) });
+    drawBlocks(ctx, iso, bl);
+    if (t > 1.0) { const [cx, cy] = iso.pt(bx + 0.5, 1.2, bz + 0.5); sprite(ctx, 'cargo_crate', cx, cy, 34, a * seg(t, 1.0, 1.4)); }
+    const [lx, ly] = iso.pt(1.5, 1.8, -3.5), [rx, ry] = iso.pt(16, 2.6, -2);
+    text(ctx, '열대우림 항구', lx, ly, { size: 22, weight: 800, align: 'center', alpha: a, shadow: true });
+    text(ctx, '설원 항구', rx, ry, { size: 22, weight: 800, align: 'center', alpha: a, shadow: true });
+    panel(ctx, 960, 100, 280, 112, { alpha: a * seg(t, 2.6, 3.0), accent: C.sky });
+    text(ctx, `항해 ${Math.round(2600 * sail).toLocaleString()}m`, 990, 144, { size: 28, weight: 800, alpha: a * seg(t, 2.6, 3.0) });
+    text(ctx, '200블록 넘게 · 다른 지역', 990, 182, { size: 20, color: C.dim, alpha: a * seg(t, 2.6, 3.0) });
     const c1 = easeOut(seg(t, 0.6, 1.2));
-    panel(ctx, 100, 540, 520, 60, { alpha: a * c1, accent: C.green });
-    text(ctx, '선적: 코코아 콩 ×64 → 화물 상자', 125, 578, { size: 20, weight: 700, alpha: a * c1 });
+    panel(ctx, 100, 580, 520, 56, { alpha: a * c1, accent: C.green });
+    text(ctx, '선적: 코코아 콩 ×64 → 화물 상자', 125, 616, { size: 20, weight: 700, alpha: a * c1 });
     const c2 = easeOut(seg(t, 6.6, 7.2));
-    panel(ctx, 660, 540, 520, 60, { alpha: a * c2, accent: C.sky });
-    text(ctx, '하역: 얼음 39 · 꽁꽁 언 얼음 38 · 눈덩이 38 (1.8배)', 685, 578, { size: 20, weight: 700, alpha: a * c2 });
-    if (t > 7.6) actionbar(ctx, '먼 항해의 선물: 스니퍼 알', 1000, 300, C.pink, a * seg(t, 7.6, 8.0));
+    panel(ctx, 660, 580, 520, 56, { alpha: a * c2, accent: C.sky });
+    text(ctx, '하역: 얼음 39 · 꽁꽁 언 얼음 38 · 눈덩이 38 (1.8배)', 685, 616, { size: 20, weight: 700, alpha: a * c2 });
+    if (t > 7.6) { const [ex, ey] = iso.pt(13.5, 3.2, -3.5); actionbar(ctx, '먼 항해의 선물: 스니퍼 알', ex, ey, C.pink, a * seg(t, 7.6, 8.0)); }
     const cap = t < 2.4 ? '교역소에 그 항구의 특산품을 들고 쓰면 화물 상자가 됩니다'
       : t < 6.6 ? '배를 타고 200블록 넘게 떨어진 다른 지역 항구로 직접 갑니다'
         : '도착하면 그곳 특산품으로 바뀝니다. 멀수록 많이, 가끔 진귀품도';

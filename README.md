@@ -14,7 +14,7 @@
 언어는 Kotlin(fabric-language-kotlin 1.14.2)이에요. 어느 버전을 고를지는 [docs/CREATE_ADDONS.md](docs/CREATE_ADDONS.md)의 애드온 목록을 보고 정하면 돼요.
 
 ## 영상 설명
-| 지하철 건설 가이드 (77초) | 주요 기능 한눈에 보기 (78초) |
+| 지하철 건설 가이드 (82초) | 주요 기능 한눈에 보기 (106초) |
 |---|---|
 | [![지하철 건설 가이드](docs/videos/subway-preview.gif)](docs/videos/subway.mp4) | [![주요 기능](docs/videos/features-preview.gif)](docs/videos/features.mp4) |
 | [MP4 보기](docs/videos/subway.mp4) | [MP4 보기](docs/videos/features.mp4) |

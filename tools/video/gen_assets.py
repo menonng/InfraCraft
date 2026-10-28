@@ -109,4 +109,18 @@ for x in range(16):
 for y in range(16):
     glass.putpixel((0, y), hx("#9aa3a8")); glass.putpixel((15, y), hx("#9aa3a8"))
 save(glass, "door_glass")
+# 마인카트(철 상자 느낌)
+cs = Image.new("RGBA", (16, 16), hx("#8e959b"))
+for x in range(16):
+    cs.putpixel((x, 0), hx("#c3c9ce")); cs.putpixel((x, 15), hx("#4d5358")); cs.putpixel((x, 12), hx("#5f666b"))
+for y in range(16):
+    cs.putpixel((0, y), hx("#c3c9ce")); cs.putpixel((15, y), hx("#4d5358"))
+for (x, y) in [(2, 2), (13, 2), (2, 13), (13, 13)]:
+    cs.putpixel((x, y), hx("#e4e8eb"))
+save(cs, "cart_side")
+ct = Image.new("RGBA", (16, 16), hx("#3a3f44"))
+for i in range(16):
+    for (x, y) in [(i, 0), (i, 1), (i, 14), (i, 15), (0, i), (1, i), (14, i), (15, i)]:
+        ct.putpixel((x, y), hx("#a4abb0"))
+save(ct, "cart_top")
 print("video assets written")
