@@ -1,0 +1,79 @@
+# 개발용: Create Fly jar 와 마인크래프트 jar 에서 블록 상태·클래스 시그니처·아이템 목록을 뽑아 probe-data 브랜치에 텍스트로 올린다.
+# (텍스처 같은 에셋 파일은 올리지 않는다)
+name: probe-data
+on:
+  workflow_dispatch:
+    inputs:
+      blockstates:
+        description: "create 블록 상태 이름(쉼표 구분)"
+        required: false
+        default: ""
+      classes:
+        description: "javap 할 클래스(세미콜론 구분)"
+        required: false
+        default: ""
+      grep:
+        description: "jar 안 클래스 이름 필터(정규식)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "microsoft"
+      - uses: gradle/actions/setup-gradle@v6
+      - run: chmod +x ./gradlew && ./gradlew :mc26.2:compileKotlin --dry-run -q || true
+      - name: probe
+        env:
+          BLOCKSTATES: ${{ inputs.blockstates }}
+          CLASSES: ${{ inputs.classes }}
+          GREP: ${{ inputs.grep }}
+        run: |
+          mkdir -p /tmp/out /tmp/jars
+          curl -fsSL -o /tmp/jars/create.jar \
+            https://api.modrinth.com/maven/maven/modrinth/create-fly/26.2-6.0.9-2/create-fly-26.2-6.0.9-2.jar
+          cd /tmp/out
+          unzip -Z1 /tmp/jars/create.jar > create-files.txt
+          grep '^assets/create/blockstates/' create-files.txt | sed 's#.*/##;s#\.json##' > create-blocks.txt
+          grep '^assets/create/items/' create-files.txt | sed 's#.*/##;s#\.json##' > create-items.txt
+          IFS=',' read -ra bs <<< "$BLOCKSTATES"
+          for b in "${bs[@]}"; do
+            b=$(echo $b | xargs); [ -z "$b" ] && continue
+            echo "== $b" >> create-blockstates.txt
+            unzip -p /tmp/jars/create.jar "assets/create/blockstates/$b.json" | head -c 4000 >> create-blockstates.txt || echo "(없음)" >> create-blockstates.txt
+            echo >> create-blockstates.txt
+          done
+          if [ -n "$GREP" ]; then grep -E '\.class$' create-files.txt | grep -E "$GREP" > create-classes.txt || true; fi
+          jars=$(find ~/.gradle/caches -name "*.jar" -size +100k 2>/dev/null | grep -viE "sources")
+          cp="/tmp/jars/create.jar:$(echo $jars | tr ' ' ':')"
+          IFS=';' read -ra cs <<< "$CLASSES"
+          for c in "${cs[@]}"; do
+            c=$(echo $c | xargs); [ -z "$c" ] && continue
+            echo "== $c" >> javap.txt
+            javap -cp "$cp" -p "$c" >> javap.txt 2>&1 || true
+          done
+          for j in $jars; do
+            if unzip -Z1 "$j" 2>/dev/null | grep -q '^assets/minecraft/items/'; then
+              unzip -Z1 "$j" | grep '^assets/minecraft/items/' | sed 's#.*/##;s#\.json##' > mc-items.txt
+              unzip -Z1 "$j" | grep '^assets/minecraft/textures/item/' | sed 's#.*/##' > mc-item-textures.txt
+              echo "$j" > mc-client-jar.txt
+              break
+            fi
+          done
+          echo "$jars" | tr ' ' '\n' > jars.txt
+      - name: push to probe-data
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git checkout --orphan probe-data-new
+          git rm -rfq . && rm -rf ./*
+          cp -r /tmp/out/* .
+          git add -A && git commit -qm "Probe data" && git push -f origin HEAD:probe-data
