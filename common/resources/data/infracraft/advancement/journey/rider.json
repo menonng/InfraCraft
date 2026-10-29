@@ -1,0 +1,45 @@
+{
+  "display": {
+    "icon": {
+      "id": "infracraft:whistle"
+    },
+    "title": {
+      "translate": "advancements.infracraft.journey.rider.title"
+    },
+    "description": {
+      "translate": "advancements.infracraft.journey.rider.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:tick",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type_specific": {
+                "type": "minecraft:player",
+                "stats": [
+                  {
+                    "type": "minecraft:custom",
+                    "stat": "infracraft:horses_called",
+                    "value": {
+                      "min": 1
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parent": "infracraft:journey/root"
+}

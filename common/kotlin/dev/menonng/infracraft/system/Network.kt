@@ -228,8 +228,29 @@ object Network {
             }
         }
         journeys[vehicle] = Journey(st.key, level.gameTime, vehicle.x, vehicle.z)
-        for (p in vehicle.passengers) if (p is ServerPlayer) p.awardStat(ModStats.STATIONS_ARRIVED, 1)
+        for (p in vehicle.passengers) if (p is ServerPlayer) {
+            p.awardStat(ModStats.STATIONS_ARRIVED, 1)
+            // 도착 안내 차임: 그 승객에게만 들리는 세 음
+            for ((i, pitch) in listOf(1.19f, 0.94f, 0.79f).withIndex()) arrivals.add(Chime(p, level.gameTime + i * 6L, pitch))
+        }
         return true
+    }
+
+    private class Chime(val player: ServerPlayer, val at: Long, val pitch: Float)
+    private val arrivals = ArrayList<Chime>()
+
+    fun tickChimes(server: MinecraftServer) {
+        if (arrivals.isEmpty()) return
+        val it = arrivals.iterator()
+        while (it.hasNext()) {
+            val c = it.next()
+            if (c.player.isRemoved) { it.remove(); continue }
+            if (c.player.level().gameTime < c.at) continue
+            c.player.connection.send(net.minecraft.network.protocol.game.ClientboundSoundPacket(
+                net.minecraft.sounds.SoundEvents.NOTE_BLOCK_CHIME, net.minecraft.sounds.SoundSource.AMBIENT,
+                c.player.x, c.player.eyeY, c.player.z, 0.7f, c.pitch, c.player.random.nextLong()))
+            it.remove()
+        }
     }
 
     /** 노선이 지나는 청크에서 선로가 부서지면 그 노선은 끊긴 것으로 본다. */

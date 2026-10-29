@@ -13,6 +13,7 @@ import dev.menonng.infracraft.content.ModStats
 import dev.menonng.infracraft.content.ModEnchantments
 import dev.menonng.infracraft.content.ModTags
 import dev.menonng.infracraft.system.Enchants
+import dev.menonng.infracraft.system.Bridges
 import dev.menonng.infracraft.system.CreateCompat
 import dev.menonng.infracraft.system.ElytraBan
 import dev.menonng.infracraft.system.Interactions
@@ -78,6 +79,7 @@ object InfraCraft : ModInitializer {
                 if (server.tickCount % 40 == 0) ElytraBan.sweep(player)
             }
             CreateCompat.tick(server)
+            Network.tickChimes(server)
             dev.menonng.infracraft.system.Astra.tick(server)
         }
         Compat.onLevelTick { level -> tickLevel(level) }
@@ -118,24 +120,25 @@ object InfraCraft : ModInitializer {
         check("screen door states", ModBlocks.SCREEN_DOOR.stateDefinition.possibleStates.size == 16)
         run {
             // 다리 키트 원재료 묶음: 이름 규칙으로 찾은 블록이 실제로 있는지
-            val B = dev.menonng.infracraft.system.Bridges
-            fun fam(kind: dev.menonng.infracraft.system.Bridges.Kind, item: net.minecraft.world.item.Item) =
-                B.family(kind, net.minecraft.world.item.ItemStack(item))
-            val timber = fam(B.Kind.TIMBER, net.minecraft.world.item.Items.SPRUCE_PLANKS)
-            check("bridge timber family", timber?.rail == net.minecraft.world.level.block.Blocks.SPRUCE_FENCE && timber.post == net.minecraft.world.level.block.Blocks.SPRUCE_LOG)
-            check("bridge crimson family", fam(B.Kind.TIMBER, net.minecraft.world.item.Items.CRIMSON_PLANKS)?.post == net.minecraft.world.level.block.Blocks.CRIMSON_STEM)
-            val stone = fam(B.Kind.STONE, net.minecraft.world.item.Items.STONE_BRICKS)
-            check("bridge stone family", stone?.rail == net.minecraft.world.level.block.Blocks.STONE_BRICK_WALL && stone.stairs == net.minecraft.world.level.block.Blocks.STONE_BRICK_STAIRS)
-            check("bridge tiles family", fam(B.Kind.STONE, net.minecraft.world.item.Items.DEEPSLATE_TILES)?.rail == net.minecraft.world.level.block.Blocks.DEEPSLATE_TILE_WALL)
-            check("bridge cobble family", fam(B.Kind.STONE, net.minecraft.world.item.Items.COBBLESTONE) != null && fam(B.Kind.STONE, net.minecraft.world.item.Items.STONE) == null)
-            val copper = fam(B.Kind.COPPER, net.minecraft.world.item.Items.WEATHERED_CUT_COPPER)
-            check("bridge copper family", copper?.slab == net.minecraft.world.level.block.Blocks.WEATHERED_CUT_COPPER_SLAB &&
-                copper.accent == net.minecraft.world.level.block.Blocks.WEATHERED_COPPER_GRATE)
-            check("bridge wrong kit refuses", fam(B.Kind.COPPER, net.minecraft.world.item.Items.OAK_PLANKS) == null)
+            fun blk(path: String) = Compat.blockById("minecraft", path)
+            fun fam(kind: Bridges.Kind, path: String) = blk(path)?.let { Bridges.family(kind, net.minecraft.world.item.ItemStack(it)) }
+            val timber = fam(Bridges.Kind.TIMBER, "spruce_planks")
+            check("bridge timber family", timber?.rail == blk("spruce_fence") && timber?.post == blk("spruce_log"))
+            check("bridge crimson family", fam(Bridges.Kind.TIMBER, "crimson_planks")?.post == blk("crimson_stem"))
+            val stone = fam(Bridges.Kind.STONE, "stone_bricks")
+            check("bridge stone family", stone?.rail == blk("stone_brick_wall") && stone?.stairs == blk("stone_brick_stairs"))
+            check("bridge tiles family", fam(Bridges.Kind.STONE, "deepslate_tiles")?.rail == blk("deepslate_tile_wall"))
+            check("bridge cobble family", fam(Bridges.Kind.STONE, "cobblestone") != null && fam(Bridges.Kind.STONE, "stone") == null)
+            val copper = fam(Bridges.Kind.COPPER, "weathered_cut_copper")
+            check("bridge copper family", copper != null && copper.slab == blk("weathered_cut_copper_slab") && copper.accent == blk("weathered_copper_grate"))
+            check("bridge copper bars (${copper?.rail})", copper?.rail != null)
+            check("bridge wrong kit refuses", fam(Bridges.Kind.COPPER, "oak_planks") == null)
             val feet = net.minecraft.core.BlockPos(0, 300, 64)
             overworld.getChunk(0, 4)
-            val err = B.selfTest(overworld, feet)
+            val err = Bridges.selfTest(overworld, feet)
             check("stone bridge built in world (${err ?: "ok"})", err == null)
+            for (adv in listOf("root", "first_bridge", "first_station", "road_1km", "surveyor", "tunneler", "rail_layer", "rider", "aquila"))
+                check("advancement $adv", server.advancements.get(Compat.id("infracraft", "journey/$adv")) != null)
         }
         for (s in listOf("end_crystal", "beacon", "netherite_block", "totem_of_undying", "dragon_head", "shulker_shell", "sculk_catalyst",
             "amethyst_cluster", "recovery_compass", "breeze_rod", "ominous_trial_key", "heavy_core", "prismarine_crystals",

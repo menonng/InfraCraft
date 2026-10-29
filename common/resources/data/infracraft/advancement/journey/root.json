@@ -1,0 +1,45 @@
+{
+  "display": {
+    "icon": {
+      "id": "infracraft:setts"
+    },
+    "title": {
+      "translate": "advancements.infracraft.journey.root.title"
+    },
+    "description": {
+      "translate": "advancements.infracraft.journey.root.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "background": "minecraft:block/dirt_path_top"
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:tick",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type_specific": {
+                "type": "minecraft:player",
+                "stats": [
+                  {
+                    "type": "minecraft:custom",
+                    "stat": "infracraft:road_one_cm",
+                    "value": {
+                      "min": 100
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

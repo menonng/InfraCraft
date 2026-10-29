@@ -240,6 +240,35 @@ ALL_ENCH = [f"{NS}:{n}" for n in ("roadrunner", "momentum", "equestrian", "condu
 for t in ("in_enchanting_table", "non_treasure", "tradeable", "on_random_loot", "on_traded_equipment"):
     tag(f"minecraft/tags/enchantment/{t}.json", ALL_ENCH)
 
+# ── 발전과제: 여정 기록(사용자 통계로 판정) ──
+def stat_tick(stat, n):
+    return {"trigger": "minecraft:tick", "conditions": {"player": [{"condition": "minecraft:entity_properties", "entity": "this",
+        "predicate": {"type_specific": {"type": "minecraft:player", "stats": [
+            {"type": "minecraft:custom", "stat": f"{NS}:{stat}", "value": {"min": n}}]}}}]}}
+
+def advancement(name, icon, parent, criterion, frame="task", hidden=False, background=None):
+    display = {"icon": {"id": icon}, "title": {"translate": f"advancements.{NS}.journey.{name}.title"},
+               "description": {"translate": f"advancements.{NS}.journey.{name}.description"},
+               "frame": frame, "show_toast": True, "announce_to_chat": True, "hidden": hidden}
+    if background:
+        display["background"] = background
+    obj = {"display": display, "criteria": {"done": criterion}}
+    if parent:
+        obj["parent"] = f"{NS}:journey/{parent}"
+    write(D, f"{NS}/advancement/journey/{name}.json", obj)
+
+advancement("root", f"{NS}:setts", None, stat_tick("road_one_cm", 100), background="minecraft:block/dirt_path_top")
+advancement("road_1km", f"{NS}:milestone", "root", stat_tick("road_one_cm", 100000))
+advancement("first_bridge", f"{NS}:stone_bridge_kit", "root", stat_tick("bridge_blocks", 1))
+advancement("first_station", f"{NS}:station", "root", stat_tick("stations_arrived", 1))
+advancement("surveyor", f"{NS}:signpost", "first_station", stat_tick("routes_surveyed", 5), frame="goal")
+advancement("rail_layer", f"{NS}:track_layer", "first_station", stat_tick("track_placed", 256))
+advancement("tunneler", f"{NS}:subway_shield", "rail_layer", stat_tick("blocks_bored", 2000), frame="goal")
+advancement("rider", f"{NS}:whistle", "root", stat_tick("horses_called", 1))
+advancement("aquila", f"{NS}:astra_obliterator", "root",
+            {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": f"{NS}:astra_obliterator"}]}},
+            frame="challenge", hidden=True)
+
 # ── 레시피 ──
 RECIPES = [
     # (이름, 결과 수, 패턴, {키: 재료})  재료: "minecraft:x" 또는 "#minecraft:tag"

@@ -1,0 +1,45 @@
+{
+  "display": {
+    "icon": {
+      "id": "infracraft:stone_bridge_kit"
+    },
+    "title": {
+      "translate": "advancements.infracraft.journey.first_bridge.title"
+    },
+    "description": {
+      "translate": "advancements.infracraft.journey.first_bridge.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:tick",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type_specific": {
+                "type": "minecraft:player",
+                "stats": [
+                  {
+                    "type": "minecraft:custom",
+                    "stat": "infracraft:bridge_blocks",
+                    "value": {
+                      "min": 1
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parent": "infracraft:journey/root"
+}

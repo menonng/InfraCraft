@@ -1,0 +1,45 @@
+{
+  "display": {
+    "icon": {
+      "id": "infracraft:subway_shield"
+    },
+    "title": {
+      "translate": "advancements.infracraft.journey.tunneler.title"
+    },
+    "description": {
+      "translate": "advancements.infracraft.journey.tunneler.description"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "done": {
+      "trigger": "minecraft:tick",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type_specific": {
+                "type": "minecraft:player",
+                "stats": [
+                  {
+                    "type": "minecraft:custom",
+                    "stat": "infracraft:blocks_bored",
+                    "value": {
+                      "min": 2000
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "parent": "infracraft:journey/rail_layer"
+}
