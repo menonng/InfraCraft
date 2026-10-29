@@ -1,12 +1,12 @@
 # 아이템 조합법·획득처
 
 InfraCraft 의 모든 아이템은 **조합하거나, 또는 다른 곳에서 얻어요.** 조합할 수 있는 아이템은 조합대 그림을 함께 실었어요.
-조합법이 없는 아이템은 구조물 상자나 교역, 설계도로 얻어요. 게임 안에서는 레시피 책(또는 JEI·EMI)으로도 볼 수 있어요.
+조합법이 없는 아이템은 구조물 상자에서 얻어요. 게임 안에서는 레시피 책(또는 JEI·EMI)으로도 볼 수 있어요.
 
 | 얻는 법 | 아이템 |
 |---|---|
-| 조합 (35) | 포석길, 벽돌 포장길, 판석길, 아스팔트, 차선 아스팔트, 이정석, 가로등, 이정표, 도로 포장기, 고속 선로, 특급 선로, 블레이즈 선로, 엔더 선로 핵, 역, 분기기, 승차권, 선로 부설기, 측량기, 터널 굴착기, 실드 굴진기, 터널 라이닝, 터널 조명, 승강장 안전선, 승강장 안전문, 역 승강기, 지하철 건설 안내서, 지하 역사 설계도, 지상 역사 설계도, 전동차 도면, 객차 도면, 물살 블록, 보트 리프트, 마구간, 말 호루라기, 철 편자 |
-| 획득 (4) | 항구 설계도, 교역소, 화물 상자, 다이아몬드 편자 |
+| 조합 (38) | 포석길, 벽돌 포장길, 판석길, 아스팔트, 차선 아스팔트, 이정석, 가로등, 이정표, 도로 포장기, 고속 선로, 특급 선로, 블레이즈 선로, 엔더 선로 핵, 역, 분기기, 승차권, 선로 부설기, 측량기, 터널 굴착기, 실드 굴진기, 터널 라이닝, 터널 조명, 승강장 안전선, 승강장 안전문, 역 승강기, 지하철 건설 안내서, 지하 역사 설계도, 지상 역사 설계도, 목조 다리 키트, 석조 아치교 키트, 구리 트러스교 키트, 전동차 도면, 객차 도면, 물살 블록, 보트 리프트, 마구간, 말 호루라기, 철 편자 |
+| 획득 (2) | 항구 설계도, 다이아몬드 편자 |
 
 > 그림은 `recipe-images` 워크플로가 게임 jar 의 텍스처로 그려요(`tools/recipes/render_recipes.py`). 이 문서는 `python3 tools/recipes/items_doc.py` 로 다시 만들어요.
 
@@ -280,6 +280,35 @@ InfraCraft 의 모든 아이템은 **조합하거나, 또는 다른 곳에서 �
 - 큰 해저 유적 상자: 20%
 - 마을 어부 집 상자: 20%
 
+## 다리 키트
+
+### <img src="recipes/icons/timber_bridge_kit.png" width="32" height="32" align="top"> 목조 다리 키트
+<sub>Timber Bridge Kit · `infracraft:timber_bridge_kit`</sub>
+
+**조합** → 1개
+
+![목조 다리 키트 조합법](recipes/timber_bridge_kit.png)
+
+재료: 실 2 + 철 도끼 1 + 판자 3 + 원목 2
+
+### <img src="recipes/icons/stone_bridge_kit.png" width="32" height="32" align="top"> 석조 아치교 키트
+<sub>Stone Arch Bridge Kit · `infracraft:stone_bridge_kit`</sub>
+
+**조합** → 1개
+
+![석조 아치교 키트 조합법](recipes/stone_bridge_kit.png)
+
+재료: 조각된 석재 벽돌 2 + 철 곡괭이 1 + 석재 벽돌 5
+
+### <img src="recipes/icons/copper_bridge_kit.png" width="32" height="32" align="top"> 구리 트러스교 키트
+<sub>Copper Truss Bridge Kit · `infracraft:copper_bridge_kit`</sub>
+
+**조합** → 1개
+
+![구리 트러스교 키트 조합법](recipes/copper_bridge_kit.png)
+
+재료: 구리 주괴 4 + 피뢰침 1 + 깎인 구리 3
+
 ## 차량 도면 (Create)
 
 ### <img src="recipes/icons/metro_car_blueprint.png" width="32" height="32" align="top"> 전동차 도면
@@ -300,7 +329,7 @@ InfraCraft 의 모든 아이템은 **조합하거나, 또는 다른 곳에서 �
 
 재료: 빨간색 염료 4 + 종이 3 + 기차 케이스(Create) 1 + 가문비나무 판자 1
 
-## 수운·항구
+## 수운
 
 ### <img src="recipes/icons/water_current.png" width="32" height="32" align="top"> 물살 블록
 <sub>Water Current · `infracraft:water_current`</sub>
@@ -319,20 +348,6 @@ InfraCraft 의 모든 아이템은 **조합하거나, 또는 다른 곳에서 �
 ![보트 리프트 조합법](recipes/boat_lift.png)
 
 재료: 프리즈머린 벽돌 6 + 영혼 모래 2 + 레드스톤 가루 1
-
-### <img src="recipes/icons/trading_post.png" width="32" height="32" align="top"> 교역소
-<sub>Trading Post · `infracraft:trading_post`</sub>
-
-**획득**
-
-- **항구 설계도**를 쓰면 잔교 입구에 설치돼요. 부수면 아이템으로 회수해 옮길 수 있어요.
-
-### <img src="recipes/icons/cargo_crate.png" width="32" height="32" align="top"> 화물 상자
-<sub>Cargo Crate · `infracraft:cargo_crate`</sub>
-
-**획득**
-
-- **교역소**에 그 항구의 특산품을 들고 쓰면 받아요(최대 64개를 담아요).
 
 ## 말
 
@@ -443,5 +458,16 @@ InfraCraft 의 모든 아이템은 **조합하거나, 또는 다른 곳에서 �
 ![아스트라 오브리터레이터 조합법](recipes/astra_obliterator.png)
 
 재료: 네더의 별 3 + 아퀼라 성좌핵 1 + 네더라이트 검 1
+
+#### 아스트라 오브리터레이터 쓰는 법
+
+| 조작 | 효과 |
+|---|---|
+| 오른손으로 공격 | 칼끝에서 **암흑 별빛 검격**(초승달)이 앞으로 16칸 날아가며 닿는 것을 모두 벱니다(관통, 피해 24). |
+| 오른손 우클릭 | 시선 앞 하늘에 독수리자리를 그리고 알타이르에서 **별빛 광선**(160칸, 피해 120, 반경 4)을 쏩니다. |
+| 왼손에 들고 우클릭 | **조준 모드**. 바라보는 땅(최대 320칸)에 낙하 범위가 별빛 고리로 보입니다. 좌클릭하면 그 하늘에 독수리자리가 떠올라 **별빛이 낙하**합니다(반경 12, 가운데 피해 180). 다시 왼손 우클릭하면 취소. |
+| 조준 중 M | 지금까지 불러온 땅의 **지도**를 열고, 원하는 곳을 좌클릭해 그곳에 낙하시킵니다(가 본 적 없는 곳은 불가). |
+
+광선과 낙하는 재사용 대기시간 8초를 함께 씁니다. 지형은 부수지 않습니다. 관련 아이템 11개는 발전과제 창의 **독수리자리 탭**에 따로 모입니다.
 
 </details>
