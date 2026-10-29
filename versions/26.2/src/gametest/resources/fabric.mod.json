@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "infracraft-gametest",
+  "version": "1",
+  "name": "InfraCraft client gametest",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": [{ "adapter": "kotlin", "value": "dev.menonng.infracraft.gametest.ScreenshotTour" }]
+  },
+  "depends": { "infracraft": "*" }
+}

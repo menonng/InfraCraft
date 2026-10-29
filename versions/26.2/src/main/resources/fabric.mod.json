@@ -3,7 +3,7 @@
   "id": "infracraft",
   "version": "${version}",
   "name": "InfraCraft",
-  "description": "낭만 교통 인프라 모드: 겉날개 금지, 네더 1:1, 순간이동 없이 도로·철도·지하철·항구·말로 세계를 여행합니다.",
+  "description": "Romantic transport infrastructure: no elytra, 1:1 Nether, no teleporting. See the world by road, rail, subway, harbor and horse.",
   "authors": ["menonng"],
   "contact": { "sources": "https://github.com/menonng/InfraCraft" },
   "license": "All-Rights-Reserved",

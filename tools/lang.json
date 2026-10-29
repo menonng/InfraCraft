@@ -978,5 +978,33 @@
  "infracraft.msg.surveyor.bridge.done": {
   "ko_kr": "길이 %1$s칸 나무 다리를 놓았습니다(판자 %2$s개).",
   "en_us": "Laid a %1$s-block wooden bridge (%2$s planks)."
+ },
+ "infracraft.name.station": {
+  "ko_kr": "역 %s",
+  "en_us": "Station %s"
+ },
+ "infracraft.name.station_line": {
+  "ko_kr": "역 %s %s번선",
+  "en_us": "Station %s · Line %s"
+ },
+ "infracraft.name.harbor": {
+  "ko_kr": "항구 %s",
+  "en_us": "Harbor %s"
+ },
+ "infracraft.name.harbor_line": {
+  "ko_kr": "항구 %s %s번선",
+  "en_us": "Harbor %s · Line %s"
+ },
+ "infracraft.name.line": {
+  "ko_kr": "%s %s번선",
+  "en_us": "%s · Line %s"
+ },
+ "infracraft.book.subway.title": {
+  "ko_kr": "지하철 건설 안내서",
+  "en_us": "Subway Construction Guide"
+ },
+ "modmenu.descriptionTranslation.infracraft": {
+  "ko_kr": "낭만 교통 인프라 모드: 겉날개 금지, 네더 1:1, 순간이동 없이 도로·철도·지하철·항구·말로 세계를 여행합니다.",
+  "en_us": "Romantic transport infrastructure: no elytra, 1:1 Nether, no teleporting. See the world by road, rail, subway, harbor and horse."
  }
 }

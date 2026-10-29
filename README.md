@@ -8,10 +8,11 @@
 
 | 마인크래프트 | Java | Fabric API | 고른 이유 |
 |---|---|---|---|
-| **26.3** | 25 | 0.165.0+26.3 | 최신 버전. Create Fly 비공식 26.3 포트와 함께 쓰는 것을 확인했어요 |
 | **26.2** | 25 | 0.161.0+26.2 | Create Fly 애드온 포트가 가장 많은 버전. 공식 Create Fly 26.2 + Steam 'n' Rails 와 함께 쓰는 것을 확인했어요 |
 
-언어는 Kotlin(fabric-language-kotlin 1.14.2)이에요. 어느 버전을 고를지는 [docs/CREATE_ADDONS.md](docs/CREATE_ADDONS.md)의 애드온 목록을 보고 정하면 돼요.
+지금은 **26.2 만** 지원해요. 26.3 은 공식 Create Fly 가 나오면 다시 지원할 예정이에요.
+
+언어는 Kotlin(fabric-language-kotlin 1.14.2)이에요. 함께 쓸 만한 애드온은 [docs/CREATE_ADDONS.md](docs/CREATE_ADDONS.md)에 정리했어요.
 
 ## 영상 설명
 Create 의 Ponder 처럼 **기능마다 짧은 영상**이 있어요. 게임의 실제 텍스처와 마인크래프트·Create 의 실제 효과음으로 만들었어요.
@@ -98,14 +99,13 @@ Create 의 Ponder 처럼 **기능마다 짧은 영상**이 있어요. 게임의 
 ## Create 호환
 | 대상 | 버전 | 호환 내용 |
 |---|---|---|
-| [Create Fly](https://github.com/ZurrTum/Create-Fly) (Create 의 Fabric 포트) | 26.2 공식, 26.3 비공식 포트([zedekvdb](https://github.com/zedekvdb/create-fly-unofficial-port)) | Create 기차 정거장을 노선망 역으로 자동 등록, Create 기차가 역 사이를 달리면 노선 자동 측량(경로 안내, 이정표에 반영), 지하철 키트가 Create 트랙을 깔고, 차량 도면이 Create 블록으로 전동차·객차 차체를 지어요 |
-| [Steam 'n' Rails Fly](https://github.com/cat4blep/Create-Steam-n-Rails-Fly) | Fabric 26.2 (26.3 은 NeoForge 포트만) | 같은 Create 선로망을 쓰므로 기차·역 연동이 그대로 적용돼요 |
-| Create Aeronautics / Simulated / Offroad (Sable) | Fabric 26.3 커뮤니티 포트 | 비행선·차량은 겉날개 금지 대상이 아니에요. 그대로 함께 쓸 수 있어요 |
+| [Create Fly](https://github.com/ZurrTum/Create-Fly) (Create 의 Fabric 포트) | 26.2 공식 | Create 기차 정거장을 노선망 역으로 자동 등록, Create 기차가 역 사이를 달리면 노선 자동 측량(경로 안내, 이정표에 반영), 지하철 키트가 Create 트랙을 깔고, 차량 도면이 Create 블록으로 전동차·객차 차체를 지어요 |
+| [Steam 'n' Rails Fly](https://github.com/cat4blep/Create-Steam-n-Rails-Fly) | Fabric 26.2 | 같은 Create 선로망을 쓰므로 기차·역 연동이 그대로 적용돼요 |
 | Create 마인카트 장치 | — | 바닐라 마인카트라서 등급 선로 가속·역 정차·분기기가 그대로 적용돼요 |
 | Create 장식 돌 | — | 자른 돌·벽돌·기둥 등이 도로 2등급으로 들어가요(Create 가 없으면 무시) |
 
 - 분야별 전체 애드온 호환 목록과 링크: **[docs/CREATE_ADDONS.md](docs/CREATE_ADDONS.md)**
-- Create 연동은 리플렉션으로 읽기만 하므로 **Create 가 없어도 InfraCraft 는 그대로 동작**해요. CI 에서 Create Fly 26.3 포트와 함께 서버를 띄워 연동을 확인해요.
+- Create 연동은 리플렉션으로 읽기만 하므로 **Create 가 없어도 InfraCraft 는 그대로 동작**해요. CI 에서 Create Fly 26.2 와 Steam 'n' Rails 를 함께 넣고 서버를 띄워 연동을 확인해요.
 - 네더 1:1 은 Create 기차의 포탈 통과에도 똑같이 적용돼요.
 - 지하철 키트가 깔 선로는 설정 `subwayTrack`(auto / create / vanilla / none)으로 정해요.
 

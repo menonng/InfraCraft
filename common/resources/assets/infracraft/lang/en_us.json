@@ -243,5 +243,12 @@
   "infracraft.msg.surveyor.bridge.too_long": "A surveyor bridge can be at most %1$s blocks long.",
   "infracraft.msg.surveyor.bridge.too_steep": "Too steep: it cannot rise more than one block per block.",
   "infracraft.msg.surveyor.bridge.short": "Not enough planks: needs %1$s, have %2$s.",
-  "infracraft.msg.surveyor.bridge.done": "Laid a %1$s-block wooden bridge (%2$s planks)."
+  "infracraft.msg.surveyor.bridge.done": "Laid a %1$s-block wooden bridge (%2$s planks).",
+  "infracraft.name.station": "Station %s",
+  "infracraft.name.station_line": "Station %s · Line %s",
+  "infracraft.name.harbor": "Harbor %s",
+  "infracraft.name.harbor_line": "Harbor %s · Line %s",
+  "infracraft.name.line": "%s · Line %s",
+  "infracraft.book.subway.title": "Subway Construction Guide",
+  "modmenu.descriptionTranslation.infracraft": "Romantic transport infrastructure: no elytra, 1:1 Nether, no teleporting. See the world by road, rail, subway, harbor and horse."
 }

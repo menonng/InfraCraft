@@ -8,7 +8,9 @@ import dev.menonng.infracraft.content.ModBlocks
 import dev.menonng.infracraft.content.ModStats
 import dev.menonng.infracraft.fmt1
 import dev.menonng.infracraft.lit
+import dev.menonng.infracraft.autoName
 import dev.menonng.infracraft.msg
+import dev.menonng.infracraft.nm
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
 import net.minecraft.server.MinecraftServer
@@ -35,7 +37,7 @@ object Network {
         val key = NetworkData.key(dim, pos)
         data.station(key)?.let { return it }
         val rec = StationRec().apply {
-            name = data.uniqueName(requestedName?.takeIf { it.isNotBlank() } ?: "역 ${data.stations.size + 1}")
+            name = data.uniqueName(requestedName?.takeIf { it.isNotBlank() } ?: autoName("station", data.stations.size + 1))
             this.dim = dim
             x = pos.x; y = pos.y; z = pos.z
         }
@@ -54,14 +56,14 @@ object Network {
         val data = data(level.server)
         val clash = data.stationByName(newName)
         if (clash != null && clash !== st) {
-            Compat.chat(player, msg("station.name_taken", Palette.RED, newName))
+            Compat.chat(player, msg("station.name_taken", Palette.RED, nm(newName)))
             return
         }
         // 이 역을 가리키는 분기기 설정도 새 이름으로 옮긴다
         val old = st.name
         data.switches.values.forEach { set -> if (set.remove(old)) set.add(newName) }
         st.name = newName
-        Compat.chat(player, msg("station.renamed", Palette.GREEN, old, newName))
+        Compat.chat(player, msg("station.renamed", Palette.GREEN, nm(old), nm(newName)))
     }
 
     fun nearestStation(level: ServerLevel, pos: BlockPos, radius: Int): StationRec? {
@@ -75,12 +77,12 @@ object Network {
     fun showStationInfo(level: ServerLevel, pos: BlockPos, player: Player) {
         val st = stationAt(level, pos) ?: return
         val data = data(level.server)
-        Compat.chat(player, msg("station.info", Palette.SKY, st.name, "${st.x}, ${st.y}, ${st.z}"))
+        Compat.chat(player, msg("station.info", Palette.SKY, nm(st.name), "${st.x}, ${st.y}, ${st.z}"))
         val edges = data.edgesOf(st.key)
         if (edges.isEmpty()) Compat.chat(player, msg("station.no_routes", Palette.ORANGE))
         for (e in edges) {
             val other = data.station(e.other(st.key)) ?: continue
-            Compat.chat(player, lit("  → ${other.name}  ", Palette.YELLOW)
+            Compat.chat(player, lit("  → ", Palette.YELLOW).append(nm(other.name)).append("  ")
                 .append(msg("mode.${e.mode}", Palette.PINK))
                 .append(lit("  ${e.distance.toInt()}m · ${fmt1(e.seconds)}s", Palette.BLUE)))
         }
@@ -100,7 +102,7 @@ object Network {
             val dx = (st.x - pos.x).toDouble()
             val dz = (st.z - pos.z).toDouble()
             val dist = sqrt(dx * dx + dz * dz).toInt()
-            Compat.chat(player, lit("  ${arrow(dx, dz)} ${st.name}  ", Palette.YELLOW).append(lit("${dist}m", Palette.BLUE)))
+            Compat.chat(player, lit("  ${arrow(dx, dz)} ", Palette.YELLOW).append(nm(st.name)).append("  ").append(lit("${dist}m", Palette.BLUE)))
         }
     }
 
@@ -129,7 +131,7 @@ object Network {
             val dx = (st.x - here.x).toDouble()
             val dz = (st.z - here.z).toDouble()
             val km = sqrt(dx * dx + dz * dz) / 1000.0
-            line.append(lit("  ${arrow(dx, dz)} ${st.name} ", Palette.YELLOW)).append(lit(if (km < 1) "${(km * 1000).toInt()}m" else "${fmt1(km)}km", Palette.PINK))
+            line.append(lit("  ${arrow(dx, dz)} ", Palette.YELLOW).append(nm(st.name)).append(" ")).append(lit(if (km < 1) "${(km * 1000).toInt()}m" else "${fmt1(km)}km", Palette.PINK))
         }
         Compat.overlay(player, line)
     }
@@ -145,7 +147,7 @@ object Network {
         val dim = Compat.dimensionId(level)
         for (st in data.stations.values.sortedWith(compareBy<StationRec>({ it.dim != dim }, { it.pos.distSqr(pos) })).take(20)) {
             val where = if (st.dim == dim) "${sqrt(st.pos.distSqr(pos)).toInt()}m" else st.dim.substringAfter(':')
-            Compat.chat(player, lit("  ${st.name}  ", Palette.YELLOW).append(lit(where, Palette.BLUE))
+            Compat.chat(player, lit("  ", Palette.YELLOW).append(nm(st.name)).append("  ").append(lit(where, Palette.BLUE))
                 .append(lit("  ", Palette.BLUE)).append(msg("station.route_count", Palette.SKY, data.edgesOf(st.key).size.toString())))
         }
     }
@@ -155,13 +157,13 @@ object Network {
         val data = data(level.server)
         val to = data.stationByName(destinationName)
         if (to == null) {
-            Compat.chat(player, msg("ticket.unknown", Palette.RED, destinationName)); return
+            Compat.chat(player, msg("ticket.unknown", Palette.RED, nm(destinationName))); return
         }
         val r = route(data, from.key, to.key)
         if (r == null) {
-            Compat.chat(player, msg("route.none", Palette.RED, from.name, to.name)); return
+            Compat.chat(player, msg("route.none", Palette.RED, nm(from.name), nm(to.name))); return
         }
-        Compat.chat(player, msg("route.header", Palette.SKY, from.name, to.name))
+        Compat.chat(player, msg("route.header", Palette.SKY, nm(from.name), nm(to.name)))
         Compat.chat(player, describeRoute(r))
         Compat.chat(player, msg("route.ride_hint", Palette.PINK))
     }
@@ -223,7 +225,7 @@ object Network {
                 })
                 for (p in vehicle.passengers) if (p is ServerPlayer) {
                     p.awardStat(ModStats.ROUTES_SURVEYED, 1)
-                    Compat.overlay(p, msg("route.surveyed", Palette.GREEN, from.name, st.name, j.distance.toInt().toString(), fmt1(seconds)))
+                    Compat.overlay(p, msg("route.surveyed", Palette.GREEN, nm(from.name), nm(st.name), j.distance.toInt().toString(), fmt1(seconds)))
                 }
             }
         }
@@ -277,7 +279,7 @@ object Network {
         data.putEdge(EdgeRec().apply {
             from = a.key; to = b.key; mode = "portal"; distance = 0.0; seconds = 4.0; recordedAt = origin.gameTime
         })
-        Compat.overlay(player, msg("route.portal", Palette.PURPLE, a.name, b.name))
+        Compat.overlay(player, msg("route.portal", Palette.PURPLE, nm(a.name), nm(b.name)))
     }
 
     // ───────────── 경로 탐색 ─────────────
@@ -326,7 +328,8 @@ object Network {
     }
 
     fun describeRoute(route: Route): Component {
-        val c = lit(route.stations.joinToString(" → ") { it.name }, Palette.YELLOW)
+        val c = lit("", Palette.YELLOW)
+        route.stations.forEachIndexed { i, st -> if (i > 0) c.append(" → "); c.append(nm(st.name)) }
         return c.append(lit("  (${route.distance.toInt()}m · ${fmt1(route.seconds)}s)", Palette.BLUE))
     }
 }

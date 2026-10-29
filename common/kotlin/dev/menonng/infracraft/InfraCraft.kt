@@ -147,6 +147,16 @@ object InfraCraft : ModInitializer {
             overworld.getChunk(0, 4)
             val err = Bridges.selfTest(overworld, feet)
             check("stone bridge built in world (${err ?: "ok"})", err == null)
+            for ((i, kr) in listOf<Pair<Bridges.Kind, net.minecraft.world.level.block.Block>>(Bridges.Kind.TIMBER to net.minecraft.world.level.block.Blocks.SPRUCE_PLANKS,
+                Bridges.Kind.COPPER to blk("cut_copper")!!).withIndex()) {
+                val at = net.minecraft.core.BlockPos(0, 300, 192 + 64 * i)
+                overworld.getChunk(0, at.z shr 4); overworld.getChunk(1, at.z shr 4)
+                val (n, e) = Bridges.designTest(overworld, at, kr.first, kr.second)
+                check("${kr.first.name.lowercase()} bridge design ($n blocks${e?.let { ", $it" } ?: ""})", e == null)
+            }
+            // 자동 역 이름은 언어 키로 보인다
+            check("auto station names", (nm(lineName(autoName("station", 3), 1)).contents as? net.minecraft.network.chat.contents.TranslatableContents)?.key == "infracraft.name.station_line" &&
+                nm("Seoul").string == "Seoul")
             // 측량기 나무 다리: 10칸에 3칸 오르막 → 33블록, 오르는 칸은 동쪽을 보는 계단
             val sa = net.minecraft.core.BlockPos(0, 310, 128)
             val sb = net.minecraft.core.BlockPos(10, 313, 128)

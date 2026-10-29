@@ -11,7 +11,9 @@ import dev.menonng.infracraft.content.ModBlocks
 import dev.menonng.infracraft.content.ModComponents
 import dev.menonng.infracraft.content.ModItems
 import dev.menonng.infracraft.msg
+import dev.menonng.infracraft.nm
 import net.minecraft.core.BlockPos
+import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
@@ -78,7 +80,7 @@ object Interactions {
         val cur = stack.get(ModComponents.DESTINATION)
         val next = names[(names.indexOfFirst { it == cur } + 1) % names.size]
         stack.set(ModComponents.DESTINATION, next)
-        Compat.overlay(player, msg("ticket.set", Palette.GREEN, next))
+        Compat.overlay(player, msg("ticket.set", Palette.GREEN, nm(next)))
     }
 
     // ───────────── 블록에 사용 ─────────────
@@ -136,15 +138,15 @@ object Interactions {
                 }
                 data.addTicker(TickedBlock.SWITCH, Compat.dimensionId(sl), pos)
                 val set = data.switches.getOrPut(key) { LinkedHashSet() }
-                if (set.remove(dest)) Compat.overlay(it, msg("switch.removed", Palette.ORANGE, dest))
+                if (set.remove(dest)) Compat.overlay(it, msg("switch.removed", Palette.ORANGE, nm(dest)))
                 else {
-                    set.add(dest); Compat.overlay(it, msg("switch.added", Palette.GREEN, dest))
+                    set.add(dest); Compat.overlay(it, msg("switch.added", Palette.GREEN, nm(dest)))
                 }
             }
             if (emptyMain) return handled(player) {
                 val sl = it.level() as ServerLevel
                 val set = Network.data(sl.server).switches[NetworkData.key(Compat.dimensionId(sl), pos)].orEmpty()
-                Compat.chat(it, if (set.isEmpty()) msg("switch.empty", Palette.ORANGE) else msg("switch.list", Palette.SKY, set.joinToString(", ")))
+                Compat.chat(it, if (set.isEmpty()) msg("switch.empty", Palette.ORANGE) else msg("switch.list", Palette.SKY, Component.empty().apply { set.forEachIndexed { i, n -> if (i > 0) append(", "); append(nm(n)) } }))
             }
             return null
         }
@@ -164,7 +166,7 @@ object Interactions {
         val dest = stack.get(ModComponents.DESTINATION)
         if (dest == null || dest.equals(st.name, ignoreCase = true)) {
             stack.set(ModComponents.DESTINATION, st.name)
-            Compat.overlay(player, msg("ticket.set", Palette.GREEN, st.name))
+            Compat.overlay(player, msg("ticket.set", Palette.GREEN, nm(st.name)))
             return
         }
         Network.showRoute(level, player, st, dest)

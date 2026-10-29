@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mc: ["26.2", "26.3"]
+        mc: ["26.2"]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
@@ -58,14 +58,38 @@ jobs:
           name: infracraft-mc${{ matrix.mc }}
           path: versions/${{ matrix.mc }}/build/libs/
 
+  # 클라이언트 게임테스트: Xvfb 에서 실제 게임을 띄워 월드를 만들고 다리·홀로그램·아스트라 화면을 찍는다(믹스인·렌더링·화면이 실제로 도는지).
+  client-gametest:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "microsoft"
+      - uses: gradle/actions/setup-gradle@v6
+      - run: chmod +x ./gradlew && sudo apt-get update -q && sudo apt-get install -yq xvfb libgl1-mesa-dri
+      - name: client gametest (screenshot tour)
+        run: |
+          set -o pipefail
+          timeout 2400 xvfb-run -a -s "-screen 0 1600x900x24" ./gradlew :mc26.2:runClientGameTest --stacktrace 2>&1 | tee client.log
+      - name: report errors
+        if: failure()
+        run: |
+          grep -E "Exception|ERROR|FAILED|Caused by" client.log | grep -vE "authlib|yggdrasil|SoundSystem|OpenAL|ALSA|minecraftservices|sessionserver|profile key" | head -40 || true
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: client-screenshots
+          path: versions/26.2/build/run/clientGameTest/screenshots/
+
   # Create Fly(와 대표 애드온)를 함께 띄워 Create 연동(리플렉션, 트랙 블록)과 공존을 확인한다.
   #  - 26.2: 공식 Create Fly 26.2-6.0.9-2 + Steam 'n' Rails Fly(소스 빌드)
-  #  - 26.3: 비공식 Create Fly 26.3 포트(소스 빌드)
   create-compat:
     strategy:
       fail-fast: false
       matrix:
-        mc: ["26.2", "26.3"]
+        mc: ["26.2"]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
@@ -86,13 +110,6 @@ jobs:
           jar=$(find /tmp/snr -path "*build/libs/*.jar" | grep -vE "sources|dev|common" | head -1)
           echo "SnR jar: $jar"; cp "$jar" versions/26.2/run/mods/
           echo "INFRACRAFT_SMOKE_RAILWAYS=true" >> "$GITHUB_ENV"
-      - name: Create Fly 26.3 (unofficial port, source build)
-        if: matrix.mc == '26.3'
-        run: |
-          set -o pipefail
-          git clone --depth 1 https://github.com/zedekvdb/create-fly-unofficial-port /tmp/createfly
-          (cd /tmp/createfly && chmod +x gradlew && ./gradlew build -x test 2>&1 | tee /tmp/addon-build.log | tail -15)
-          cp "$(ls /tmp/createfly/build/libs/*.jar | grep -vE 'sources|dev' | head -1)" versions/26.3/run/mods/
       - name: smoke test with Create
         env:
           INFRACRAFT_SMOKE_CREATE: "true"

@@ -10,7 +10,7 @@
     "count": 1,
     "components": {
       "minecraft:written_book_content": {
-        "title": "지하철 건설 안내서",
+        "title": "Subway Guide",
         "author": "InfraCraft",
         "pages": [
           {
@@ -41,6 +41,10 @@
             "translate": "infracraft.book.subway.9"
           }
         ]
+      },
+      "minecraft:custom_name": {
+        "translate": "infracraft.book.subway.title",
+        "italic": false
       }
     }
   }

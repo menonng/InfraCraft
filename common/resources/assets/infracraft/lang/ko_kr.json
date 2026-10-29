@@ -243,5 +243,12 @@
   "infracraft.msg.surveyor.bridge.too_long": "측량기 다리는 %1$s칸까지입니다.",
   "infracraft.msg.surveyor.bridge.too_steep": "너무 가파릅니다. 한 칸 갈 때 한 칸 넘게 오르내릴 수 없습니다.",
   "infracraft.msg.surveyor.bridge.short": "판자가 모자랍니다: %1$s개 필요, %2$s개 보유.",
-  "infracraft.msg.surveyor.bridge.done": "길이 %1$s칸 나무 다리를 놓았습니다(판자 %2$s개)."
+  "infracraft.msg.surveyor.bridge.done": "길이 %1$s칸 나무 다리를 놓았습니다(판자 %2$s개).",
+  "infracraft.name.station": "역 %s",
+  "infracraft.name.station_line": "역 %s %s번선",
+  "infracraft.name.harbor": "항구 %s",
+  "infracraft.name.harbor_line": "항구 %s %s번선",
+  "infracraft.name.line": "%s %s번선",
+  "infracraft.book.subway.title": "지하철 건설 안내서",
+  "modmenu.descriptionTranslation.infracraft": "낭만 교통 인프라 모드: 겉날개 금지, 네더 1:1, 순간이동 없이 도로·철도·지하철·항구·말로 세계를 여행합니다."
 }

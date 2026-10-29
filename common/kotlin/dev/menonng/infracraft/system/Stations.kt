@@ -3,7 +3,9 @@ package dev.menonng.infracraft.system
 import dev.menonng.infracraft.Palette
 import dev.menonng.infracraft.compat.Compat
 import dev.menonng.infracraft.content.ModBlocks
+import dev.menonng.infracraft.autoName
 import dev.menonng.infracraft.msg
+import dev.menonng.infracraft.nm
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
@@ -97,8 +99,8 @@ object Stations {
         }
         if (createTrack == null) {
             val data = Network.data(level.server)
-            val (a, b) = Subway.registerTwin(level, at(base, dir, side, 0, Subway.TRACK_O, -1), at(base, dir, side, 0, -Subway.TRACK_O, -1), "역 ${data.stations.size + 1}")
-            Compat.chat(player, msg("ground_station.built", Palette.GREEN, a.name, b.name))
+            val (a, b) = Subway.registerTwin(level, at(base, dir, side, 0, Subway.TRACK_O, -1), at(base, dir, side, 0, -Subway.TRACK_O, -1), autoName("station", data.stations.size + 1))
+            Compat.chat(player, msg("ground_station.built", Palette.GREEN, nm(a.name), nm(b.name)))
         } else Compat.chat(player, msg("ground_station.built_create", Palette.GREEN))
     }
 
@@ -151,7 +153,7 @@ object Stations {
         place(level, plan)
         if (!player.isCreative) player.getItemInHand(hand).shrink(1)
         val data = Network.data(level.server)
-        val st = Network.registerStation(level, at(base, dir, side, 8, 3, -1), data.uniqueName("항구 ${data.stations.size + 1}"))
-        Compat.chat(player, msg("harbor.built", Palette.GREEN, st.name))
+        val st = Network.registerStation(level, at(base, dir, side, 8, 3, -1), data.uniqueName(autoName("harbor", data.stations.size + 1)))
+        Compat.chat(player, msg("harbor.built", Palette.GREEN, nm(st.name)))
     }
 }

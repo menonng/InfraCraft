@@ -14,6 +14,7 @@ import dev.menonng.infracraft.content.ModComponents
 import dev.menonng.infracraft.content.ModEnchantments
 import dev.menonng.infracraft.content.ModItems
 import dev.menonng.infracraft.msg
+import dev.menonng.infracraft.nm
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
@@ -305,9 +306,9 @@ object RailSystem {
             st.stopTicks = 60
             cart.deltaMovement = Vec3.ZERO
             cart.removeAttached(ModAttachments.CART_DESTINATION)
-            rider?.let { Compat.overlay(it, msg("rail.arrived", Palette.GREEN, station.name)) }
+            rider?.let { Compat.overlay(it, msg("rail.arrived", Palette.GREEN, nm(station.name))) }
         } else if (rider != null) {
-            Compat.overlay(rider, msg("rail.passing", Palette.SKY, station.name))
+            Compat.overlay(rider, msg("rail.passing", Palette.SKY, nm(station.name)))
         }
     }
 

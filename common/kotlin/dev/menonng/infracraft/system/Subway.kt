@@ -9,7 +9,10 @@ import dev.menonng.infracraft.compat.Compat
 import dev.menonng.infracraft.content.ModBlocks
 import dev.menonng.infracraft.content.ModEnchantments
 import dev.menonng.infracraft.content.ModStats
+import dev.menonng.infracraft.autoName
+import dev.menonng.infracraft.lineName
 import dev.menonng.infracraft.msg
+import dev.menonng.infracraft.nm
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
@@ -190,11 +193,11 @@ object Subway {
 
     // ───────────── 지하 역사 설계도 ─────────────
 
-    /** 복선 역의 두 선로 역 이름: "역 3 1번선"(오른쪽), "역 3 2번선"(왼쪽) */
+    /** 복선 역의 두 선로 역 이름: 1번선(오른쪽), 2번선(왼쪽). 표시는 언어에 따라 "역 3 1번선" / "Station 3 · Line 1" */
     internal fun registerTwin(level: ServerLevel, right: BlockPos, left: BlockPos, base: String): Pair<StationRec, StationRec> {
         val data = Network.data(level.server)
         val name = data.uniqueName(base)
-        return Network.registerStation(level, right, "$name 1번선") to Network.registerStation(level, left, "$name 2번선")
+        return Network.registerStation(level, right, lineName(name, 1)) to Network.registerStation(level, left, lineName(name, 2))
     }
 
     /**
@@ -297,8 +300,8 @@ object Subway {
             }
         }
         if (createTrack == null) {
-            val (a, b) = registerTwin(level, at(base, dir, side, 0, TRACK_O, -1), at(base, dir, side, 0, -TRACK_O, -1), "역 ${data.stations.size + 1}")
-            Compat.chat(player, msg("station_hall.built", Palette.GREEN, a.name, b.name, depth.toString()))
+            val (a, b) = registerTwin(level, at(base, dir, side, 0, TRACK_O, -1), at(base, dir, side, 0, -TRACK_O, -1), autoName("station", data.stations.size + 1))
+            Compat.chat(player, msg("station_hall.built", Palette.GREEN, nm(a.name), nm(b.name), depth.toString()))
         } else Compat.chat(player, msg("station_hall.built_create", Palette.GREEN, depth.toString()))
     }
 

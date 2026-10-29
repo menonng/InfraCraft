@@ -20,6 +20,18 @@ kotlin.sourceSets.named("main") {
     kotlin.srcDir(rootProject.file("common/kotlin"))
 }
 
+// 클라이언트 게임테스트: 실제 게임 창(CI 에서는 Xvfb)을 띄워 월드를 만들고 다리·홀로그램·아스트라 화면 스크린샷을 남긴다.
+// ./gradlew :mc26.2:runClientGameTest → run/clientGameTest/screenshots/*.png
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "infracraft-gametest"
+        enableGameTests = false
+        enableClientGameTests = true
+        eula = true
+    }
+}
+
 dependencies {
     minecraft("com.mojang:minecraft:$minecraftVersion")
 

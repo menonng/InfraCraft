@@ -404,16 +404,16 @@ def guide_recipe(version_dir, new_format):
         ingredients = [{"item": "minecraft:book"}, {"item": "minecraft:rail"}]
     obj = {"type": "minecraft:crafting_shapeless", "category": "misc", "ingredients": ingredients,
            "result": {"id": "minecraft:written_book", "count": 1, "components": {
-               "minecraft:written_book_content": {"title": "지하철 건설 안내서", "author": "InfraCraft", "pages": pages}}}}
+               "minecraft:written_book_content": {"title": "Subway Guide", "author": "InfraCraft", "pages": pages},
+               # 책 제목은 번역되지 않으므로 보이는 이름은 번역 키로 덮는다(플레이어 언어를 따른다)
+               "minecraft:custom_name": {"translate": "infracraft.book.subway.title", "italic": False}}}}
     full = os.path.join(REPO, "versions", version_dir, "src", "main", "resources", "data", NS, "recipe", "subway_guide.json")
     with open(full, "w", encoding="utf-8") as f:
         json.dump(obj, f, ensure_ascii=False, indent=2)
         f.write("\n")
 
 guide_recipe("26.2", True)
-guide_recipe("26.3", True)
 recipes("26.2", True)
-recipes("26.3", True)
 
 # ── 번역 ──
 with open(os.path.join(HERE, "lang.json"), encoding="utf-8") as f:

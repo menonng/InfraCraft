@@ -25,3 +25,34 @@ fun msg(key: String, color: Int, vararg args: Any): MutableComponent =
 fun lit(s: String, color: Int): MutableComponent = Component.literal(s).color(color)
 
 fun fmt1(d: Double): String = String.format("%.1f", d)
+
+/**
+ * 역 이름 표시. 자동으로 붙은 이름은 언어와 무관한 표식(@station:3, @station:3:1, @harbor:2, @line:1:<이름>, 겹치면 끝에 " 2")으로 저장하고,
+ * 보여 줄 때 번역 키로 바꿔 각 플레이어의 언어로 읽히게 한다. 플레이어가 붙인 이름은 그대로.
+ */
+private val AUTO_NAME = Regex("""^@(station|harbor):(\d+)(?::(\d+))?(?: (\d+))?$""")
+
+fun autoName(kind: String, number: Int, line: Int? = null): String = "@$kind:$number" + (line?.let { ":$it" } ?: "")
+
+private val LINE_NAME = Regex("""^@line:(\d+):(.*)$""")
+
+/** 복선 역의 선로별 이름: 자동 이름이면 "@station:3:1", 플레이어가 붙인 이름이면 "@line:1:<이름>" */
+fun lineName(base: String, line: Int): String {
+    val m = AUTO_NAME.matchEntire(base)
+    if (m != null && m.groupValues[3].isEmpty()) {
+        val dup = m.groupValues[4]
+        return autoName(m.groupValues[1], m.groupValues[2].toInt(), line) + (if (dup.isEmpty()) "" else " $dup")
+    }
+    return "@line:$line:$base"
+}
+
+fun nm(name: String): MutableComponent {
+    LINE_NAME.matchEntire(name)?.let { return Component.translatable("infracraft.name.line", nm(it.groupValues[2]), it.groupValues[1]) }
+    val m = AUTO_NAME.matchEntire(name) ?: return Component.literal(name)
+    val (kind, n, line, dup) = m.destructured
+    val c = if (line.isEmpty()) Component.translatable("infracraft.name.$kind", n)
+    else Component.translatable("infracraft.name.${kind}_line", n, line)
+    return if (dup.isEmpty()) c else c.append(" $dup")
+}
+
+fun nm(name: String, color: Int): MutableComponent = nm(name).color(color)

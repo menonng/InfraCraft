@@ -139,6 +139,8 @@ object Astra {
     private const val STRIKE_RADIUS = 12.0
     private const val VIEW_RANGE = 320.0
     private const val COOLDOWN = 160
+    /** 쓴 사람 말고 효과가 보이는 거리(입자 기준) */
+    private const val NEAR = 64.0
 
     // ───────────── 아이템 속성 ─────────────
 
@@ -174,18 +176,21 @@ object Astra {
     private fun dust(color: Int, size: Float): ParticleOptions = DustParticleOptions(color, size)
     private fun fade(from: Int, to: Int, size: Float): ParticleOptions = DustColorTransitionOptions(from, to, size)
 
-    /** 멀리서도 보이도록 반경 256 안의 플레이어에게 직접 보낸다 */
-    private fun fx(level: ServerLevel, p: ParticleOptions, at: Vec3, n: Int, spread: Double, speed: Double) {
+    /** 효과를 보는 사람: 쓴 사람(멀리서 지도로 쏘아도 보인다)과 그 입자 가까이(반경 [NEAR])에 있는 플레이어만 */
+    private fun sees(pl: ServerPlayer, caster: ServerPlayer, at: Vec3) =
+        pl === caster || (pl.level() === caster.level() && pl.distanceToSqr(at) <= NEAR * NEAR)
+
+    private fun fx(level: ServerLevel, caster: ServerPlayer, p: ParticleOptions, at: Vec3, n: Int, spread: Double, speed: Double) {
         for (pl in level.players()) {
-            if (pl.distanceToSqr(at) > 256.0 * 256.0) continue
+            if (!sees(pl, caster, at)) continue
             level.sendParticles(pl, p, true, false, at.x, at.y, at.z, n, spread, spread, spread, speed)
         }
     }
 
     /** 방향이 있는 입자 하나(count 0 → 속도 벡터) */
-    private fun fly(level: ServerLevel, p: ParticleOptions, at: Vec3, v: Vec3, speed: Double = 1.0) {
+    private fun fly(level: ServerLevel, caster: ServerPlayer, p: ParticleOptions, at: Vec3, v: Vec3, speed: Double = 1.0) {
         for (pl in level.players()) {
-            if (pl.distanceToSqr(at) > 256.0 * 256.0) continue
+            if (!sees(pl, caster, at)) continue
             level.sendParticles(pl, p, true, false, at.x, at.y, at.z, 0, v.x, v.y, v.z, speed)
         }
     }
@@ -232,7 +237,8 @@ object Astra {
         val (right, up) = basis(look)
         val side = !(slashSide[player.uuid] ?: false)
         slashSide[player.uuid] = side
-        val origin = player.eyePosition.add(look.scale(1.2)).add(0.0, -0.25, 0.0)
+        // 눈앞에 너무 붙으면 입자가 화면을 가리는 큰 네모로 보이므로 두 칸 앞에서 시작한다
+        val origin = player.eyePosition.add(look.scale(2.0)).add(0.0, -0.25, 0.0)
         waves.add(Wave(player.uuid, level, origin, look, right, up, if (side) 0.55 else -0.55))
         sound(level, origin, SoundEvents.PLAYER_ATTACK_SWEEP, 1.2f, 0.55f)
         sound(level, origin, SoundEvents.AMETHYST_BLOCK_RESONATE, 1.0f, 1.6f)
@@ -253,13 +259,13 @@ object Astra {
         for (i in 0..steps) {
             val s = i / steps.toDouble() * 2 - 1
             val edge = 1 - s * s
-            fx(level, fade(VIOLET, VOID, 1.6f + 1.2f * edge.toFloat()), arc(s, 0.0), 1, 0.03, 0.0)
-            fx(level, fade(VOID, 0x000000, 2.2f), arc(s, -0.45), 1, 0.05, 0.0)
-            if (i % 3 == w.age % 3) fx(level, dust(STARLIGHT, 0.7f), arc(s, 0.25), 1, 0.02, 0.0)
-            if (i % 5 == 0) fly(level, ParticleTypes.END_ROD, arc(s, 0.2), w.dir.scale(0.05), 1.0)
-            if (i % 4 == 2) fx(level, ParticleTypes.REVERSE_PORTAL, arc(s, -0.7), 1, 0.08, 0.02)
+            fx(level, caster, fade(VIOLET, VOID, 1.6f + 1.2f * edge.toFloat()), arc(s, 0.0), 1, 0.03, 0.0)
+            fx(level, caster, fade(VOID, 0x000000, 1.4f), arc(s, -0.45), 1, 0.05, 0.0)
+            if (i % 3 == w.age % 3) fx(level, caster, dust(STARLIGHT, 0.7f), arc(s, 0.25), 1, 0.02, 0.0)
+            if (i % 5 == 0) fly(level, caster, ParticleTypes.END_ROD, arc(s, 0.2), w.dir.scale(0.05), 1.0)
+            if (i % 4 == 2) fx(level, caster, ParticleTypes.REVERSE_PORTAL, arc(s, -0.7), 1, 0.08, 0.02)
         }
-        if (w.age % 3 == 0) fx(level, ParticleTypes.SQUID_INK, center.add(w.dir.scale(-0.6)), 2, 0.4, 0.01)
+        if (w.age % 3 == 2) fx(level, caster, ParticleTypes.SQUID_INK, center.add(w.dir.scale(-0.6)), 1, 0.4, 0.01)
         // 판정: 초승달 판 근처(앞뒤 1.4칸, 옆 half+0.6)
         val box = AABB(center, center).inflate(half + 1.5)
         for (e in level.getEntitiesOfClass(LivingEntity::class.java, box) { it.isAlive && !friendly(it, caster) && it.id !in w.hit }) {
@@ -267,15 +273,15 @@ object Astra {
             if (kotlin.math.abs(rel.dot(w.dir)) > 1.4 || kotlin.math.abs(rel.dot(w.right)) > half + 0.6) continue
             w.hit.add(e.id)
             hurt(level, e, caster, SLASH_DAMAGE, w.dir.scale(0.6).add(0.0, 0.2, 0.0))
-            fx(level, dust(STARLIGHT, 2.0f), e.position().add(0.0, e.bbHeight / 2.0, 0.0), 10, 0.3, 0.0)
-            fx(level, ParticleTypes.CRIT, e.position().add(0.0, e.bbHeight / 2.0, 0.0), 12, 0.3, 0.4)
+            fx(level, caster, dust(STARLIGHT, 2.0f), e.position().add(0.0, e.bbHeight / 2.0, 0.0), 10, 0.3, 0.0)
+            fx(level, caster, ParticleTypes.CRIT, e.position().add(0.0, e.bbHeight / 2.0, 0.0), 12, 0.3, 0.4)
             sound(level, e.position(), SoundEvents.AMETHYST_CLUSTER_BREAK, 1.0f, 1.4f)
         }
         // 벽에 부딪히면 흩어진다
         val bp = BlockPos.containing(center)
         if (level.getBlockState(bp).isSuffocating(level, bp)) {
-            fx(level, dust(VIOLET, 2.4f), center, 30, 0.6, 0.0)
-            fx(level, ParticleTypes.END_ROD, center, 12, 0.3, 0.12)
+            fx(level, caster, dust(VIOLET, 2.4f), center, 30, 0.6, 0.0)
+            fx(level, caster, ParticleTypes.END_ROD, center, 12, 0.3, 0.12)
             return false
         }
         w.age++
@@ -306,16 +312,17 @@ object Astra {
     }
 
     private fun tickBeam(b: Beam, t: Int, player: ServerPlayer) {
+        val caster = player
         val level = b.level
         if (t < 18 && t % 2 == 0) {
             val s = STARS[t / 2]
             val p = beamStar(b, s)
-            fx(level, dust(s.color, 3.2f), p, 28, 0.18, 0.0)
-            fx(level, ParticleTypes.END_ROD, p, 12, 0.05, 0.1)
+            fx(level, caster, dust(s.color, 3.2f), p, 28, 0.18, 0.0)
+            fx(level, caster, ParticleTypes.END_ROD, p, 12, 0.05, 0.1)
             sound(level, p, SoundEvents.AMETHYST_BLOCK_CHIME, 2.0f, 0.6f + t * 0.06f)
         }
         if (t in 2..40) for ((i, s) in STARS.withIndex()) if (i * 2 <= t) {
-            fx(level, dust(s.color, 1.8f + 0.7f * sin((t + i) * 0.7).toFloat()), beamStar(b, s), 3, 0.07, 0.0)
+            fx(level, caster, dust(s.color, 1.8f + 0.7f * sin((t + i) * 0.7).toFloat()), beamStar(b, s), 3, 0.07, 0.0)
         }
         if (t in 18..33) {
             val f = ((t - 18) / 15.0).coerceIn(0.0, 1.0)
@@ -323,7 +330,7 @@ object Astra {
                 val pa = beamStar(b, STARS[a]); val pb = beamStar(b, STARS[c])
                 for (k in 0..(16 * f).toInt()) {
                     val u = k / 16.0
-                    fx(level, dust(if (u < 0.5) STARS[a].color else STARS[c].color, 1.1f), pa.add(pb.subtract(pa).scale(u)), 1, 0.02, 0.0)
+                    fx(level, caster, dust(if (u < 0.5) STARS[a].color else STARS[c].color, 1.1f), pa.add(pb.subtract(pa).scale(u)), 1, 0.02, 0.0)
                 }
             }
             if (t % 4 == 0) sound(level, beamStar(b, STARS[0]), SoundEvents.AMETHYST_CLUSTER_PLACE, 1.6f, 1.2f + (t - 18) * 0.05f)
@@ -332,11 +339,11 @@ object Astra {
             val core = beamStar(b, STARS[0])
             for (s in STARS.drop(1)) {
                 val p = beamStar(b, s)
-                fly(level, ParticleTypes.END_ROD, p, core.subtract(p).scale(0.18))
-                fx(level, dust(s.color, 2.2f), p.add(core.subtract(p).scale((t - 33) / 6.0)), 4, 0.1, 0.0)
+                fly(level, caster, ParticleTypes.END_ROD, p, core.subtract(p).scale(0.18))
+                fx(level, caster, dust(s.color, 2.2f), p.add(core.subtract(p).scale((t - 33) / 6.0)), 4, 0.1, 0.0)
             }
             if (t == 34) sound(level, core, SoundEvents.BEACON_POWER_SELECT, 3.0f, 1.4f)
-            fx(level, dust(0xFFFFFF, 4.0f), core, 14, 0.2 + (t - 34) * 0.1, 0.0)
+            fx(level, caster, dust(0xFFFFFF, 4.0f), core, 14, 0.2 + (t - 34) * 0.1, 0.0)
         }
         if (t == 40) fireBeam(b, player)
         if (t in 41..72 && t % 2 == 0) {
@@ -346,13 +353,14 @@ object Astra {
                 val c = b.eye.add(b.look.scale(d))
                 for (k in 0 until 24) {
                     val ang = k / 24.0 * PI * 2 + t * 0.15
-                    fx(level, dust(STARS[k % STARS.size].color, 1.4f), c.add(r.scale(cos(ang) * radius)).add(u.scale(sin(ang) * radius)), 1, 0.0, 0.0)
+                    fx(level, caster, dust(STARS[k % STARS.size].color, 1.4f), c.add(r.scale(cos(ang) * radius)).add(u.scale(sin(ang) * radius)), 1, 0.0, 0.0)
                 }
             }
         }
     }
 
     private fun fireBeam(b: Beam, player: ServerPlayer) {
+        val caster = player
         val level = b.level
         val from = beamStar(b, STARS[0])
         val target = b.eye.add(b.look.scale(BEAM_RANGE))
@@ -365,17 +373,17 @@ object Astra {
         var d = 0.0
         while (d < len) {
             val q = from.add(dir.scale(d))
-            fx(level, dust(STARLIGHT, 4.0f), q, 2, 0.1, 0.0)
-            fx(level, fade(VIOLET, VOID, 2.6f), q, 1, 0.45, 0.0)
-            fx(level, ParticleTypes.END_ROD, q, 1, 0.15, 0.02)
+            fx(level, caster, dust(STARLIGHT, 4.0f), q, 2, 0.1, 0.0)
+            fx(level, caster, fade(VIOLET, VOID, 2.6f), q, 1, 0.45, 0.0)
+            fx(level, caster, ParticleTypes.END_ROD, q, 1, 0.15, 0.02)
             // 광선을 감고 도는 아홉 빛깔 나선
             val ang = d * 0.9
-            fx(level, dust(STARS[(d.toInt()) % STARS.size].color, 1.6f), q.add(r.scale(cos(ang) * 1.3)).add(u.scale(sin(ang) * 1.3)), 1, 0.0, 0.0)
-            if (d.toInt() % 6 == 0) fx(level, ParticleTypes.ELECTRIC_SPARK, q, 4, 0.4, 0.2)
+            fx(level, caster, dust(STARS[(d.toInt()) % STARS.size].color, 1.6f), q.add(r.scale(cos(ang) * 1.3)).add(u.scale(sin(ang) * 1.3)), 1, 0.0, 0.0)
+            if (d.toInt() % 6 == 0) fx(level, caster, ParticleTypes.ELECTRIC_SPARK, q, 4, 0.4, 0.2)
             d += 0.5
         }
-        fx(level, ParticleTypes.SONIC_BOOM, from, 1, 0.0, 0.0)
-        impactBurst(level, end, 1.0)
+        fx(level, caster, ParticleTypes.SONIC_BOOM, from, 1, 0.0, 0.0)
+        impactBurst(level, caster, end, 1.0)
         sound(level, from, SoundEvents.WARDEN_SONIC_BOOM, 3.0f, 1.3f)
         sound(level, from, SoundEvents.BEACON_ACTIVATE, 3.0f, 1.8f)
         val box = AABB(from, end).inflate(BEAM_RADIUS)
@@ -388,11 +396,11 @@ object Astra {
     }
 
     /** 폭발처럼 보이는 별빛 폭발(지형은 그대로) */
-    private fun impactBurst(level: ServerLevel, at: Vec3, scale: Double) {
-        fx(level, ParticleTypes.EXPLOSION_EMITTER, at, 1, 0.0, 0.0)
-        fx(level, ParticleTypes.FIREWORK, at, (160 * scale).toInt(), 0.8 * scale, 0.5 * scale)
-        for (s in STARS) fx(level, dust(s.color, 3.2f), at, (24 * scale).toInt(), 1.8 * scale, 0.0)
-        fx(level, fade(VIOLET, VOID, 3.0f), at, (60 * scale).toInt(), 2.5 * scale, 0.0)
+    private fun impactBurst(level: ServerLevel, caster: ServerPlayer, at: Vec3, scale: Double) {
+        fx(level, caster, ParticleTypes.EXPLOSION_EMITTER, at, 1, 0.0, 0.0)
+        fx(level, caster, ParticleTypes.FIREWORK, at, (160 * scale).toInt(), 0.8 * scale, 0.5 * scale)
+        for (s in STARS) fx(level, caster, dust(s.color, 3.2f), at, (24 * scale).toInt(), 1.8 * scale, 0.0)
+        fx(level, caster, fade(VIOLET, VOID, 3.0f), at, (60 * scale).toInt(), 2.5 * scale, 0.0)
         sound(level, at, SoundEvents.FIREWORK_ROCKET_LARGE_BLAST_FAR, 4.0f, 0.8f)
         sound(level, at, SoundEvents.FIREWORK_ROCKET_TWINKLE_FAR, 4.0f, 1.0f)
     }
@@ -450,6 +458,7 @@ object Astra {
     }
 
     private fun tickFall(f: Fall, t: Int, player: ServerPlayer) {
+        val caster = player
         val level = f.level
         if (t % 20 == 0) Compat.keepChunkLoaded(level, BlockPos.containing(f.ground))
         val spin = t * 0.01
@@ -460,27 +469,27 @@ object Astra {
             val grow = (t / 20.0).coerceAtMost(1.0)
             for (k in 0 until 64) {
                 val a = k / 64.0 * PI * 2 + t * 0.05
-                fx(level, fade(VIOLET, VOID, 1.4f), g.add(cos(a) * STRIKE_RADIUS * grow, 0.0, sin(a) * STRIKE_RADIUS * grow), 1, 0.0, 0.0)
+                fx(level, caster, fade(VIOLET, VOID, 1.4f), g.add(cos(a) * STRIKE_RADIUS * grow, 0.0, sin(a) * STRIKE_RADIUS * grow), 1, 0.0, 0.0)
             }
             for (k in 0 until 36) {
                 val a = k / 36.0 * PI * 2 - t * 0.08
-                fx(level, dust(STARLIGHT, 0.9f), g.add(cos(a) * STRIKE_RADIUS * 0.55 * grow, 0.0, sin(a) * STRIKE_RADIUS * 0.55 * grow), 1, 0.0, 0.0)
+                fx(level, caster, dust(STARLIGHT, 0.9f), g.add(cos(a) * STRIKE_RADIUS * 0.55 * grow, 0.0, sin(a) * STRIKE_RADIUS * 0.55 * grow), 1, 0.0, 0.0)
             }
             for ((i, s) in STARS.withIndex()) {
                 val a = i / 9.0 * PI * 2 + t * 0.03
-                for (k in 1..6) fx(level, dust(s.color, 0.8f), g.add(cos(a) * k * STRIKE_RADIUS / 6 * grow, 0.0, sin(a) * k * STRIKE_RADIUS / 6 * grow), 1, 0.0, 0.0)
+                for (k in 1..6) fx(level, caster, dust(s.color, 0.8f), g.add(cos(a) * k * STRIKE_RADIUS / 6 * grow, 0.0, sin(a) * k * STRIKE_RADIUS / 6 * grow), 1, 0.0, 0.0)
             }
         }
         // 하늘에 별이 하나씩
         if (t < 18 && t % 2 == 0) {
             val s = STARS[t / 2]
             val p = fallStar(f, s, spin)
-            fx(level, dust(s.color, 4.0f), p, 36, 0.3, 0.0)
-            fx(level, ParticleTypes.END_ROD, p, 16, 0.1, 0.12)
+            fx(level, caster, dust(s.color, 4.0f), p, 36, 0.3, 0.0)
+            fx(level, caster, ParticleTypes.END_ROD, p, 16, 0.1, 0.12)
             sound(level, p, SoundEvents.AMETHYST_BLOCK_CHIME, 4.0f, 0.5f + t * 0.06f)
         }
         if (t in 2..46) for ((i, s) in STARS.withIndex()) if (i * 2 <= t) {
-            fx(level, dust(s.color, 2.6f + sin((t + i) * 0.6).toFloat()), fallStar(f, s, spin), 4, 0.12, 0.0)
+            fx(level, caster, dust(s.color, 2.6f + sin((t + i) * 0.6).toFloat()), fallStar(f, s, spin), 4, 0.12, 0.0)
         }
         // 별자리 선
         if (t in 18..46) {
@@ -490,7 +499,7 @@ object Astra {
                 val n = (pa.distanceTo(pb) * 2).toInt()
                 for (k in 0..(n * fr).toInt()) {
                     val u = k / n.toDouble()
-                    fx(level, dust(if (u < 0.5) STARS[a].color else STARS[c].color, 1.4f), pa.add(pb.subtract(pa).scale(u)), 1, 0.03, 0.0)
+                    fx(level, caster, dust(if (u < 0.5) STARS[a].color else STARS[c].color, 1.4f), pa.add(pb.subtract(pa).scale(u)), 1, 0.03, 0.0)
                 }
             }
             if (t % 3 == 0) sound(level, altair, SoundEvents.AMETHYST_CLUSTER_PLACE, 3.0f, 1.0f + (t - 18) * 0.03f)
@@ -499,11 +508,11 @@ object Astra {
         if (t in 30..47) {
             for (s in STARS.drop(1)) {
                 val p = fallStar(f, s, spin)
-                fly(level, ParticleTypes.END_ROD, p, altair.subtract(p).scale(0.12))
+                fly(level, caster, ParticleTypes.END_ROD, p, altair.subtract(p).scale(0.12))
             }
             val r = 0.3 + (t - 30) * 0.12
-            fx(level, dust(0xFFFFFF, 4.0f), altair, 20, r, 0.0)
-            fx(level, fade(VIOLET, VOID, 3.0f), altair, 14, r * 1.6, 0.0)
+            fx(level, caster, dust(0xFFFFFF, 4.0f), altair, 20, r, 0.0)
+            fx(level, caster, fade(VIOLET, VOID, 3.0f), altair, 14, r * 1.6, 0.0)
             if (t == 30) sound(level, altair, SoundEvents.BEACON_POWER_SELECT, 5.0f, 0.8f)
             if (t == 44) sound(level, altair, SoundEvents.WARDEN_SONIC_CHARGE, 5.0f, 1.2f)
         }
@@ -515,13 +524,13 @@ object Astra {
             val dir = down.normalize()
             while (d < len) {
                 val q = altair.add(dir.scale(d))
-                fx(level, dust(STARLIGHT, 4.0f), q, 4, 0.35, 0.0)
-                fx(level, fade(VIOLET, VOID, 3.0f), q, 3, 1.1, 0.0)
-                fx(level, ParticleTypes.END_ROD, q, 2, 0.3, 0.05)
+                fx(level, caster, dust(STARLIGHT, 4.0f), q, 4, 0.35, 0.0)
+                fx(level, caster, fade(VIOLET, VOID, 3.0f), q, 3, 1.1, 0.0)
+                fx(level, caster, ParticleTypes.END_ROD, q, 2, 0.3, 0.05)
                 d += 0.4
             }
-            impactBurst(level, f.ground.add(0.0, 1.0, 0.0), 2.2)
-            fx(level, ParticleTypes.SONIC_BOOM, f.ground.add(0.0, 1.0, 0.0), 3, 1.0, 0.0)
+            impactBurst(level, caster, f.ground.add(0.0, 1.0, 0.0), 2.2)
+            fx(level, caster, ParticleTypes.SONIC_BOOM, f.ground.add(0.0, 1.0, 0.0), 3, 1.0, 0.0)
             sound(level, f.ground, SoundEvents.WARDEN_SONIC_BOOM, 6.0f, 0.7f)
             sound(level, f.ground, SoundEvents.TRIDENT_THUNDER, 6.0f, 1.3f)
             sound(level, f.ground, SoundEvents.END_PORTAL_SPAWN, 3.0f, 1.6f)
@@ -544,7 +553,7 @@ object Astra {
             val radius = k * 0.9
             if (radius < STRIKE_RADIUS * 1.6) for (i in 0 until 72) {
                 val a = i / 72.0 * PI * 2
-                fx(level, if (i % 2 == 0) dust(STARLIGHT, 1.6f) else fade(VIOLET, VOID, 2.0f), g.add(cos(a) * radius, 0.0, sin(a) * radius), 1, 0.05, 0.0)
+                fx(level, caster, if (i % 2 == 0) dust(STARLIGHT, 1.6f) else fade(VIOLET, VOID, 2.0f), g.add(cos(a) * radius, 0.0, sin(a) * radius), 1, 0.05, 0.0)
             }
             if (k <= 14) for (j in 0 until 8) {
                 val a = j / 8.0 * PI * 2 + 0.2
@@ -553,12 +562,12 @@ object Astra {
                 val c = g.add(dir.scale(2.0 + k * 1.1)).add(0.0, 0.8, 0.0)
                 for (q in -6..6) {
                     val s = q / 6.0
-                    fx(level, fade(VIOLET, VOID, 1.8f), c.add(dir.scale((1 - s * s) * 0.7)).add(side.scale(s * 1.8)), 1, 0.02, 0.0)
+                    fx(level, caster, fade(VIOLET, VOID, 1.8f), c.add(dir.scale((1 - s * s) * 0.7)).add(side.scale(s * 1.8)), 1, 0.02, 0.0)
                 }
             }
             if (t % 2 == 0) {
-                fx(level, ParticleTypes.END_ROD, g, 10, STRIKE_RADIUS * 0.4, 0.15)
-                for (s in STARS) fx(level, dust(s.color, 1.2f), g.add(0.0, k * 0.4, 0.0), 2, 2.5, 0.0)
+                fx(level, caster, ParticleTypes.END_ROD, g, 10, STRIKE_RADIUS * 0.4, 0.15)
+                for (s in STARS) fx(level, caster, dust(s.color, 1.2f), g.add(0.0, k * 0.4, 0.0), 2, 2.5, 0.0)
             }
             if (t == 60) sound(level, f.ground, SoundEvents.AMETHYST_BLOCK_RESONATE, 4.0f, 0.6f)
         }

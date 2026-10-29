@@ -24,6 +24,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.LanternBlock
 import net.minecraft.world.level.block.LiquidBlock
 import net.minecraft.world.level.block.RotatedPillarBlock
 import net.minecraft.world.level.block.SlabBlock
@@ -45,7 +46,7 @@ import kotlin.math.roundToInt
 object Bridges {
     const val HALF = 2  // 상판 폭 5(가운데 ±2)
 
-    enum class Kind(val spacing: Int) { TIMBER(6), STONE(8), COPPER(10) }
+    enum class Kind(val spacing: Int) { TIMBER(6), STONE(10), COPPER(12) }
 
     fun kind(stack: ItemStack): Kind? = when {
         stack.`is`(ModItems.TIMBER_BRIDGE_KIT) -> Kind.TIMBER
@@ -54,8 +55,15 @@ object Bridges {
         else -> null
     }
 
-    /** 원재료 하나에서 나온 블록 묶음. 모두 [raw] 아이템으로 값을 치른다. */
-    class Family(val raw: Item, val full: BlockState, val slab: Block?, val stairs: Block?, val rail: Block?, val post: Block?, val accent: Block?)
+    /**
+     * 원재료 하나에서 나온 블록 묶음. 모두 [raw] 아이템으로 값을 치른다(놓이는 블록 하나에 원재료 하나, 랜턴도 마찬가지).
+     * [stripped] 껍질 벗긴 통나무, [weathered] 이끼·금 간 변형(오래된 석교의 질감), [trim] 조각된 블록, [lantern]·[chain] 조명.
+     */
+    class Family(
+        val raw: Item, val full: BlockState, val slab: Block?, val stairs: Block?, val rail: Block?, val post: Block?, val accent: Block?,
+        val stripped: Block? = null, val weathered: List<Block> = emptyList(), val trim: Block? = null,
+        val lantern: Block = Blocks.LANTERN, val chain: Block? = null,
+    )
 
     private fun block(ns: String, path: String): Block? = Compat.blockById(ns, path)?.takeIf { it != Blocks.AIR }
 
@@ -70,7 +78,9 @@ object Bridges {
                 if (!path.endsWith("_planks")) return null
                 val wood = path.removeSuffix("_planks")
                 val post = block(ns, "${wood}_log") ?: block(ns, "${wood}_stem") ?: block(ns, "${wood}_block") ?: b
-                Family(stack.item, b.defaultBlockState(), block(ns, "${wood}_slab"), block(ns, "${wood}_stairs"), block(ns, "${wood}_fence") ?: return null, post, null)
+                val stripped = block(ns, "stripped_${wood}_log") ?: block(ns, "stripped_${wood}_stem") ?: block(ns, "stripped_${wood}_block")
+                Family(stack.item, b.defaultBlockState(), block(ns, "${wood}_slab"), block(ns, "${wood}_stairs"), block(ns, "${wood}_fence") ?: return null, post, null,
+                    stripped = stripped)
             }
             Kind.STONE -> {
                 // stone_bricks → stone_brick_wall, deepslate_tiles → deepslate_tile_wall, cobblestone → cobblestone_wall
@@ -78,14 +88,17 @@ object Bridges {
                 val wall = block(ns, "${base}_wall") ?: return null
                 val stairs = block(ns, "${base}_stairs") ?: return null
                 if (path.endsWith("_planks")) return null
-                Family(stack.item, b.defaultBlockState(), block(ns, "${base}_slab"), stairs, wall, b, null)
+                Family(stack.item, b.defaultBlockState(), block(ns, "${base}_slab"), stairs, wall, b, null,
+                    weathered = listOfNotNull(block(ns, "mossy_$path"), block(ns, "cracked_$path")), trim = block(ns, "chiseled_$path"))
             }
             Kind.COPPER -> {
                 // cut_copper, exposed_cut_copper, waxed_oxidized_cut_copper … 녹스는 정도가 다리의 표정이 된다
                 if (!path.endsWith("cut_copper")) return null
                 val pre = path.removeSuffix("cut_copper")
                 Family(stack.item, b.defaultBlockState(), block(ns, "${pre}cut_copper_slab"), block(ns, "${pre}cut_copper_stairs"),
-                    block(ns, "${pre}copper_bars") ?: Blocks.IRON_BARS, b, block(ns, "${pre}copper_grate"))
+                    block(ns, "${pre}copper_bars") ?: Blocks.IRON_BARS, b, block(ns, "${pre}copper_grate"),
+                    trim = block(ns, "${pre}chiseled_copper"), lantern = block(ns, "${pre}copper_lantern") ?: Blocks.LANTERN,
+                    chain = block(ns, "${pre}copper_chain") ?: Blocks.IRON_CHAIN)
             }
         }
     }
@@ -178,6 +191,11 @@ object Bridges {
     }
 
     // ───────────── 디자인 ─────────────
+    // 참고: 유튜브·웹 다리 건축 튜토리얼(중세 목조교, 다경간 석조 아치교, 구리·강철 트러스교)의 공통 문법을 블록 규칙으로 옮겼다.
+    //  - 목조: 통나무 테두리 보, 울타리 난간과 4칸마다 껍질 벗긴 통나무 기둥, 8칸마다 랜턴 기둥, 양 끝 지붕 달린 문, 교각 위 까치발
+    //  - 석조: 원호 아치(경간이 넓으면 납작한 원호), 아치 꼭대기 쐐기돌, 상판 옆 처마 돌림띠, 랜턴 기둥이 있는 담장 난간,
+    //          3칸 두께 교각과 물가름 받침, 물에 가까운 아래쪽은 이끼·금 간 돌
+    //  - 구리: 4칸 패널 Warren 트러스(위 현, 수직재, 번갈아 기우는 격자 사재), 머리 위 가로보와 매달린 구리 랜턴, 양 끝 등탑, 지그재그 가새 교각
 
     private fun axis(b: Block, a: Direction.Axis): BlockState {
         val s = b.defaultBlockState()
@@ -190,84 +208,219 @@ object Bridges {
     private fun stairs(f: Family, facing: Direction, half: Half): BlockState =
         f.stairs?.defaultBlockState()?.setValue(StairBlock.FACING, facing)?.setValue(StairBlock.HALF, half) ?: f.full
 
+    private fun lantern(f: Family, hanging: Boolean): BlockState {
+        val s = f.lantern.defaultBlockState()
+        return if (s.hasProperty(LanternBlock.HANGING)) s.setValue(LanternBlock.HANGING, hanging) else s
+    }
+
+    /** 위치마다 정해진 0..99 값(같은 자리는 늘 같은 모양이 되도록) */
+    private fun noise(p: BlockPos): Int = Math.floorMod(p.x * 73856093 xor p.y * 19349663 xor p.z * 83492791, 100)
+
+    /** 오래된 돌: 확률(%)만큼 이끼·금 간 변형으로 */
+    private fun aged(f: Family, p: BlockPos, percent: Int): BlockState {
+        if (f.weathered.isEmpty() || noise(p) >= percent) return f.full
+        return f.weathered[noise(p.above(7)) % f.weathered.size].defaultBlockState()
+    }
+
+    /** 상판 바깥(o=±3)에서 상판을 향한 계단: half 가 TOP 이면 처마(돌림띠), BOTTOM 이면 경사진 머리 */
+    private fun outward(p: Plan, o: Int): Direction = if (o > 0) p.side else p.side.opposite
+
     /** 기둥 한 줄: h=from 에서 바닥까지 */
     private fun MutableList<Pair<BlockPos, BlockState>>.column(p: Plan, k: Int, o: Int, from: Int, depth: Int, state: (Int) -> BlockState) {
         for (h in from downTo -depth) add(p.at(k, o, h) to state(h))
     }
 
-    /** 목조 다리: 판자 상판, 울타리 난간과 통나무 난간 기둥, 상판 아래 통나무 보, 높은 곳에는 통나무 가대(트레슬) */
+    /** 목조 다리 */
     private fun timber(p: Plan, f: Family, drop: (Int) -> Int): List<Pair<BlockPos, BlockState>> {
         val out = ArrayList<Pair<BlockPos, BlockState>>()
-        val post = f.post ?: f.full.block
+        val log = f.post ?: f.full.block
+        val stripped = f.stripped ?: log
+        val fence = f.rail!!.defaultBlockState()
+        for (k in p.start..p.end) {
+            val i = k - p.start
+            // 상판: 가운데 판자, 양옆은 다리 방향으로 누운 통나무 테두리 보, 아래에 세로 보 두 줄
+            for (o in -1..1) out.add(p.at(k, o, 0) to f.full)
+            for (o in listOf(-HALF, HALF)) out.add(p.at(k, o, 0) to axis(log, p.dir.axis))
+            for (o in listOf(-1, 1)) out.add(p.at(k, o, -1) to axis(log, p.dir.axis))
+            // 난간: 울타리, 4칸마다 껍질 벗긴 통나무 기둥, 8칸마다 랜턴을 얹은 높은 기둥
+            for (o in listOf(-HALF, HALF)) when {
+                i % 8 == 0 -> {
+                    out.add(p.at(k, o, 1) to axis(stripped, Direction.Axis.Y))
+                    out.add(p.at(k, o, 2) to fence)
+                    out.add(p.at(k, o, 3) to lantern(f, false))
+                }
+                i % 4 == 0 -> out.add(p.at(k, o, 1) to axis(stripped, Direction.Axis.Y))
+                else -> out.add(p.at(k, o, 1) to fence)
+            }
+        }
+        // 양 끝 문: 통나무 기둥 셋 높이, 가로 들보, 다리 방향으로 세 칸 깊이의 박공 지붕, 들보 아래 매달린 랜턴
+        val gates = listOf(p.start) + if (p.landed && p.length >= 4) listOf(p.end) else emptyList()
+        for (k in gates) {
+            for (o in listOf(-HALF, HALF)) for (h in 1..3) out.add(p.at(k, o, h) to axis(log, Direction.Axis.Y))
+            for (o in -3..3) out.add(p.at(k, o, 4) to axis(log, p.side.axis))
+            out.add(p.at(k, 0, 3) to lantern(f, true))
+            for (dk in -1..1) {
+                // 처마(o=±3)에서 용마루(o=0)로 오르는 계단, 그 안은 판자, 용마루는 반 블록
+                for (o in listOf(-3, 3)) out.add(p.at(k + dk, o, 5) to stairs(f, outward(p, o).opposite, Half.BOTTOM))
+                for (o in listOf(-2, 2)) out.add(p.at(k + dk, o, 6) to stairs(f, outward(p, o).opposite, Half.BOTTOM))
+                for (o in listOf(-1, 1)) out.add(p.at(k + dk, o, 7) to stairs(f, outward(p, o).opposite, Half.BOTTOM))
+                for (o in -2..2) out.add(p.at(k + dk, o, 5) to f.full)
+                for (o in -1..1) out.add(p.at(k + dk, o, 6) to f.full)
+                out.add(p.at(k + dk, 0, 7) to slab(f, SlabType.BOTTOM))
+            }
+            // 박공 아래 처마 끝을 받치는 까치발
+            for (o in listOf(-3, 3)) out.add(p.at(k, o, 3) to stairs(f, outward(p, o).opposite, Half.TOP))
+        }
+        // 교각(가대): 통나무 기둥 세 줄, 4칸마다 가로 보, 상판 아래 까치발
+        for (k in p.piers) {
+            val depth = drop(k)
+            for (o in listOf(-HALF, 0, HALF)) out.column(p, k, o, if (o == 0) -2 else -1, depth) { axis(log, Direction.Axis.Y) }
+            for (h in -2 downTo -depth step 4) for (o in listOf(-1, 1)) out.add(p.at(k, o, h) to axis(log, p.side.axis))
+            for (o in listOf(-HALF, HALF)) {
+                out.add(p.at(k - 1, o, -1) to stairs(f, p.dir, Half.TOP))
+                out.add(p.at(k + 1, o, -1) to stairs(f, p.dir.opposite, Half.TOP))
+            }
+        }
+        return out
+    }
+
+    /** 석조 아치교 */
+    private fun stone(p: Plan, f: Family, drop: (Int) -> Int): List<Pair<BlockPos, BlockState>> {
+        val out = ArrayList<Pair<BlockPos, BlockState>>()
+        val wall = f.rail!!.defaultBlockState()
         for (k in p.start..p.end) {
             val i = k - p.start
             for (o in -HALF..HALF) out.add(p.at(k, o, 0) to f.full)
-            for (o in listOf(-HALF, HALF)) {
-                out.add(p.at(k, o, 1) to if (i % 3 == 0) axis(post, Direction.Axis.Y) else f.rail!!.defaultBlockState())
-                out.add(p.at(k, o, -1) to axis(post, p.dir.axis))
+            // 처마 돌림띠: 상판 바깥으로 거꾸로 놓은 계단
+            for (o in listOf(-3, 3)) out.add(p.at(k, o, 0) to stairs(f, outward(p, o).opposite, Half.TOP))
+            // 담장 난간, 4칸마다 돌기둥, 8칸마다 랜턴 기둥
+            for (o in listOf(-HALF, HALF)) when {
+                i % 8 == 0 -> {
+                    out.add(p.at(k, o, 1) to (f.trim?.defaultBlockState() ?: f.full))
+                    out.add(p.at(k, o, 2) to wall)
+                    out.add(p.at(k, o, 3) to lantern(f, false))
+                }
+                i % 4 == 0 -> out.add(p.at(k, o, 1) to f.full)
+                else -> out.add(p.at(k, o, 1) to wall)
             }
         }
+        // 받침: 강둑(시작 앞, 도착 뒤)과 교각(3칸 두께). 받침 사이마다 원호 아치를 건다.
+        val faces = ArrayList<Pair<Int, Int>>()  // (왼쪽 받침의 오른쪽 면, 오른쪽 받침의 왼쪽 면)
+        var left = p.start - 1
         for (k in p.piers) {
-            val depth = drop(k)
-            for (o in listOf(-HALF, HALF)) out.column(p, k, o, -2, depth) { axis(post, Direction.Axis.Y) }
-            // 가로 보: 상판 바로 아래와 4칸마다
-            for (h in -2 downTo -depth step 4) for (o in -1..1) out.add(p.at(k, o, h) to axis(post, p.side.axis))
+            faces.add(left to k - 1)
+            left = k + 1
+        }
+        faces.add(left to p.end + 1)
+        for ((a, b) in faces) {
+            val lo = a + 1
+            val hi = b - 1
+            if (hi < lo) continue
+            // 건너편 땅에 닿지 않은 마지막 경간은 받칠 곳이 없으므로 아치 대신 납작한 돌림띠만
+            if (!p.landed && b == p.end + 1) {
+                for (k in lo..hi) for (o in -HALF..HALF) out.add(p.at(k, o, -1) to slab(f, SlabType.TOP))
+                continue
+            }
+            val n = hi - lo + 1
+            val c = (lo + hi) / 2.0
+            val r = (n + 1) / 2.0
+            // 아치 높이: 반원이 기본, 넓으면 8칸으로 눌러 납작한 원호. 바닥(물 밑)보다 깊어지지 않게.
+            val ground = (lo..hi).minOf { drop(it) }
+            val rise = minOf(r, 8.0, (ground - 1).toDouble())
+            if (rise < 1.0) {
+                for (k in lo..hi) for (o in -HALF..HALF) out.add(p.at(k, o, -1) to slab(f, SlabType.TOP))
+                continue
+            }
+            val rho = (r * r + rise * rise) / (2 * rise)
+            fun depthAt(k: Int): Int {
+                val x = k - c
+                val y = Math.sqrt(maxOf(0.0, rho * rho - x * x)) - (rho - rise)
+                return (rise - y).roundToInt().coerceAtLeast(0)  // 상판 아래(h=-1)부터 아치 안쪽 면까지의 채움 깊이
+            }
+            for (k in lo..hi) {
+                val d = depthAt(k)
+                val towardA = k - c < 0
+                val support = if (towardA) p.dir.opposite else p.dir
+                val nearer = depthAt(if (towardA) k - 1 else k + 1)
+                for (o in -HALF..HALF) {
+                    for (j in 0..d) {
+                        val h = -1 - j
+                        val pos = p.at(k, o, h)
+                        val face = o == -HALF || o == HALF
+                        // 아치 안쪽 맨 아래 칸: 받침 쪽이 더 깊으면 거꾸로 놓은 계단으로 곡선을 매끄럽게
+                        val st = if (j == d && nearer > d) stairs(f, support, Half.TOP)
+                        else if (face) aged(f, pos, 12) else f.full
+                        out.add(pos to st)
+                    }
+                }
+                // 쐐기돌
+                if (k == c.roundToInt() && f.trim != null) for (o in listOf(-HALF, HALF)) out.add(p.at(k, o, -1) to f.trim.defaultBlockState())
+            }
+        }
+        // 교각: 3칸 두께, 상판 폭, 물가름 받침(양옆 o=±3, 위는 경사 계단), 아래쪽 세 칸은 이끼·금 간 돌이 많다
+        for (k in p.piers) for (dk in -1..1) {
+            val depth = drop(k + dk)
+            for (o in -HALF..HALF) out.column(p, k + dk, o, -1, depth) { h -> aged(f, p.at(k + dk, o, h), if (h <= -depth + 2) 45 else 10) }
+            if (dk == 0) for (o in listOf(-3, 3)) {
+                val top = -minOf(depth, 4)
+                out.column(p, k, o, top - 1, depth) { h -> aged(f, p.at(k, o, h), if (h <= -depth + 2) 45 else 10) }
+                out.add(p.at(k, o, top) to stairs(f, outward(p, o).opposite, Half.BOTTOM))
+            }
         }
         return out
     }
 
-    /** 석조 아치교: 상판과 담장 난간, 받침(기둥·강둑) 사이를 잇는 아치, 상판 폭 그대로의 석조 교각 */
-    private fun stone(p: Plan, f: Family, drop: (Int) -> Int): List<Pair<BlockPos, BlockState>> {
-        val out = ArrayList<Pair<BlockPos, BlockState>>()
-        for (k in p.start..p.end) {
-            for (o in -HALF..HALF) out.add(p.at(k, o, 0) to f.full)
-            for (o in listOf(-HALF, HALF)) out.add(p.at(k, o, 1) to f.rail!!.defaultBlockState())
-        }
-        val supports = listOf(p.start - 1) + p.piers + if (p.landed) listOf(p.end + 1) else emptyList()
-        for ((a, b) in supports.zipWithNext()) for (k in a + 1 until b) {
-            val dA = k - a
-            val dB = b - k
-            val dist = minOf(dA, dB)
-            val toward = if (dA <= dB) p.dir.opposite else p.dir
-            val col: List<BlockState> = when (dist) {
-                1 -> listOf(f.full, f.full, stairs(f, toward, Half.TOP))
-                2 -> listOf(f.full, stairs(f, toward, Half.TOP))
-                3 -> listOf(stairs(f, toward, Half.TOP))
-                else -> listOf(slab(f, SlabType.TOP))
-            }
-            if (col.size >= drop(k)) continue  // 아치가 바닥에 닿으면 생략
-            for (o in -HALF..HALF) col.forEachIndexed { j, s -> out.add(p.at(k, o, -1 - j) to s) }
-        }
-        for (k in p.piers) {
-            val depth = drop(k)
-            for (o in -HALF..HALF) out.column(p, k, o, -1, depth) { f.full }
-        }
-        return out
-    }
-
-    /** 구리 트러스교: 4칸마다 세운 기둥과 위 현(반 블록), 창살 난간, 격자 장식, 머리 위 문형 보, 격자 가새를 댄 교각 */
+    /** 구리 트러스교 */
     private fun copper(p: Plan, f: Family, drop: (Int) -> Int): List<Pair<BlockPos, BlockState>> {
         val out = ArrayList<Pair<BlockPos, BlockState>>()
-        val accent = f.accent?.defaultBlockState() ?: f.full
+        val grate = f.accent?.defaultBlockState() ?: f.full
+        val bars = f.rail!!.defaultBlockState()
         for (k in p.start..p.end) {
-            val i = (k - p.start) % 4
+            val i = k - p.start
+            val m = i % 4
+            val panel = i / 4
             for (o in -HALF..HALF) out.add(p.at(k, o, 0) to f.full)
+            // 바닥 아래: 패널 마디마다 가로보, 그 사이 양옆 세로 보는 격자(아래가 비쳐 가벼워 보인다)
+            if (m == 0) for (o in -HALF..HALF) out.add(p.at(k, o, -1) to f.full)
+            else for (o in listOf(-HALF, HALF)) out.add(p.at(k, o, -1) to grate)
             for (o in listOf(-HALF, HALF)) {
-                out.add(p.at(k, o, -1) to accent)
-                if (i == 0) {
-                    for (h in 1..3) out.add(p.at(k, o, h) to f.full)
-                } else {
-                    out.add(p.at(k, o, 1) to f.rail!!.defaultBlockState())
-                    if (i == 2) out.add(p.at(k, o, 2) to accent)
-                    out.add(p.at(k, o, 3) to slab(f, SlabType.BOTTOM))
+                out.add(p.at(k, o, 4) to (if (m != 0) slab(f, SlabType.BOTTOM) else f.full))  // 위 현
+                if (m == 0) for (h in 1..3) out.add(p.at(k, o, h) to f.full)  // 수직재
+                else {
+                    // Warren 사재: 패널마다 기울기가 바뀌는 통짜 부재, 나머지 아래 칸은 창살 난간
+                    val dh = if (panel % 2 == 0) 4 - m else m
+                    out.add(p.at(k, o, dh) to f.full)
+                    if (dh != 1) out.add(p.at(k, o, 1) to bars)
                 }
             }
-            if (i == 0) for (o in -1..1) out.add(p.at(k, o, 4) to slab(f, SlabType.BOTTOM))
+            if (m == 0) {
+                // 머리 위 가로보, 두 마디마다 매달린 구리 랜턴
+                for (o in -1..1) out.add(p.at(k, o, 4) to slab(f, SlabType.BOTTOM))
+                if (panel % 2 == 0) out.add(p.at(k, 0, 3) to lantern(f, true))
+            }
         }
+        // 양 끝 등탑: 조각된 구리 위에 사슬과 랜턴
+        val towers = listOf(p.start) + if (p.landed) listOf(p.end) else emptyList()
+        for (k in towers) for (o in listOf(-HALF, HALF)) {
+            out.add(p.at(k, o, 5) to (f.trim?.defaultBlockState() ?: f.full))
+            f.chain?.let { out.add(p.at(k, o, 6) to axis(it, Direction.Axis.Y)) }
+            out.add(p.at(k, o, if (f.chain != null) 7 else 6) to lantern(f, false))
+        }
+        // 교각: 네 다리(다리 방향 ±1, 양옆)의 탑. 4칸마다 둘레 띠, 그 사이 옆면은 X 가새, 앞뒤 면은 지그재그 격자
         for (k in p.piers) {
-            val depth = drop(k)
-            for (o in listOf(-HALF, HALF)) out.column(p, k, o, -2, depth) { f.full }
-            for (h in -4 downTo -depth step 4) for (o in -1..1) out.add(p.at(k, o, h) to accent)
+            val depth = minOf(drop(k - 1), drop(k), drop(k + 1))
+            for (dk in listOf(-1, 1)) for (o in listOf(-HALF, HALF)) out.column(p, k + dk, o, -1, drop(k + dk)) { f.full }
+            var top = -2
+            var flip = false
+            while (top > -depth) {
+                for (dk in -1..1) for (o in -HALF..HALF) if (dk != 0 || abs(o) == HALF) out.add(p.at(k + dk, o, top) to f.full)
+                for (j in 1..3) if (top - j > -depth) {
+                    for (o in listOf(-HALF, HALF)) if (j == 2) out.add(p.at(k, o, top - j) to grate)
+                    for (dk in listOf(-1, 1)) out.add(p.at(k + dk, if (flip) 2 - j else j - 2, top - j) to grate)
+                }
+                top -= 4
+                flip = !flip
+            }
         }
         return out
     }
@@ -316,22 +469,47 @@ object Bridges {
     /** CI 연기 시험: 하늘에 띄운 두 강둑 사이에 석조 다리를 놓아 본다. 문제가 없으면 null */
     fun selfTest(level: ServerLevel, feet: BlockPos): String? {
         val bank = Blocks.STONE.defaultBlockState()
-        for (x in -3..0) for (z in -3..3) level.setBlock(feet.offset(x, -1, z), bank, 3)
-        for (x in 10..13) for (z in -3..3) level.setBlock(feet.offset(x, -1, z), bank, 3)
+        for (x in -3..0) for (z in -4..4) level.setBlock(feet.offset(x, -1, z), bank, 3)
+        for (x in 14..17) for (z in -4..4) level.setBlock(feet.offset(x, -1, z), bank, 3)
         val fam = family(Kind.STONE, ItemStack(Blocks.STONE_BRICKS)) ?: return "no stone family"
         val p = plan(level, feet, Direction.EAST, Kind.STONE, fam) ?: return "no plan"
-        if (!p.landed || p.start != 1 || p.end != 9) return "span ${p.start}..${p.end} landed=${p.landed}"
-        if (p.piers.size != 1) return "piers ${p.piers}"
+        if (!p.landed || p.start != 1 || p.end != 13) return "span ${p.start}..${p.end} landed=${p.landed}"
+        if (p.piers != listOf(7)) return "piers ${p.piers}"
+        // 첫 경간(1..5) 아치: 받침 쪽 아래 칸에 거꾸로 놓은 계단, 가운데(3) 위에 쐐기돌
+        val arch = p.blocks.count { (pos, st) -> st.block is StairBlock && st.getValue(StairBlock.HALF) == Half.TOP && pos.y < feet.y - 2 }
+        if (arch < 4) return "arch stairs $arch"
         build(level, p)
+        val stoneSet = setOf(Blocks.STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS, Blocks.CRACKED_STONE_BRICKS)
         val deck = level.getBlockState(feet.offset(5, -1, 0))
-        val wall = level.getBlockState(feet.offset(5, 0, 2))
+        val wall = level.getBlockState(feet.offset(6, 0, 2))
+        val key = level.getBlockState(feet.offset(3, -2, 2))
+        val lamp = level.getBlockState(feet.offset(9, 2, 2))
         if (!deck.`is`(Blocks.STONE_BRICKS) || !wall.`is`(Blocks.STONE_BRICK_WALL)) return "deck=$deck wall=$wall"
-        val pier = level.getBlockState(feet.offset(p.piers[0], -10, 0))
-        if (!pier.`is`(Blocks.STONE_BRICKS)) return "pier=$pier"
+        if (!key.`is`(Blocks.CHISELED_STONE_BRICKS)) return "keystone=$key"
+        if (!lamp.`is`(Blocks.LANTERN)) return "lamp=$lamp"
+        for (dk in -1..1) {
+            val pier = level.getBlockState(feet.offset(7 + dk, -10, 0))
+            if (pier.block !in stoneSet) return "pier=$pier"
+        }
         // 같은 자리에 한 번 더: 이미 다 놓였으므로 필요한 블록 0
         val again = plan(level, feet, Direction.EAST, Kind.STONE, fam)
         if (again != null && again.blocks.isNotEmpty()) return "rebuild needs ${again.blocks.size}"
         return null
+    }
+
+    /** CI 연기 시험: 목조·구리 다리 계획이 랜턴과 교각을 갖추는지(놓지는 않는다). 결과는 (블록 수, 오류) */
+    fun designTest(level: ServerLevel, feet: BlockPos, kind: Kind, raw: Block): Pair<Int, String?> {
+        val bank = Blocks.STONE.defaultBlockState()
+        for (x in -3..0) for (z in -4..4) level.setBlock(feet.offset(x, -1, z), bank, 3)
+        for (x in 26..29) for (z in -4..4) level.setBlock(feet.offset(x, -1, z), bank, 3)
+        val fam = family(kind, ItemStack(raw)) ?: return 0 to "no family"
+        val p = plan(level, feet, Direction.EAST, kind, fam) ?: return 0 to "no plan"
+        if (!p.landed || p.length != 25) return 0 to "span ${p.start}..${p.end}"
+        if (p.piers.isEmpty()) return 0 to "no piers"
+        val lamps = p.blocks.count { it.second.block is LanternBlock }
+        if (lamps < 2) return p.blocks.size to "lanterns $lamps"
+        if (p.blocks.any { it.second.isAir }) return p.blocks.size to "air in plan"
+        return p.blocks.size to null
     }
 
     // ───────────── 들고 있을 때 미리보기 ─────────────
@@ -347,11 +525,11 @@ object Bridges {
         if (sent.remove(player) != null && hologram(player)) ServerPlayNetworking.send(player, Payloads.BridgePreview(emptyList(), true))
     }
 
-    /** 미리보기 블록마다 역할: 기둥(상판 아래 기둥 줄)이면 1, 나머지 0 */
+    /** 미리보기 블록마다 역할: 교각(교각 자리 ±1 칸, 상판 보 아래)이면 1, 나머지 0 */
     private fun ghosts(plan: Plan): List<Payloads.Ghost> = plan.blocks.map { (pos, st) ->
         val k = (pos.x - plan.base.x) * plan.dir.stepX + (pos.z - plan.base.z) * plan.dir.stepZ
         val h = pos.y - plan.base.y
-        Payloads.Ghost(pos, Block.getId(st), if (k in plan.piers && h < 0) 1 else 0)
+        Payloads.Ghost(pos, Block.getId(st), if (plan.piers.any { abs(it - k) <= 1 } && h < -1) 1 else 0)
     }
 
     fun tickHeld(player: ServerPlayer) {
