@@ -34,6 +34,8 @@ MAP = {
     "car_body": (CR, "block/industrial_iron_block"), "andesite_casing": (CR, "block/andesite_casing"),
     "brass_casing": (CR, "block/brass_casing"), "railway_casing": (CR, "block/railway_casing"),
     "weathered_cut_copper": (MC, "block/weathered_cut_copper"), "weathered_copper_grate": (MC, "block/weathered_copper_grate"),
+    "stripped_oak_log": (MC, "block/stripped_oak_log"), "chiseled_stone_bricks": (MC, "block/chiseled_stone_bricks"),
+    "mossy_stone_bricks": (MC, "block/mossy_stone_bricks"), "lantern": (MC, "block/lantern"), "iron_bars": (MC, "block/iron_bars"),
 }
 
 def load(z, ns, path):

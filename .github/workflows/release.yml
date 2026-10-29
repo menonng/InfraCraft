@@ -1,0 +1,63 @@
+# 릴리스 초안: 모드 jar, 모드팩(.mrpack), 한국어 리소스팩을 따로따로 올린 GitHub 릴리스를 "초안"으로 만든다.
+# 초안은 저장소 관리자에게만 보이고, 공개(Publish)는 사람이 릴리스 화면에서 직접 누른다. 태그도 그때 만들어진다.
+name: release
+on:
+  workflow_dispatch:
+    inputs:
+      notes_only:
+        description: "true 면 파일 없이 변경 기록만 확인(초안을 만들지 않음)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          java-version: "25"
+          distribution: "microsoft"
+      - uses: gradle/actions/setup-gradle@v6
+      - name: version and notes
+        id: v
+        run: |
+          ver=$(grep '^mod_version=' gradle.properties | cut -d= -f2)
+          echo "version=$ver" >> "$GITHUB_OUTPUT"
+          case "$ver" in *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT";; *) echo "prerelease=false" >> "$GITHUB_OUTPUT";; esac
+          # CHANGELOG.md 에서 이 버전의 절만 꺼낸다
+          awk -v v="## $ver" 'index($0, v) == 1 {on=1; next} /^## / && on {exit} on' CHANGELOG.md > /tmp/notes.md
+          test -s /tmp/notes.md || { echo "CHANGELOG.md 에 '## $ver' 절이 없습니다"; exit 1; }
+          cat /tmp/notes.md
+      - name: build InfraCraft
+        if: inputs.notes_only != 'true'
+        run: chmod +x ./gradlew && ./gradlew :mc26.2:build -x test
+      - name: build modpack (separate files)
+        if: inputs.notes_only != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ic=$(ls versions/26.2/build/libs/*.jar | grep -vE "sources|dev" | head -1)
+          mc=""
+          for j in $(find ~/.gradle/caches -name "*.jar" -size +10M | grep -E "26\.2" | grep -viE "sources"); do
+            if unzip -Z1 "$j" 2>/dev/null | grep -q '^version.json'; then mc="$j"; break; fi
+          done
+          python3 tools/modpack/build_pack.py --infracraft "$ic" --mc "$mc" --out /tmp/pack
+          mkdir -p /tmp/release
+          cp "$ic" /tmp/release/
+          cp /tmp/pack/InfraCraft-26.2.mrpack "/tmp/release/InfraCraft-Modpack-${{ steps.v.outputs.version }}-26.2.mrpack"
+          cp /tmp/pack/InfraCraft-KO.zip "/tmp/release/InfraCraft-KO-ResourcePack-${{ steps.v.outputs.version }}.zip"
+          ls -la /tmp/release
+      - uses: softprops/action-gh-release@v2
+        if: inputs.notes_only != 'true'
+        with:
+          draft: true
+          prerelease: ${{ steps.v.outputs.prerelease }}
+          tag_name: v${{ steps.v.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          name: InfraCraft ${{ steps.v.outputs.version }} (Minecraft 26.2)
+          body_path: /tmp/notes.md
+          files: /tmp/release/*

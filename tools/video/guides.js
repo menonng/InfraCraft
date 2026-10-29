@@ -358,48 +358,86 @@ const GUIDES = (() => {
   }]);
 
   // ═══════════════ 10-2. 다리 키트 ═══════════════
-  // 실제 배치와 같은 규칙: 상판 폭 5(o = -2..2), 시작 k=2 ~ 끝 k=15, 강둑은 k ≤ 1, k ≥ 16, 수면 y = -6
-  function bridgeBlocks(kind, t0, t, a) {
+  // 실제 배치(Bridges.kt)와 같은 규칙을 줄여 그린다: 상판 폭 5(o = -2..2), 시작 k=2 ~ 끝 k=15, 강둑은 k ≤ 1, k ≥ 16, 바닥 y = -6
+  function bridgeBlocks(kind, t0, t, a, holo = false) {
     const bl = [];
     const S = 2, E = 15, len = E - S + 1;
-    const spacing = { stone: 8, timber: 6, copper: 10 }[kind];
+    const spacing = { stone: 10, timber: 6, copper: 12 }[kind];
     const n = Math.floor((len - 1) / spacing);
     const piers = Array.from({ length: n }, (_, i) => S - 1 + Math.round((i + 1) * (len + 1) / (n + 1)));
-    const at = (k) => pop(t, t0 + (k - S) * 0.13, 0.3);
-    const push = (k, o, y, tex, extra = {}) => { const p = at(k); bl.push({ x: k, y, z: o, tex, alpha: a * p.alpha, lift: p.lift, ...extra }); };
-    const T = { stone: 'stone_bricks', timber: 'planks', copper: 'weathered_cut_copper' }[kind];
-    for (let k = S; k <= E; k++) {
-      const i = (k - S) % 4;
-      for (let o = -2; o <= 2; o++) push(k, o, 0, T);
-      for (const o of [-2, 2]) {
-        if (kind === 'stone') push(k, o, 1, T, { scale: 0.55 });
-        if (kind === 'timber') { push(k, o, 1, (k - S) % 3 === 0 ? 'oak_log' : 'planks', { scale: (k - S) % 3 === 0 ? 0.6 : 0.3 }); push(k, o, -1, 'oak_log'); }
-        if (kind === 'copper') {
-          push(k, o, -1, 'weathered_copper_grate');
-          if (i === 0) for (const y of [1, 2, 3]) push(k, o, y, T);
-          else { push(k, o, 1, T, { scale: 0.3 }); if (i === 2) push(k, o, 2, 'weathered_copper_grate'); push(k, o, 3, T, { scale: 0.7 }); }
+    const at = (k) => holo ? { alpha: 1, lift: 0 } : pop(t, t0 + (k - S) * 0.13, 0.3);
+    const extra = holo ? { glow: 'rgba(57,197,187,0.16)' } : {};
+    const push = (k, o, y, tex, ex = {}) => { const p = at(k); bl.push({ x: k, y, z: o, tex, alpha: a * p.alpha * (holo ? 0.42 : 1), lift: p.lift, ...extra, ...ex }); };
+    const lamp = (k, o, y) => push(k, o, y, 'lantern', { scale: 0.4, glow: holo ? extra.glow : 'rgba(255,204,17,0.55)' });
+    if (kind === 'timber') {
+      for (let k = S; k <= E; k++) {
+        const i = k - S;
+        for (let o = -1; o <= 1; o++) push(k, o, 0, 'planks');
+        for (const o of [-2, 2]) {
+          push(k, o, 0, 'oak_log');
+          if (i % 8 === 0) { push(k, o, 1, 'stripped_oak_log', { scale: 0.6 }); push(k, o, 2, 'planks', { scale: 0.25 }); lamp(k, o, 3); }
+          else if (i % 4 === 0) push(k, o, 1, 'stripped_oak_log', { scale: 0.6 });
+          else push(k, o, 1, 'planks', { scale: 0.3 });
         }
+        for (const o of [-1, 1]) push(k, o, -1, 'oak_log');
       }
-      if (kind === 'copper' && i === 0) for (let o = -1; o <= 1; o++) push(k, o, 4, T, { scale: 0.7 });
+      for (const k of [S, E]) {
+        for (const o of [-2, 2]) for (const y of [1, 2, 3]) push(k, o, y, 'oak_log', { scale: 0.7 });
+        for (let o = -3; o <= 3; o++) push(k, o, 4, 'oak_log', { scale: 0.85 });
+        for (let dk = -1; dk <= 1; dk++) { for (let o = -3; o <= 3; o++) push(k + dk, o, 5, 'spruce', { scale: 0.9 }); for (let o = -2; o <= 2; o++) push(k + dk, o, 6, 'spruce', { scale: 0.9 }); push(k + dk, 0, 7, 'spruce', { scale: 0.6 }); }
+        lamp(k, 0, 3);
+      }
+      for (const k of piers) for (const o of [-2, 0, 2]) for (let y = o === 0 ? -2 : -1; y >= -6; y--) push(k, o, y, 'oak_log');
     }
     if (kind === 'stone') {
-      const sup = [S - 1, ...piers, E + 1];
-      for (let j = 0; j + 1 < sup.length; j++) for (let k = sup[j] + 1; k < sup[j + 1]; k++) {
-        const dist = Math.min(k - sup[j], sup[j + 1] - k);
-        const depth = dist === 1 ? 3 : dist === 2 ? 2 : 1;
-        for (let o = -2; o <= 2; o++) for (let y = -1; y >= -depth; y--) {
-          const p = pop(t, t0 + len * 0.13 + 0.3 + dist * 0.12, 0.3);
-          bl.push({ x: k, y, z: o, tex: T, alpha: a * p.alpha, lift: p.lift, scale: dist >= 4 ? 0.98 : 1 });
+      for (let k = S; k <= E; k++) {
+        const i = k - S;
+        for (let o = -2; o <= 2; o++) push(k, o, 0, 'stone_bricks');
+        for (const o of [-3, 3]) push(k, o, 0, 'stone_bricks', { scale: 0.5, lift: 0.5 });
+        for (const o of [-2, 2]) {
+          if (i % 8 === 0) { push(k, o, 1, 'chiseled_stone_bricks'); push(k, o, 2, 'stone_bricks', { scale: 0.5 }); lamp(k, o, 3); }
+          else if (i % 4 === 0) push(k, o, 1, 'stone_bricks');
+          else push(k, o, 1, 'stone_bricks', { scale: 0.55 });
         }
       }
-    }
-    for (const k of piers) {
-      const cols = kind === 'stone' ? [-2, -1, 0, 1, 2] : [-2, 2];
-      for (let y = kind === 'stone' ? -1 : -2; y >= -6; y--) {
-        const p = pop(t, t0 + len * 0.13 + (-y) * 0.08, 0.3);
-        for (const o of cols) bl.push({ x: k, y, z: o, tex: kind === 'timber' ? 'oak_log' : T, alpha: a * p.alpha, lift: p.lift });
-        if (kind !== 'stone' && (y === -2 || y === -6)) for (let o = -1; o <= 1; o++) bl.push({ x: k, y, z: o, tex: kind === 'timber' ? 'oak_log' : 'weathered_copper_grate', alpha: a * p.alpha, lift: p.lift });
+      // 받침 사이 원호 아치(교각은 3칸 두께)
+      const faces = []; let left = S - 1;
+      for (const k of piers) { faces.push([left, k - 1]); left = k + 1; }
+      faces.push([left, E + 1]);
+      for (const [fa, fb] of faces) {
+        const lo = fa + 1, hi = fb - 1, nn = hi - lo + 1, c = (lo + hi) / 2, r = (nn + 1) / 2;
+        const rise = Math.min(r, 5), rho = (r * r + rise * rise) / (2 * rise);
+        for (let k = lo; k <= hi; k++) {
+          const x = k - c, y = Math.sqrt(Math.max(0, rho * rho - x * x)) - (rho - rise);
+          const d = Math.max(0, Math.round(rise - y));
+          for (let o = -2; o <= 2; o++) for (let j = 0; j <= d; j++) {
+            const face = Math.abs(o) === 2, mossy = face && ((k * 7 + j * 3 + o) % 9 === 0);
+            const p = holo ? { alpha: 1, lift: 0 } : pop(t, t0 + len * 0.13 + 0.3 + Math.abs(x) * 0.08, 0.3);
+            bl.push({ x: k, y: -1 - j, z: o, tex: (k === Math.round(c) && j === 0 && face) ? 'chiseled_stone_bricks' : mossy ? 'mossy_stone_bricks' : 'stone_bricks',
+              alpha: a * p.alpha * (holo ? 0.42 : 1), lift: p.lift, scale: j === d ? 0.92 : 1, ...extra });
+          }
+        }
       }
+      for (const k of piers) for (let dk = -1; dk <= 1; dk++) for (let y = -1; y >= -6; y--) for (let o = -2; o <= 2; o++) push(k + dk, o, y, y <= -5 && (o + dk + y) % 3 === 0 ? 'mossy_stone_bricks' : 'stone_bricks');
+      for (const k of piers) for (const o of [-3, 3]) for (let y = -4; y >= -6; y--) push(k, o, y, 'stone_bricks', y === -4 ? { scale: 0.6 } : {});
+    }
+    if (kind === 'copper') {
+      const T = 'weathered_cut_copper', G = 'weathered_copper_grate';
+      for (let k = S; k <= E; k++) {
+        const i = k - S, m = i % 4, panel = Math.floor(i / 4);
+        for (let o = -2; o <= 2; o++) push(k, o, 0, T);
+        if (m === 0) for (let o = -2; o <= 2; o++) push(k, o, -1, T); else for (const o of [-2, 2]) push(k, o, -1, G);
+        for (const o of [-2, 2]) {
+          push(k, o, 4, T, m === 0 ? {} : { scale: 0.6 });
+          if (m === 0) for (const y of [1, 2, 3]) push(k, o, y, T);
+          else { const dh = panel % 2 === 0 ? 4 - m : m; push(k, o, dh, T); if (dh !== 1) push(k, o, 1, 'iron_bars', { scale: 0.3 }); }
+        }
+        if (m === 0) { for (let o = -1; o <= 1; o++) push(k, o, 4, T, { scale: 0.6 }); if (panel % 2 === 0) lamp(k, 0, 3); }
+      }
+      for (const k of [S, E]) for (const o of [-2, 2]) { push(k, o, 5, T); lamp(k, o, 6); }
+      for (const k of piers) for (const dk of [-1, 1]) for (const o of [-2, 2]) for (let y = -1; y >= -6; y--) push(k + dk, o, y, T);
+      for (const k of piers) for (const y of [-2, -6]) for (let o = -2; o <= 2; o++) push(k, o, y, T, { scale: 0.7 });
+      for (const k of piers) for (let j = 1; j <= 3; j++) push(k, j - 2, -2 - j, G);
     }
     return { bl, piers };
   }
@@ -425,15 +463,11 @@ const GUIDES = (() => {
       bl.push(...br);
       drawBlocks(ctx, iso, bl);
       person(ctx, iso, 0.5, 1, 0.5, a);
-      // 미리보기: 상판 가장자리(하늘색 점)와 기둥 자리(노란 점선)
+      // 미리보기: 리터매티카처럼 놓일 블록이 반투명 홀로그램으로(재료가 충분하면 하늘색)
       if (t > 0.8 && t < 3.6) {
-        const blink = 0.55 + 0.45 * Math.sin(t * 9);
-        const pa = a * seg(t, 0.8, 1.2) * (1 - seg(t, 3.3, 3.6)) * blink;
-        ctx.save(); ctx.globalAlpha = pa;
-        for (let k = 2; k <= 15; k++) for (const o of [-2, 2]) { const [px, py] = iso.pt(k + 0.5, 1.05, o + 0.5); ctx.fillStyle = C.sky; ctx.fillRect(px - 5, py - 5, 10, 10); }
-        for (const k of piers) for (let y = 0; y >= -6; y -= 1) { const [px, py] = iso.pt(k + 0.5, y + 0.5, 0.5); ctx.fillStyle = C.yellow; ctx.fillRect(px - 5, py - 5, 10, 10); }
-        ctx.restore();
-        actionbar(ctx, '[길에 맞춤] 길이 14 · 기둥 1 · 석재 벽돌 186개 필요(보유 256)', W / 2, 74, C.sky, a * seg(t, 0.9, 1.3) * (1 - seg(t, 3.3, 3.6)));
+        const pa = a * seg(t, 0.8, 1.2) * (1 - seg(t, 3.3, 3.6)) * (0.8 + 0.2 * Math.sin(t * 4));
+        drawBlocks(ctx, iso, bridgeBlocks('stone', 0, t, pa, true).bl);
+        actionbar(ctx, '[길에 맞춤] 길이 14 · 기둥 1 · 석재 벽돌 312개 필요(보유 512)', W / 2, 74, C.sky, a * seg(t, 0.9, 1.3) * (1 - seg(t, 3.3, 3.6)));
       }
       // 오른쪽 위: 지금 쓰는 키트와 원재료
       const kit = { stone: ['stone_bridge_kit', '석조 아치교', '원재료: 석재 벽돌 한 종류'], timber: ['timber_bridge_kit', '목조 다리', '원재료: 참나무 판자 한 종류'], copper: ['copper_bridge_kit', '구리 트러스교', '원재료: 녹슨 깎인 구리 한 종류'] }[phase];
@@ -443,7 +477,7 @@ const GUIDES = (() => {
       text(ctx, kit[1], 995, 160, { size: 26, weight: 800, alpha: ka });
       text(ctx, kit[2], 995, 196, { size: 17, color: C.dim, alpha: ka });
       text(ctx, '내구도 30 · 한 번에 1', 995, 220, { size: 15, color: C.dim, alpha: ka });
-      caption(ctx, brMeta.title, cap(brMeta, t, [[0, '벼랑 끝, 길 위에 서서 건너편을 바라봅니다'], [0.9, '오른손에 들면 놓일 자리와 필요한 재료가 보입니다. 근처 길에 맞춰 자리가 보정됩니다'], [3.4, '우클릭: 발 높이로 상판, 난간, 아치, 그리고 높은 곳엔 교각'], [8.6, '목조 다리: 판자 한 종류로 울타리 난간, 통나무 보와 가대까지'], [13.0, '구리 트러스교: 녹슨 빛 그대로, 머리 위로 문형 보가 지나갑니다']]), a * seg(t, 0.3, 0.8), C.yellow);
+      caption(ctx, brMeta.title, cap(brMeta, t, [[0, '벼랑 끝, 길 위에 서서 건너편을 바라봅니다'], [0.9, '오른손에 들면 놓일 다리가 반투명 홀로그램으로 보입니다. 근처 길에 맞춰 자리가 보정됩니다'], [3.4, '우클릭: 원호 아치와 쐐기돌, 랜턴 기둥, 물가름 받침을 단 교각까지'], [8.6, '목조 다리: 판자 한 종류로 통나무 테두리 보, 지붕 달린 문, 가대 교각'], [13.0, '구리 트러스교: 번갈아 기우는 Warren 사재와 머리 위 구리 랜턴']]), a * seg(t, 0.3, 0.8), C.yellow);
     },
     sfx: () => [[0.9, 'shimmer', 0.35, 1.3], [1.6, 'click', 0.3, 1.0], ...every(3.4, 5.3, 0.13, 'place_stone', 0.3, 1.0, 0.05), [5.6, 'anvil', 0.3, 1.3],
       ...every(8.6, 10.5, 0.13, 'place_wood', 0.35, 1.0, 0.05), [10.6, 'anvil', 0.3, 1.3], ...every(13.0, 14.9, 0.13, 'place_stone', 0.3, 1.3, 0.05), [15.0, 'chain', 0.4, 1.0], [15.2, 'anvil', 0.3, 1.3],

@@ -29,19 +29,43 @@ object ExploredMap {
     val dirty: MutableSet<Long> = ConcurrentHashMap.newKeySet()
     private var worldKey: String? = null
     private var ticks = 0
+    /** 불러왔지만 아직 기록하지 않은 청크. 한꺼번에 들어와도 틱마다 조금씩 기록해 화면이 끊기지 않게 한다 */
+    private val pending = LinkedHashSet<Long>()
+    private var pendingLevel: ClientLevel? = null
 
     fun key(cx: Int, cz: Int): Long = (cx.toLong() and 0xFFFFFFFFL) or (cz.toLong() shl 32)
     fun keyX(k: Long): Int = k.toInt()
     fun keyZ(k: Long): Int = (k shr 32).toInt()
 
     fun register() {
-        ClientChunkEvents.CHUNK_LOAD.register { level, chunk -> record(level, chunk) }
+        ClientChunkEvents.CHUNK_LOAD.register { level, chunk ->
+            if (level !== pendingLevel) { pending.clear(); pendingLevel = level }
+            pending.add(key(chunk.pos.x, chunk.pos.z))
+        }
         ClientPlayConnectionEvents.JOIN.register { _, _, mc -> load(mc) }
         ClientPlayConnectionEvents.DISCONNECT.register { _, mc -> mc.execute { save(); chunks.clear(); worldKey = null } }
-        ClientTickEvents.END_CLIENT_TICK.register { if (++ticks % (20 * 300) == 0) save() }
+        ClientTickEvents.END_CLIENT_TICK.register { mc ->
+            drain(mc)
+            if (++ticks % (20 * 300) == 0) save()
+        }
     }
 
     fun dimension(level: ClientLevel): String = Compat.dimensionId(level)
+
+    /** 틱마다 기록할 청크 수: 천장이 있는 차원(네더)은 열마다 위에서부터 훑어야 해서 더 적게 */
+    private fun drain(mc: Minecraft) {
+        val level = mc.level ?: run { pending.clear(); return }
+        if (level !== pendingLevel) { pending.clear(); pendingLevel = level; return }
+        var budget = if (level.dimensionType().hasCeiling()) 3 else 12
+        val it = pending.iterator()
+        while (budget > 0 && it.hasNext()) {
+            val k = it.next()
+            it.remove()
+            val chunk = level.chunkSource.getChunk(keyX(k), keyZ(k), net.minecraft.world.level.chunk.status.ChunkStatus.FULL, false) ?: continue
+            record(level, chunk)
+            budget--
+        }
+    }
 
     private fun record(level: ClientLevel, chunk: LevelChunk) {
         val cx = chunk.pos.x
@@ -55,12 +79,13 @@ object ExploredMap {
             val wz = (cz shl 4) + z
             var y = chunk.getHeight(Heightmap.Types.WORLD_SURFACE, x, z)
             if (ceiling) {
-                // 천장이 있는 차원(네더): 천장 아래에서 처음 만나는 바닥
+                // 천장이 있는 차원(네더): 천장 아래에서 처음 만나는 바닥(위 칸의 결과를 다음 칸에 넘겨 칸마다 한 번만 읽는다)
                 y = 100
+                var aboveAir = chunk.getBlockState(pos.set(wx, y + 1, wz)).isAir
                 while (y > level.minY) {
-                    val ground = !chunk.getBlockState(pos.set(wx, y, wz)).isAir
-                    val open = chunk.getBlockState(pos.set(wx, y + 1, wz)).isAir
-                    if (ground && open) break
+                    val air = chunk.getBlockState(pos.set(wx, y, wz)).isAir
+                    if (!air && aboveAir) break
+                    aboveAir = air
                     y--
                 }
             }

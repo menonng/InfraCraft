@@ -1,6 +1,7 @@
 # InfraCraft 모드팩 (Minecraft 26.2 · Fabric)
 
 InfraCraft 와 Create Fly 26.2, 그리고 26.2 에서 함께 돌아가는 Create 애드온을 묶은 **Modrinth 모드팩(.mrpack)** 이에요.
+**모드와는 별개**로, 편하게 한 번에 설치하려고 만든 묶음이에요. 릴리스마다 모드 jar 와 따로 `InfraCraft-Modpack-<버전>-26.2.mrpack`, `InfraCraft-KO-ResourcePack-<버전>.zip` 파일로 함께 올려요.
 `modpack` 워크플로가 모드를 찾아 팩을 만들고, **모든 모드를 넣은 서버를 실제로 띄워** 함께 켜지는지 확인해요(마지막 빌드: 통과).
 
 - 받기: [`InfraCraft-26.2.mrpack`](https://github.com/menonng/InfraCraft/raw/modpack/InfraCraft-26.2.mrpack) (modpack 브랜치) · 빌드 보고서: [`REPORT.md`](https://github.com/menonng/InfraCraft/blob/modpack/REPORT.md)
@@ -36,7 +37,7 @@ InfraCraft 와 Create Fly 26.2, 그리고 26.2 에서 함께 돌아가는 Create
 
 ## 한국어
 - 팩에는 **한국어 보완 리소스팩**(`InfraCraft-KO.zip`)이 들어 있고, 처음 실행할 때 언어가 한국어, 이 팩이 켜진 상태로 시작해요.
-- 원칙: Fly 포트에 한국어가 없거나 모자라면 **원작 Create 애드온(Create Fly 가 아닌 원작)의 한국어**로 채워요.
+- 원칙: Fly 포트에 한국어가 없거나 모자라면 **원작 Create 애드온(Create Fly 가 아닌 원작)의 한국어**로 채워요. 단, 원작 라이선스가 재배포를 허락할 때만(MIT·Apache·LGPL/GPL·CC0 등) 가져오고, 모든 권리 보유(Create 에셋 등)는 가져오지 않아요. 리소스팩 안 `CREDITS.txt` 에 출처와 라이선스를 적어요.
 - 확인해 보니 이번 목록의 포트들은 원작과 한국어 상태가 같아서(원작도 같은 만큼만 번역됨), 원작에서 더 가져올 문장은 없었어요.
 - Enchantment Industry, Dragons Plus, Create Deco 는 원작에도 한국어가 없어서 InfraCraft 가 직접 번역해 넣어 두었어요(InfraCraft 안에 포함).
 

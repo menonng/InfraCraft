@@ -46,6 +46,9 @@ tasks.processResources {
     val props = mapOf("version" to project.version.toString(), "flk_version" to flkVersion)
     inputs.properties(props)
     filesMatching("fabric.mod.json") { expand(props) }
+    // 함께 넣은 번역(LGPL·CC0)의 고지와 라이선스 전문
+    from(rootProject.file("THIRD_PARTY_NOTICES.md")) { into("META-INF/infracraft") }
+    from(rootProject.file("licenses")) { into("META-INF/infracraft/licenses") }
 }
 
 java {

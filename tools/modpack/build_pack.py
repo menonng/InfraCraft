@@ -85,8 +85,22 @@ def lang_files(jar_bytes):
     return out
 
 
+# 번역 문장을 다시 나눠 줄 수 있는 라이선스(SPDX). 모든 권리 보유(ARR)나 자체 라이선스(예: Create 에셋)는 가져오지 않는다.
+REDISTRIBUTABLE = re.compile(r"^(MIT|Apache-2\.0|MPL-2\.0|CC0-1\.0|CC-BY(-SA)?-[0-9.]+|BSD-[23]-Clause|Unlicense|ISC|Zlib|"
+                             r"(L|A)?GPL-[23]\.0(-only|-or-later)?)$")
+LICENSE_LOG = []
+
+
 def original_ko(slug):
-    """원작 애드온의 최신 jar(로더 상관없이)에서 ko_kr"""
+    """원작 애드온의 최신 jar(로더 상관없이)에서 ko_kr. 라이선스가 재배포를 허락할 때만"""
+    try:
+        lic = (get(f"{API}/project/{slug}").get("license") or {}).get("id", "")
+    except Exception:
+        lic = ""
+    if not REDISTRIBUTABLE.match(lic or ""):
+        LICENSE_LOG.append((slug, lic or "?", "skipped"))
+        return {}
+    LICENSE_LOG.append((slug, lic, "used"))
     try:
         vs = get(f"{API}/project/{slug}/version")
     except Exception:
@@ -203,6 +217,12 @@ def main():
                                              ensure_ascii=False, indent=1))
         for ns, d in sorted(ko_pack.items()):
             z.writestr(f"assets/{ns}/lang/ko_kr.json", json.dumps(d, ensure_ascii=False, indent=1))
+        credits = ["InfraCraft 모드팩 한국어 보완 리소스팩 — 출처와 라이선스", "",
+                   "- InfraCraft 가 직접 번역한 문장: Create: Enchantment Industry, Create: Dragons Plus (LGPL-3.0-or-later 원문의 번역이므로 같은 라이선스),",
+                   "  Create Deco (CC0-1.0). LGPL 전문은 InfraCraft 저장소 licenses/ 에 있습니다.", "",
+                   "- 원작 애드온에서 가져온 문장(라이선스가 재배포를 허락하는 것만):"]
+        credits += [f"  {slug}: {lic} ({state})" for slug, lic, state in LICENSE_LOG]
+        z.writestr("CREDITS.txt", "\n".join(credits) + "\n")
     rp_bytes = rp.getvalue()
     open(os.path.join(a.out, "InfraCraft-KO.zip"), "wb").write(rp_bytes)
 

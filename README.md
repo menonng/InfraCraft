@@ -88,9 +88,11 @@ Create 의 Ponder 처럼 **기능마다 짧은 영상**이 있어요. 게임의 
 
 | 키트 | 원재료 | 모습 |
 |---|---|---|
-| 목조 다리 키트 | 판자 한 종류(참나무·가문비·진홍 …) | 판자 상판, 울타리 난간과 통나무 기둥, 상판 아래 통나무 보, 높은 곳엔 통나무 가대 |
-| 석조 아치교 키트 | 담장이 있는 석재 한 종류(석재 벽돌·조약돌·벽돌·사암·심층암 타일 …) | 담장 난간, 교각 사이를 잇는 계단 아치, 상판 폭 그대로의 석조 교각 |
-| 구리 트러스교 키트 | 깎인 구리 한 종류(녹슨 정도 그대로) | 4칸마다 세운 기둥과 위 현, 창살 난간, 격자 장식, 머리 위 문형 보 |
+| 목조 다리 키트 | 판자 한 종류(참나무·가문비·진홍 …) | 통나무 테두리 보, 울타리 난간과 4칸마다 껍질 벗긴 통나무 기둥, 8칸마다 랜턴 기둥, 양 끝 박공 지붕 문(매달린 랜턴), 통나무 가대 교각과 까치발 |
+| 석조 아치교 키트 | 담장이 있는 석재 한 종류(석재 벽돌·조약돌·벽돌·사암·심층암 타일 …) | 원호 아치(넓으면 납작한 아치)와 쐐기돌, 처마 돌림띠, 랜턴 기둥이 있는 담장 난간, 물가름 받침을 단 3칸 두께 교각, 물가 쪽은 이끼·금 간 돌 |
+| 구리 트러스교 키트 | 깎인 구리 한 종류(녹슨 정도 그대로) | Warren 트러스(위 현·수직재·번갈아 기우는 사재), 창살 난간, 머리 위 가로보에 매달린 구리 랜턴, 양 끝 등탑, 네 다리 교각과 격자 가새 |
+
+디자인은 유튜브·웹의 다리 건축 튜토리얼(중세 목조교, 다경간 석조 아치교, 구리·강철 트러스교)에 공통으로 나오는 짜임을 블록 규칙으로 옮긴 거예요. 랜턴도 원재료 하나로 쳐요.
 
 ### G. 네더
 - **블레이즈 선로**는 네더에서만 가속하고, 블레이즈 가루 1개로 128블록을 달려요.
@@ -141,15 +143,28 @@ InfraCraft 와 Create Fly 26.2 애드온을 한데 묶은 Modrinth 모드팩(.mr
 
 ## 설정
 `config/infracraft.json` 에서 모든 수치(속도, 보너스, 겉날개 금지, 네더 1:1, 확장 인챈트 레벨 등)를 바꿀 수 있어요.
+히든 무기 관련: `astraHitsPlayers`(다른 플레이어도 맞는가), `astraReshapesTerrain`(크레이터·별핵 수정·별자리 선을 남기는가, 보호 구역은 언제나 그대로).
+
+## 실제 게임 화면
+아래는 CI 의 **클라이언트 게임테스트**가 실제 게임을 띄워 찍은 화면이에요(`./gradlew :mc26.2:runClientGameTest`, 모든 화면은 [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md)).
+
+| | |
+|---|---|
+| ![목조 다리](docs/screenshots/bridge_timber_side.jpg) | ![석조 아치교 아래](docs/screenshots/bridge_stone_below.jpg) |
+| ![구리 트러스교](docs/screenshots/bridge_copper_side.jpg) | ![다리 키트 홀로그램](docs/screenshots/hologram_stone.jpg) |
 
 ## 빌드
 ```
-./gradlew buildAll                 # 두 버전 모두
-./gradlew :mc26.2:build            # 하나만
+./gradlew :mc26.2:build              # 모드 jar
+./gradlew :mc26.2:runServer          # 전용 서버 연기 시험(등록·믹스인·데이터팩·다리)
+./gradlew :mc26.2:runClientGameTest  # 실제 클라이언트로 화면 시험(스크린샷: versions/26.2/build/run/clientGameTest/screenshots)
 ```
 결과물은 `versions/<버전>/build/libs/` 에 생겨요. 텍스처와 데이터 JSON 은 `tools/gen_textures.py`, `tools/gen_data.py` 로 다시 만들 수 있어요(번역 원본은 `tools/lang.json`).
 
 ## 구조
-- `common/kotlin` — 세 버전이 함께 쓰는 Kotlin 코드
+- `common/kotlin` — 버전이 함께 쓰는 Kotlin 코드(지금은 26.2 하나)
 - `versions/<버전>/src/main/kotlin/.../compat/Compat.kt` — 버전마다 다른 API 를 감싸는 얇은 계층
 - `versions/<버전>/src/main/java/.../mixin` — 마인카트 최고 속도, 네더 배율, 인챈트 최대 레벨 믹스인
+
+## 라이선스
+InfraCraft 안에 함께 넣은 다른 모드의 번역(Enchantment Industry·Dragons Plus 는 LGPL-3.0-or-later, Create Deco 는 CC0)과 참고한 것들은 **[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)** 에 정리했어요. Create 의 코드나 에셋은 넣지 않아요(리플렉션 연동만).

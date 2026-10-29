@@ -20,7 +20,9 @@ Create 의 Ponder 처럼 기능마다 짧은 영상이 있어요. 블록은 **�
 | **ATS · 충돌 방지** 0:17<br>카트가 앞을 보고 스스로 멈춥니다 | **노선망 · 이정표** 0:17<br>실제로 달린 길만 노선이 됩니다 | **실드 굴진기 · 복선 터널** 0:20<br>두 선로 사이에 서서 앞을 보고 쓰세요 |
 | [![지하 역사](videos/g_hall.jpg)](videos/g_hall.mp4) | [![지상 역사](videos/g_surface.jpg)](videos/g_surface.mp4) | [![전동차 · 객차 도면](videos/g_cars.jpg)](videos/g_cars.mp4) |
 | **지하 역사** 0:21<br>상대식 복선 승강장 · 안전문 · 승강기 | **지상 역사** 0:17<br>지붕 아래 벤치와 등불, 시골 간이역 | **전동차 · 객차 도면** 0:19<br>Create 블록으로 차체를 짓고, Create 방식으로 조립합니다 |
-| [![항구와 교역](videos/g_harbor.jpg)](videos/g_harbor.mp4) | [![물살과 보트 리프트](videos/g_water.jpg)](videos/g_water.mp4) | [![말 · 편자 · 호루라기](videos/g_horses.jpg)](videos/g_horses.mp4) |
-| **항구와 교역** 0:19<br>배를 타고 먼 항구까지, 직접 | **물살과 보트 리프트** 0:16<br>운하로 잇는 물길 | **말 · 편자 · 호루라기** 0:18<br>말과 함께 길을 갑니다 |
+| [![항구](videos/g_harbor.jpg)](videos/g_harbor.mp4) | [![물살과 보트 리프트](videos/g_water.jpg)](videos/g_water.mp4) | [![말 · 편자 · 호루라기](videos/g_horses.jpg)](videos/g_horses.mp4) |
+| **항구** 0:19<br>배를 타고 먼 항구까지, 직접 | **물살과 보트 리프트** 0:16<br>운하로 잇는 물길 | **말 · 편자 · 호루라기** 0:18<br>말과 함께 길을 갑니다 |
 | [![건설 장비](videos/g_tools.jpg)](videos/g_tools.mp4) | [![겉날개 금지 · 네더 1:1](videos/g_nether.jpg)](videos/g_nether.mp4) | [![인챈트](videos/g_enchant.jpg)](videos/g_enchant.mp4) |
 | **건설 장비** 0:19<br>걸으며 깔고, 뚫고, 잽니다 | **겉날개 금지 · 네더 1:1** 0:18<br>지름길 대신, 길을 | **인챈트** 0:16<br>길 위의 사람을 위한 마법부여 |
+| [![다리 키트](videos/g_bridge.jpg)](videos/g_bridge.mp4) |   |   |
+| **다리 키트** 0:18<br>들고 바라보면 놓일 다리가 홀로그램으로 보입니다 |   |   |
