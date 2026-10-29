@@ -62,8 +62,8 @@
   "infracraft.msg.paver.need_material": "왼손에 깔 블록을 들어 주세요.",
   "infracraft.msg.layer.need_rails": "선로가 없습니다. 왼손이나 인벤토리에 선로를 넣어 주세요.",
   "infracraft.msg.surveyor.point_a": "측량 시작점: %1$s",
-  "infracraft.msg.surveyor.result": "수평 %1$sm · 높이 %2$sm · 경사 %3$s%%",
-  "infracraft.msg.surveyor.hint": "다리를 놓으려면 다리 키트를 오른손에 들어 보세요. 놓일 자리와 재료가 보입니다.",
+  "infracraft.msg.surveyor.result": "수평 %1$sm · 높이 %2$sm · 경사 %3$s%% · 나무 다리 판자 약 %4$s개",
+  "infracraft.msg.surveyor.hint": "웅크리고 두 번째 지점을 찍으면 판자로 폭 3칸 나무 다리를 놓습니다. 난간·기둥이 있는 다리는 다리 키트로 놓으세요.",
   "infracraft.msg.surveyor.cleared": "측량 지점을 지웠습니다.",
   "infracraft.msg.whistle.untamed": "길들인 말에만 호루라기를 묶을 수 있습니다.",
   "infracraft.msg.whistle.bound": "%1$s에게 호루라기를 묶었습니다.",
@@ -238,5 +238,10 @@
   "advancements.infracraft.astra.star_phonix.description": "포닉스의 별조각을 얻습니다.",
   "advancements.infracraft.astra.star_petra.description": "페트라의 별조각을 얻습니다.",
   "advancements.infracraft.astra.aquila_core.description": "아홉 별을 하늘의 모양대로 모아 성좌핵을 빚습니다.",
-  "advancements.infracraft.astra.astra_obliterator.description": "독수리가 날아오릅니다."
+  "advancements.infracraft.astra.astra_obliterator.description": "독수리가 날아오릅니다.",
+  "infracraft.msg.surveyor.bridge.need_planks": "판자가 필요합니다(왼손, 없으면 인벤토리). 측량기 다리는 나무로만 놓습니다.",
+  "infracraft.msg.surveyor.bridge.too_long": "측량기 다리는 %1$s칸까지입니다.",
+  "infracraft.msg.surveyor.bridge.too_steep": "너무 가파릅니다. 한 칸 갈 때 한 칸 넘게 오르내릴 수 없습니다.",
+  "infracraft.msg.surveyor.bridge.short": "판자가 모자랍니다: %1$s개 필요, %2$s개 보유.",
+  "infracraft.msg.surveyor.bridge.done": "길이 %1$s칸 나무 다리를 놓았습니다(판자 %2$s개)."
 }

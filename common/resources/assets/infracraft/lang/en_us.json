@@ -62,8 +62,8 @@
   "infracraft.msg.paver.need_material": "Hold the block to lay in your off hand.",
   "infracraft.msg.layer.need_rails": "Out of rails. Keep rails in your off hand or inventory.",
   "infracraft.msg.surveyor.point_a": "Survey start: %1$s",
-  "infracraft.msg.surveyor.result": "Horizontal %1$sm · rise %2$sm · grade %3$s%%",
-  "infracraft.msg.surveyor.hint": "To build a bridge, hold a bridge kit in your main hand: it shows where the bridge goes and what it needs.",
+  "infracraft.msg.surveyor.result": "Horizontal %1$sm · rise %2$sm · grade %3$s%% · about %4$s planks for a wooden bridge",
+  "infracraft.msg.surveyor.hint": "Sneak while picking the second point to lay a 3-wide plank bridge. For bridges with railings and piers, use a bridge kit.",
   "infracraft.msg.surveyor.cleared": "Survey point cleared.",
   "infracraft.msg.whistle.untamed": "Only tamed horses can be bound.",
   "infracraft.msg.whistle.bound": "Whistle bound to %1$s.",
@@ -238,5 +238,10 @@
   "advancements.infracraft.astra.star_phonix.description": "Obtain the shard of Phonix.",
   "advancements.infracraft.astra.star_petra.description": "Obtain the shard of Petra.",
   "advancements.infracraft.astra.aquila_core.description": "Gather the nine stars in their sky shape and forge the constellation core.",
-  "advancements.infracraft.astra.astra_obliterator.description": "The eagle rises."
+  "advancements.infracraft.astra.astra_obliterator.description": "The eagle rises.",
+  "infracraft.msg.surveyor.bridge.need_planks": "Needs planks (off hand, otherwise inventory). The surveyor only lays wooden bridges.",
+  "infracraft.msg.surveyor.bridge.too_long": "A surveyor bridge can be at most %1$s blocks long.",
+  "infracraft.msg.surveyor.bridge.too_steep": "Too steep: it cannot rise more than one block per block.",
+  "infracraft.msg.surveyor.bridge.short": "Not enough planks: needs %1$s, have %2$s.",
+  "infracraft.msg.surveyor.bridge.done": "Laid a %1$s-block wooden bridge (%2$s planks)."
 }

@@ -34,6 +34,8 @@ object BridgeHologram {
 
     fun register() {
         ClientPlayNetworking.registerGlobalReceiver(Payloads.BridgePreview.TYPE) { p, _ ->
+            // 새 계획마다 모델을 다시 읽는다(리소스 팩을 다시 불러오면 아틀라스 좌표가 바뀌므로)
+            quadCache.clear()
             ghosts = p.ghosts.map { Ghost(it.pos, Block.stateById(it.state), it.role == 1) }
             enough = p.enough
         }

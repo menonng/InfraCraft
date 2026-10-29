@@ -147,6 +147,15 @@ object InfraCraft : ModInitializer {
             overworld.getChunk(0, 4)
             val err = Bridges.selfTest(overworld, feet)
             check("stone bridge built in world (${err ?: "ok"})", err == null)
+            // 측량기 나무 다리: 10칸에 3칸 오르막 → 33블록, 오르는 칸은 동쪽을 보는 계단
+            val sa = net.minecraft.core.BlockPos(0, 310, 128)
+            val sb = net.minecraft.core.BlockPos(10, 313, 128)
+            overworld.getChunk(0, 8)
+            val sp = dev.menonng.infracraft.system.Tools.plankBridgePlan(overworld, sa, sb,
+                net.minecraft.world.level.block.Blocks.OAK_PLANKS, net.minecraft.world.level.block.Blocks.OAK_STAIRS)
+            val rising = sp.filter { it.second.block == net.minecraft.world.level.block.Blocks.OAK_STAIRS }
+            check("surveyor bridge plan (${sp.size} blocks, ${rising.size} stairs)", sp.size == 33 && rising.size == 9 &&
+                rising.all { it.second.getValue(net.minecraft.world.level.block.StairBlock.FACING) == net.minecraft.core.Direction.EAST })
             for (adv in listOf("root", "first_bridge", "first_station", "road_1km", "surveyor", "tunneler", "rail_layer", "rider"))
                 check("advancement $adv", server.advancements.get(Compat.id("infracraft", "journey/$adv")) != null)
             for (adv in Astra.STARS.map { "star_${it.key}" } + listOf("aquila_core", "astra_obliterator"))

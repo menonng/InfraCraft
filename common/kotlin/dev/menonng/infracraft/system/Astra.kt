@@ -205,6 +205,7 @@ object Astra {
     private fun friendly(e: LivingEntity, caster: ServerPlayer) = e === caster || (e is TamableAnimal && e.isOwnedBy(caster))
 
     private fun hurt(level: ServerLevel, e: LivingEntity, caster: ServerPlayer, amount: Float, push: Vec3) {
+        if (e is net.minecraft.world.entity.player.Player && !dev.menonng.infracraft.Config.c.astraHitsPlayers) return
         e.hurtServer(level, level.damageSources().playerAttack(caster), amount)
         e.addEffect(MobEffectInstance(MobEffects.GLOWING, 100, 0))
         e.addEffect(MobEffectInstance(MobEffects.SLOWNESS, 60, 2))

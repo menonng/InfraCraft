@@ -10,19 +10,28 @@ import dev.menonng.infracraft.content.ModStats
 import dev.menonng.infracraft.content.ModTags
 import dev.menonng.infracraft.fmt1
 import dev.menonng.infracraft.msg
+import java.util.WeakHashMap
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.sqrt
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.BaseRailBlock
-import java.util.WeakHashMap
-import kotlin.math.max
-import kotlin.math.sqrt
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.Blocks
+import net.minecraft.world.level.block.LiquidBlock
+import net.minecraft.world.level.block.StairBlock
+import net.minecraft.world.level.block.state.BlockState
 
 /** 도로 포장기, 선로 부설기, 터널 굴착기, 측량기 */
 object Tools {
@@ -160,9 +169,87 @@ object Tools {
         val dz = (pos.z - a.z).toDouble()
         val horiz = sqrt(dx * dx + dz * dz)
         val slope = if (horiz < 0.01) 0.0 else dy / horiz * 100.0
-        Compat.chat(player, msg("surveyor.result", Palette.SKY, fmt1(horiz), fmt1(dy), fmt1(slope)))
-        Compat.chat(player, msg("surveyor.hint", Palette.PINK))
+        val planks = (max(abs(pos.x - a.x), abs(pos.z - a.z)) + 1) * 3
+        Compat.chat(player, msg("surveyor.result", Palette.SKY, fmt1(horiz), fmt1(dy), fmt1(slope), planks.toString()))
+        if (player.isShiftKeyDown) plankBridge(player, a, pos) else Compat.chat(player, msg("surveyor.hint", Palette.PINK))
         stack.remove(ModComponents.POINT_A)
+    }
+
+    // ───────────── 측량기 나무 다리 ─────────────
+
+    private fun planksFamily(stack: ItemStack): Pair<Block, Block?>? {
+        val b = (stack.item as? BlockItem)?.block ?: return null
+        val key = BuiltInRegistries.BLOCK.getKey(b)
+        if (!key.path.endsWith("_planks")) return null
+        val stairs = Compat.blockById(key.namespace, key.path.removeSuffix("_planks") + "_stairs")?.takeIf { it != Blocks.AIR }
+        return b to stairs
+    }
+
+    /**
+     * 웅크리고 두 번째 지점을 찍으면 A→B 를 잇는 폭 3칸의 아주 단순한 나무 다리를 놓는다.
+     * 판자 상판뿐이고, 높이가 한 칸 바뀌는 자리만 같은 나무의 계단으로 이어 걸어서 오르내릴 수 있게 한다.
+     * 난간·기둥·아치가 있는 다리는 다리 키트의 몫이다. 판자(왼손 → 인벤토리)만 쓰고, 놓는 블록 하나에 판자 하나.
+     */
+    private fun plankBridge(player: ServerPlayer, a: BlockPos, b: BlockPos) {
+        val level = player.level() as ServerLevel
+        val offhand = player.offhandItem
+        val raw = if (planksFamily(offhand) != null) offhand else Inventories.find(player) { planksFamily(it) != null }
+        val family = raw?.let { planksFamily(it) }
+        if (raw == null || family == null) {
+            Compat.chat(player, msg("surveyor.bridge.need_planks", Palette.ORANGE)); return
+        }
+        val (plank, stairs) = family
+        val dx = b.x - a.x
+        val dz = b.z - a.z
+        val steps = max(abs(dx), abs(dz))
+        if (steps == 0) return
+        if (steps > Config.c.surveyorBridgeMaxLength) {
+            Compat.chat(player, msg("surveyor.bridge.too_long", Palette.RED, Config.c.surveyorBridgeMaxLength.toString())); return
+        }
+        if (abs(b.y - a.y) > steps) {
+            Compat.chat(player, msg("surveyor.bridge.too_steep", Palette.RED)); return
+        }
+        val plan = plankBridgePlan(level, a, b, plank, stairs)
+        if (plan.isEmpty()) return
+        val have = Inventories.count(player) { it.`is`(raw.item) }
+        if (!player.isCreative && have < plan.size) {
+            Compat.chat(player, msg("surveyor.bridge.short", Palette.RED, plan.size.toString(), have.toString())); return
+        }
+        val item = raw.item
+        Inventories.consume(player, plan.size) { it.`is`(item) }
+        for ((p, st) in plan) level.setBlock(p, st, 3)
+        level.playSound(null, player.blockPosition(), SoundEvents.WOOD_PLACE, SoundSource.BLOCKS, 1.0f, 0.9f)
+        Compat.chat(player, msg("surveyor.bridge.done", Palette.GREEN, (steps + 1).toString(), plan.size.toString()))
+    }
+
+    /** 측량기 나무 다리에 놓일 블록(빈 자리만). 길이·경사 검사는 부르는 쪽에서 한다. */
+    fun plankBridgePlan(level: ServerLevel, a: BlockPos, b: BlockPos, plank: Block, stairs: Block?): List<Pair<BlockPos, BlockState>> {
+        val dx = b.x - a.x
+        val dz = b.z - a.z
+        val steps = max(abs(dx), abs(dz))
+        val alongX = abs(dx) >= abs(dz)
+        val forward = if (alongX) (if (dx > 0) Direction.EAST else Direction.WEST) else (if (dz > 0) Direction.SOUTH else Direction.NORTH)
+        fun height(i: Int) = Math.round(a.y + (b.y - a.y) * i.toDouble() / steps).toInt()
+        val plan = ArrayList<Pair<BlockPos, BlockState>>()
+        for (i in 0..steps) {
+            val t = i.toDouble() / steps
+            val cx = Math.round(a.x + dx * t).toInt()
+            val cz = Math.round(a.z + dz * t).toInt()
+            val y = height(i)
+            // 한 칸 오르는 자리는 진행 방향으로, 한 칸 내려가기 직전 자리는 반대 방향으로 계단을 놓는다
+            val state = when {
+                stairs != null && i > 0 && y > height(i - 1) -> stairs.defaultBlockState().setValue(StairBlock.FACING, forward)
+                stairs != null && i < steps && y > height(i + 1) -> stairs.defaultBlockState().setValue(StairBlock.FACING, forward.opposite)
+                else -> plank.defaultBlockState()
+            }
+            for (w in -1..1) {
+                val p = if (alongX) BlockPos(cx, y, cz + w) else BlockPos(cx + w, y, cz)
+                val s = level.getBlockState(p)
+                if (level.getBlockEntity(p) != null || !(s.isAir || s.canBeReplaced() || s.block is LiquidBlock)) continue
+                plan.add(p to state)
+            }
+        }
+        return plan
     }
 
     fun clearSurvey(player: Player, stack: ItemStack) {

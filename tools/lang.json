@@ -252,12 +252,12 @@
   "en_us": "Survey start: %1$s"
  },
  "infracraft.msg.surveyor.result": {
-  "ko_kr": "수평 %1$sm · 높이 %2$sm · 경사 %3$s%%",
-  "en_us": "Horizontal %1$sm · rise %2$sm · grade %3$s%%"
+  "ko_kr": "수평 %1$sm · 높이 %2$sm · 경사 %3$s%% · 나무 다리 판자 약 %4$s개",
+  "en_us": "Horizontal %1$sm · rise %2$sm · grade %3$s%% · about %4$s planks for a wooden bridge"
  },
  "infracraft.msg.surveyor.hint": {
-  "ko_kr": "다리를 놓으려면 다리 키트를 오른손에 들어 보세요. 놓일 자리와 재료가 보입니다.",
-  "en_us": "To build a bridge, hold a bridge kit in your main hand: it shows where the bridge goes and what it needs."
+  "ko_kr": "웅크리고 두 번째 지점을 찍으면 판자로 폭 3칸 나무 다리를 놓습니다. 난간·기둥이 있는 다리는 다리 키트로 놓으세요.",
+  "en_us": "Sneak while picking the second point to lay a 3-wide plank bridge. For bridges with railings and piers, use a bridge kit."
  },
  "infracraft.msg.surveyor.cleared": {
   "ko_kr": "측량 지점을 지웠습니다.",
@@ -958,5 +958,25 @@
  "advancements.infracraft.astra.astra_obliterator.description": {
   "ko_kr": "독수리가 날아오릅니다.",
   "en_us": "The eagle rises."
+ },
+ "infracraft.msg.surveyor.bridge.need_planks": {
+  "ko_kr": "판자가 필요합니다(왼손, 없으면 인벤토리). 측량기 다리는 나무로만 놓습니다.",
+  "en_us": "Needs planks (off hand, otherwise inventory). The surveyor only lays wooden bridges."
+ },
+ "infracraft.msg.surveyor.bridge.too_long": {
+  "ko_kr": "측량기 다리는 %1$s칸까지입니다.",
+  "en_us": "A surveyor bridge can be at most %1$s blocks long."
+ },
+ "infracraft.msg.surveyor.bridge.too_steep": {
+  "ko_kr": "너무 가파릅니다. 한 칸 갈 때 한 칸 넘게 오르내릴 수 없습니다.",
+  "en_us": "Too steep: it cannot rise more than one block per block."
+ },
+ "infracraft.msg.surveyor.bridge.short": {
+  "ko_kr": "판자가 모자랍니다: %1$s개 필요, %2$s개 보유.",
+  "en_us": "Not enough planks: needs %1$s, have %2$s."
+ },
+ "infracraft.msg.surveyor.bridge.done": {
+  "ko_kr": "길이 %1$s칸 나무 다리를 놓았습니다(판자 %2$s개).",
+  "en_us": "Laid a %1$s-block wooden bridge (%2$s planks)."
  }
 }

@@ -36,6 +36,10 @@ class InfraConfig {
     var borerBaseRadius = 1
     var borerMaxHardness = 30.0
     var bridgeKitMaxLength = 64
+    var surveyorBridgeMaxLength = 96
+
+    // 히든 무기: 다른 플레이어도 맞는가(서버에서 PvP 를 막고 싶으면 false)
+    var astraHitsPlayers = true
     var bridgePierHeight = 5
     var bridgePierMaxDepth = 48
 
