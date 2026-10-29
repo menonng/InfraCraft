@@ -1,7 +1,14 @@
 # InfraCraft 모드팩 (Minecraft 26.2 · Fabric)
 
 InfraCraft 와 Create Fly 26.2, 그리고 26.2 에서 함께 돌아가는 Create 애드온을 묶은 **Modrinth 모드팩(.mrpack)** 이에요.
-**모드와는 별개**로, 편하게 한 번에 설치하려고 만든 묶음이에요. 릴리스마다 모드 jar 와 따로 `InfraCraft-Modpack-<버전>-26.2.mrpack`, `InfraCraft-KO-ResourcePack-<버전>.zip` 파일로 함께 올려요.
+**모드와는 별개**로, 편하게 한 번에 설치하려고 만든 묶음이에요. 릴리스마다 모드 jar 와 따로 올려요.
+
+- **`InfraCraft-Modpack-<버전>-26.2.zip`(권장, 한 파일)**: CurseForge 모드팩 형식. Modrinth 와 CurseForge 양쪽에서 모은 모드를 한 zip 에 담았어요. CurseForge 앱·Prism Launcher·ATLauncher 에서 "모드팩 가져오기".
+  - CurseForge 에 있는 모드는 `manifest.json` 에 번호로 적혀 있어 런처가 직접 받아요(재배포가 아니에요).
+  - Modrinth·GitHub 의 모드는 **라이선스가 재배포를 허락하는 것만** `overrides/mods` 에 jar 로 들어 있어요(GPL 계열은 소스 주소를 README 에 적어요). 나머지는 zip 안 `README-INFRACRAFT-MODPACK.txt` 에 링크로 안내해요.
+  - CurseForge 쪽은 공식 API 키가 필요해요: 저장소 Settings → Secrets and variables → Actions 에 `CURSEFORGE_API_KEY`(https://console.curseforge.com 에서 발급). 없으면 CurseForge 모드는 안내로만 들어가요.
+- `InfraCraft-Modpack-<버전>-26.2.mrpack`: 같은 모드팩의 Modrinth 형식
+- `InfraCraft-KO-ResourcePack-<버전>.zip`: 한국어 보완 리소스팩
 `modpack` 워크플로가 모드를 찾아 팩을 만들고, **모든 모드를 넣은 서버를 실제로 띄워** 함께 켜지는지 확인해요(마지막 빌드: 통과).
 
 - 받기: [`InfraCraft-26.2.mrpack`](https://github.com/menonng/InfraCraft/raw/modpack/InfraCraft-26.2.mrpack) (modpack 브랜치) · 빌드 보고서: [`REPORT.md`](https://github.com/menonng/InfraCraft/blob/modpack/REPORT.md)

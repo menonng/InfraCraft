@@ -22,6 +22,8 @@ jobs:
       - name: build pack
         env:
           GH_TOKEN: ${{ github.token }}
+          # CurseForge 공식 API 키(저장소 Settings → Secrets → Actions 에 CURSEFORGE_API_KEY). 없으면 CurseForge 모드는 안내로만
+          CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
         run: |
           ic=$(ls versions/26.2/build/libs/*.jar | grep -vE "sources|dev" | head -1)
           mc=""
@@ -29,7 +31,8 @@ jobs:
             if unzip -Z1 "$j" 2>/dev/null | grep -q '^version.json'; then mc="$j"; break; fi
           done
           echo "minecraft jar: $mc"
-          python3 tools/modpack/build_pack.py --infracraft "$ic" --mc "$mc" --out /tmp/pack | tee /tmp/pack-build.log
+          python3 tools/modpack/build_pack.py --infracraft "$ic" --mc "$mc" --out /tmp/pack \
+            --zip /tmp/pack/InfraCraft-Modpack-26.2.zip | tee /tmp/pack-build.log
       - name: smoke test with every mod
         env:
           INFRACRAFT_SMOKE_CREATE: "true"

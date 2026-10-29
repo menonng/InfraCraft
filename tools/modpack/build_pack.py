@@ -5,6 +5,13 @@
     .mrpack 은 내려받을 주소만 담고, InfraCraft 는 overrides 에 넣는다.
   - 한국어: Fly 포트에 한국어가 없거나 모자라면, 원본 Create 애드온(Create Fly 가 아닌 원작)의 ko_kr 로 채운다.
   - 서버 시험용으로 모든 jar 를 <out>/mods 에 둔다.
+  - CurseForge: 환경 변수 CURSEFORGE_API_KEY 가 있으면 pack.json 의 curseforge 슬러그로도 찾는다(작성자가 외부 배포를
+    막은 파일은 받지 않는다).
+  - 한 파일 모드팩(zip): --zip <파일> 이면 CurseForge 모드팩 형식(manifest.json + overrides)의 zip 을 만든다.
+    CurseForge 앱·Prism Launcher·ATLauncher 에서 가져오기로 설치한다.
+      · CurseForge 에서 찾은 모드는 manifest.json 에 프로젝트·파일 번호로 적는다(런처가 받는다, 재배포 아님)
+      · Modrinth·GitHub 에서 받은 모드는 overrides/mods 에 jar 로 넣는다. 라이선스가 재배포를 허락하는 것만
+        (--all-jars 를 주면 전부: 개인용, 공개하지 말 것)
 """
 import argparse
 import hashlib
@@ -48,6 +55,32 @@ def modrinth_version(project, mc, version=None, loaders=("fabric",)):
     if version:
         vs = [v for v in vs if v["version_number"] == version] or vs
     return vs[0] if vs else None
+
+
+CF_API = "https://api.curseforge.com/v1"
+
+
+def cf_headers():
+    key = os.environ.get("CURSEFORGE_API_KEY")
+    return {"x-api-key": key, "Accept": "application/json"} if key else None
+
+
+def curseforge_file(slug, mc):
+    """CurseForge 프로젝트(마인크래프트 모드)의 26.2 Fabric 최신 파일: (주소, 파일 이름, 배포 허용, 라이선스 힌트)"""
+    h = cf_headers()
+    if not h:
+        return None
+    found = get(f"{CF_API}/mods/search?gameId=432&classId=6&slug={urllib.parse.quote(slug)}", h).get("data", [])
+    if not found:
+        return None
+    mod = found[0]
+    files = get(f"{CF_API}/mods/{mod['id']}/files?gameVersion={urllib.parse.quote(mc)}&modLoaderType=4&pageSize=20", h).get("data", [])
+    files = [x for x in files if x.get("isAvailable", True) and x.get("releaseType", 1) in (1, 2, 3)]
+    if not files:
+        return None
+    fl = max(files, key=lambda x: x.get("fileDate", ""))
+    allowed = bool(mod.get("allowModDistribution")) and fl.get("downloadUrl")
+    return (fl.get("downloadUrl"), fl["fileName"], bool(allowed), mod.get("links", {}).get("sourceUrl") or "", mod["id"], fl["id"])
 
 
 def github_asset(repo, mc):
@@ -119,6 +152,9 @@ def main():
     ap.add_argument("--infracraft", required=True)
     ap.add_argument("--mc", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--zip", help="한 파일 모드팩(zip) 경로")
+    ap.add_argument("--all-jars", action="store_true", help="재배포 허락과 상관없이 모든 jar 를 넣는다(개인용)")
+    ap.add_argument("--version", default=time.strftime("%Y.%m.%d"), help="모드팩 버전")
     a = ap.parse_args()
     pack = json.load(open(os.path.join(HERE, "pack.json"), encoding="utf-8"))
     mc = pack["minecraft"]
@@ -127,6 +163,10 @@ def main():
     jars = {}
 
     broken = {m["id"]: m["server_broken"] for m in pack["mods"] if m.get("server_broken")}
+
+    licenses = {}  # mod_id → (라이선스, 재배포 가능)
+    cf_refs = []  # (mod_id, projectID, fileID, 파일 이름)
+    sources = {}  # mod_id → 원본 소스 주소(GPL 계열 고지용)
 
     def add_file(mod_id, url, name, data, client_only=False, source=""):
         client_only = client_only or mod_id in broken
@@ -149,6 +189,14 @@ def main():
             return True
         seen_projects.add(v["project_id"])
         f = next((x for x in v["files"] if x.get("primary")), v["files"][0])
+        try:
+            proj = get(f"{API}/project/{v['project_id']}")
+        except Exception:
+            proj = {}
+        lic = (proj.get("license") or {}).get("id", "")
+        if proj.get("source_url"):
+            sources[mod_id] = proj["source_url"]
+        licenses[mod_id] = (lic or "?", bool(REDISTRIBUTABLE.match(lic or "")))
         add_file(mod_id, f["url"], f["filename"], get(f["url"], raw=True), client_only, f"Modrinth {v['version_number']}")
         for dep in v.get("dependencies", []):
             if dep.get("dependency_type") == "required" and dep.get("project_id") and dep["project_id"] not in seen_projects:
@@ -169,9 +217,30 @@ def main():
                 if hit:
                     data = get(hit[0], raw=True)
                     add_file(m["id"], hit[0], hit[1], data, m.get("client", False), f"GitHub {m['github']}")
+                    try:
+                        lic = ((get(f"https://api.github.com/repos/{m['github']}", gh_headers()).get("license") or {}).get("spdx_id") or "")
+                    except Exception:
+                        lic = ""
+                    licenses[m["id"]] = (lic or "?", bool(REDISTRIBUTABLE.match(lic or "")) and not m.get("note"))
+                    sources[m["id"]] = f"https://github.com/{m['github']}"
                     ok = True
             except Exception as e:
                 print("github failed", m["id"], e)
+        if not ok and m.get("curseforge"):
+            try:
+                hit = curseforge_file(m["curseforge"], mc)
+                if hit:
+                    # zip(CurseForge 형식)에는 번호로만 적는다. 서버 시험용 jar 는 작성자가 외부 배포를 허용했을 때만 받는다
+                    cf_refs.append((m["id"], hit[4], hit[5], hit[1]))
+                    report.append((m["id"], hit[1], f"CurseForge {m['curseforge']} (manifest)"))
+                    if hit[2]:
+                        jars[m["id"]] = get(hit[0], raw=True)
+                        open(os.path.join(a.out, "mods", hit[1]), "wb").write(jars[m["id"]])
+                    ok = True
+            except Exception as e:
+                print("curseforge failed", m["id"], e)
+        if ok and m["id"] not in sources and m.get("github"):
+            sources[m["id"]] = f"https://github.com/{m['github']}"
         if not ok:
             missing.append(m)
             print("NOT FOUND", m["id"])
@@ -235,6 +304,46 @@ def main():
         z.writestr("overrides/mods/infracraft.jar", ic)
         z.writestr("overrides/resourcepacks/InfraCraft-KO.zip", rp_bytes)
         z.writestr("overrides/options.txt", 'lang:ko_kr\nresourcePacks:["vanilla","fabric","file/InfraCraft-KO.zip"]\n')
+
+    # ── 한 파일 모드팩(zip, CurseForge 형식) ──
+    if a.zip:
+        names = {r[0]: r[1] for r in report}
+        cf_ids = {r[0] for r in cf_refs}
+        put, skipped = [], []
+        manifest = {"minecraft": {"version": mc, "modLoaders": [{"id": f"fabric-{pack['loader']}", "primary": True}]},
+                    "manifestType": "minecraftModpack", "manifestVersion": 1, "name": pack["name"], "version": a.version,
+                    "author": "menonng", "files": [{"projectID": p, "fileID": fid, "required": True} for (_, p, fid, _) in cf_refs],
+                    "overrides": "overrides"}
+        with zipfile.ZipFile(a.zip, "w", zipfile.ZIP_DEFLATED) as z:
+            z.writestr("manifest.json", json.dumps(manifest, ensure_ascii=False, indent=2))
+            for mod_id, data in jars.items():
+                if mod_id in cf_ids:
+                    continue
+                if mod_id == "infracraft":
+                    z.writestr("overrides/mods/infracraft.jar", data); continue
+                lic, ok = licenses.get(mod_id, ("?", False))
+                if not ok and not a.all_jars:
+                    skipped.append((mod_id, lic)); continue
+                z.writestr(f"overrides/mods/{names.get(mod_id, mod_id + '.jar')}", data)
+                put.append((mod_id, lic))
+            z.writestr("overrides/resourcepacks/InfraCraft-KO.zip", rp_bytes)
+            z.writestr("overrides/options.txt", 'lang:ko_kr\nresourcePacks:["vanilla","fabric","file/InfraCraft-KO.zip"]\n')
+            readme = [f"InfraCraft 모드팩 {a.version} (Minecraft {mc}, Fabric Loader {pack['loader']})", "",
+                      "설치: CurseForge 앱, Prism Launcher, ATLauncher 에서 이 zip 을 '모드팩 가져오기(Import)' 하세요.",
+                      "  - manifest.json 의 모드는 런처가 CurseForge 에서 받습니다.",
+                      "  - overrides/mods 의 모드는 zip 에 들어 있습니다(라이선스가 재배포를 허락하는 것).", "",
+                      "CurseForge 에서 받는 모드:"] + [f"  {i}: {n} (project {p}, file {fid})" for (i, p, fid, n) in cf_refs]
+            readme += ["", "zip 에 들어 있는 모드(라이선스):"] + [f"  {i}: {l}" + (f"  소스: {sources[i]}" if i in sources else "") for i, l in put]
+            if skipped:
+                readme += ["", "재배포가 허락되지 않아(또는 라이선스를 확인하지 못해) 넣지 않은 모드: 직접 받아 mods 에 넣으세요"] + [
+                    f"  {i}: {l}  {sources.get(i, '')}" for i, l in skipped]
+            if missing:
+                readme += ["", "찾지 못했거나 직접 받아야 하는 모드:"] + [
+                    f"  {m['id']}: {m.get('note') or ('https://www.curseforge.com/minecraft/mc-mods/' + m['curseforge'] if m.get('curseforge') else 'https://github.com/' + m['github'] if m.get('github') else m.get('modrinth'))}"
+                    for m in missing]
+            z.writestr("README-INFRACRAFT-MODPACK.txt", "\n".join(readme) + "\n")
+            z.writestr("modlist.html", "<ul>" + "".join(f"<li>{i}</li>" for i in sorted(set(names) | cf_ids)) + "</ul>")
+        print(f"zip: {a.zip} (curseforge {len(cf_refs)}, jars {len(put)}, skipped {len(skipped)}, missing {len(missing)})")
 
     with open(os.path.join(a.out, "REPORT.md"), "w", encoding="utf-8") as f:
         f.write(f"# 모드팩 빌드 보고\n\n마인크래프트 {mc}, Fabric Loader {pack['loader']}, 리소스팩 형식 {res_format}\n\n")

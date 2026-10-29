@@ -1,4 +1,4 @@
-# 릴리스 초안: 모드 jar, 모드팩(.mrpack), 한국어 리소스팩을 따로따로 올린 GitHub 릴리스를 "초안"으로 만든다.
+# 릴리스 초안: 모드 jar, 모드팩(CurseForge 형식 zip · Modrinth .mrpack), 한국어 리소스팩을 따로따로 올린 GitHub 릴리스를 "초안"으로 만든다.
 # 초안은 저장소 관리자에게만 보이고, 공개(Publish)는 사람이 릴리스 화면에서 직접 누른다. 태그도 그때 만들어진다.
 name: release
 on:
@@ -35,18 +35,22 @@ jobs:
       - name: build InfraCraft
         if: inputs.notes_only != 'true'
         run: chmod +x ./gradlew && ./gradlew :mc26.2:build -x test
+      - name: release folder
+        if: inputs.notes_only != 'true'
+        run: mkdir -p /tmp/release
       - name: build modpack (separate files)
         if: inputs.notes_only != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
+          CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
         run: |
           ic=$(ls versions/26.2/build/libs/*.jar | grep -vE "sources|dev" | head -1)
           mc=""
           for j in $(find ~/.gradle/caches -name "*.jar" -size +10M | grep -E "26\.2" | grep -viE "sources"); do
             if unzip -Z1 "$j" 2>/dev/null | grep -q '^version.json'; then mc="$j"; break; fi
           done
-          python3 tools/modpack/build_pack.py --infracraft "$ic" --mc "$mc" --out /tmp/pack
-          mkdir -p /tmp/release
+          python3 tools/modpack/build_pack.py --infracraft "$ic" --mc "$mc" --out /tmp/pack --version "${{ steps.v.outputs.version }}" \
+            --zip "/tmp/release/InfraCraft-Modpack-${{ steps.v.outputs.version }}-26.2.zip"
           cp "$ic" /tmp/release/
           cp /tmp/pack/InfraCraft-26.2.mrpack "/tmp/release/InfraCraft-Modpack-${{ steps.v.outputs.version }}-26.2.mrpack"
           cp /tmp/pack/InfraCraft-KO.zip "/tmp/release/InfraCraft-KO-ResourcePack-${{ steps.v.outputs.version }}.zip"

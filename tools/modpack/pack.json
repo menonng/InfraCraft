@@ -58,7 +58,8 @@
    "id": "copycats",
    "github": "zoom-packers/copycats-createfly",
    "original": "copycats",
-   "note": "ARR(원작 팀 허가 포트): 직접 받아 설치하세요"
+   "note": "ARR(원작 팀 허가 포트): 직접 받아 설치하세요",
+   "curseforge": "createfly-copycats-port"
   },
   {
    "id": "bits_n_bobs",
@@ -68,12 +69,14 @@
   {
    "id": "create_dragons_plus",
    "github": "GravisLudio/create-dragons-plus-fly-26.2",
-   "original": "create-dragons-plus"
+   "original": "create-dragons-plus",
+   "curseforge": "create-dragons-plus-fly"
   },
   {
    "id": "create_enchantment_industry",
    "github": "GravisLudio/create-enchantment-industry-fly-26.2",
-   "original": "create-enchantment-industry"
+   "original": "create-enchantment-industry",
+   "curseforge": "create-enchantment-industry-fly"
   },
   {
    "id": "bellsandwhistles",

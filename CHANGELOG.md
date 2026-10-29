@@ -29,7 +29,8 @@ Minecraft **26.2** · Fabric Loader 0.20.1 · Fabric API 0.161.0+26.2 · Fabric 
 
 ### 함께 올리는 파일
 - `infracraft-1.0.0-beta.1+mc26.2.jar`: 모드
-- `InfraCraft-Modpack-1.0.0-beta.1-26.2.mrpack`: 개인 편의를 위한 Modrinth 모드팩(InfraCraft + Create Fly 26.2 애드온). 모드와 별개예요
+- `InfraCraft-Modpack-1.0.0-beta.1-26.2.zip`: 개인 편의를 위한 모드팩(InfraCraft + Create Fly 26.2 애드온, CurseForge 형식). 모드와 별개예요. CurseForge 앱·Prism Launcher·ATLauncher 에서 가져오기. CurseForge 모드는 런처가 받고, Modrinth·GitHub 모드는 재배포가 허락된 것만 zip 에 들어 있어요
+- `InfraCraft-Modpack-1.0.0-beta.1-26.2.mrpack`: 같은 모드팩의 Modrinth 형식
 - `InfraCraft-KO-ResourcePack-1.0.0-beta.1.zip`: 모드팩용 한국어 보완 리소스팩
 
 ### 알려진 문제
