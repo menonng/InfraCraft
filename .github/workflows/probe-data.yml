@@ -20,6 +20,10 @@ on:
         description: "마인크래프트·Fabric API jar 안 클래스 이름 필터(정규식)"
         required: false
         default: ""
+      mcver:
+        description: "javap·mcgrep 에 쓸 마인크래프트 버전(그 버전 프로젝트의 컴파일 클래스패스)"
+        required: false
+        default: "26.2"
 
 permissions:
   contents: write
@@ -34,7 +38,18 @@ jobs:
           java-version: "25"
           distribution: "microsoft"
       - uses: gradle/actions/setup-gradle@v6
-      - run: chmod +x ./gradlew && ./gradlew :mc26.2:compileKotlin -q || true
+      - name: compile classpath
+        run: |
+          chmod +x ./gradlew
+          cat > /tmp/cp.gradle <<'G'
+          allprojects {
+            tasks.register("printCp") {
+              doLast { println("CP=" + project.configurations.getByName("compileClasspath").files.join(":")) }
+            }
+          }
+          G
+          ./gradlew -q -I /tmp/cp.gradle :mc${{ inputs.mcver }}:printCp | grep '^CP=' | sed 's/^CP=//' > /tmp/cp.txt
+          wc -c /tmp/cp.txt
       - name: probe
         env:
           BLOCKSTATES: ${{ inputs.blockstates }}
@@ -58,8 +73,8 @@ jobs:
             echo >> create-blockstates.txt
           done
           if [ -n "$GREP" ]; then grep -E '\.class$' create-files.txt | grep -E "$GREP" > create-classes.txt || true; fi
-          jars=$(find ~/.gradle/caches -name "*.jar" -size +10k 2>/dev/null | grep -viE "sources" | grep -E "26\.2|fabric|minecraft|blaze3d|mojang" )
-          cp="/tmp/jars/create.jar:$(echo $jars | tr ' ' ':')"
+          cp="$(cat /tmp/cp.txt):/tmp/jars/create.jar"
+          jars=$(cat /tmp/cp.txt | tr ':' ' ')
           if [ -n "$MCGREP" ]; then
             for j in $jars; do unzip -Z1 "$j" 2>/dev/null | grep -E '\.class$' | grep -vE '\$[0-9]' | grep -E "$MCGREP" | sed 's#\.class$##;s#/#.#g'; done | sort -u > mc-classes.txt
           fi
@@ -92,8 +107,8 @@ jobs:
           url=$(git remote get-url origin)
           auth=$(git config --get http.https://github.com/.extraheader || true)
           cd /tmp/out
-          git init -q -b probe-data
+          git init -q -b probe-data-${{ inputs.mcver }}
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           git add -A && git commit -qm "Probe data"
-          git -c http.https://github.com/.extraheader="$auth" push -f "$url" HEAD:probe-data
+          git -c http.https://github.com/.extraheader="$auth" push -f "$url" HEAD:probe-data-${{ inputs.mcver }}
