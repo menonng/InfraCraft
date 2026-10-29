@@ -16,6 +16,10 @@ on:
         description: "jar 안 클래스 이름 필터(정규식)"
         required: false
         default: ""
+      mcgrep:
+        description: "마인크래프트·Fabric API jar 안 클래스 이름 필터(정규식)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -30,12 +34,13 @@ jobs:
           java-version: "25"
           distribution: "microsoft"
       - uses: gradle/actions/setup-gradle@v6
-      - run: chmod +x ./gradlew && ./gradlew :mc26.2:compileKotlin --dry-run -q || true
+      - run: chmod +x ./gradlew && ./gradlew :mc26.2:compileKotlin -q || true
       - name: probe
         env:
           BLOCKSTATES: ${{ inputs.blockstates }}
           CLASSES: ${{ inputs.classes }}
           GREP: ${{ inputs.grep }}
+          MCGREP: ${{ inputs.mcgrep }}
         run: |
           mkdir -p /tmp/out /tmp/jars
           curl -fsSL -o /tmp/jars/create.jar \
@@ -53,8 +58,11 @@ jobs:
             echo >> create-blockstates.txt
           done
           if [ -n "$GREP" ]; then grep -E '\.class$' create-files.txt | grep -E "$GREP" > create-classes.txt || true; fi
-          jars=$(find ~/.gradle/caches -name "*.jar" -size +100k 2>/dev/null | grep -viE "sources")
+          jars=$(find ~/.gradle/caches -name "*.jar" -size +10k 2>/dev/null | grep -viE "sources" | grep -E "26\.2|fabric|minecraft|blaze3d|mojang" )
           cp="/tmp/jars/create.jar:$(echo $jars | tr ' ' ':')"
+          if [ -n "$MCGREP" ]; then
+            for j in $jars; do unzip -Z1 "$j" 2>/dev/null | grep -E '\.class$' | grep -vE '\$[0-9]' | grep -E "$MCGREP" | sed 's#\.class$##;s#/#.#g'; done | sort -u > mc-classes.txt
+          fi
           IFS=';' read -ra cs <<< "$CLASSES"
           for c in "${cs[@]}"; do
             c=$(echo $c | xargs); [ -z "$c" ] && continue
