@@ -154,6 +154,17 @@ object InfraCraft : ModInitializer {
                 val (n, e) = Bridges.designTest(overworld, at, kr.first, kr.second)
                 check("${kr.first.name.lowercase()} bridge design ($n blocks${e?.let { ", $it" } ?: ""})", e == null)
             }
+            // 검격 판정: 반달 틈의 가운데는 맞고, 칼날 밖(아래쪽 멀리)은 안 맞는다
+            run {
+                val sh = dev.menonng.infracraft.system.AstraShape
+                val dir = net.minecraft.world.phys.Vec3(1.0, 0.0, 0.0)
+                val (right, up) = sh.basis(dir)
+                val (a, b) = sh.slashAxes(right, up, 0.6)
+                val o = net.minecraft.world.phys.Vec3.ZERO
+                val c = sh.slashCenter(o, dir, 4.0)
+                val mid = sh.slashOuter(c, dir, a, b, 4.0, 0.0).add(sh.slashInner(c, dir, a, b, 4.0, 0.0, 1.0)).scale(0.5)
+                check("astra slash hit test", sh.slashHits(c, dir, a, b, 4.0, mid) && !sh.slashHits(c, dir, a, b, 4.0, c.add(b.scale(-6.0))))
+            }
             // 자동 역 이름은 언어 키로 보인다
             check("auto station names", (nm(lineName(autoName("station", 3), 1)).contents as? net.minecraft.network.chat.contents.TranslatableContents)?.key == "infracraft.name.station_line" &&
                 nm("Seoul").string == "Seoul")

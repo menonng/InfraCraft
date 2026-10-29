@@ -88,7 +88,7 @@ class AstraItem(props: Item.Properties, val start: Int, val end: Int) : Item(pro
 
 /**
  * 히든 아이템: 아스트라 오브리터레이터(독수리자리, Aquila).
- *  - 일반 공격: 칼끝에서 암흑빛 별빛 검격(초승달 파동)이 앞으로 날아가며 닿는 것을 모두 벤다(관통).
+ *  - 일반 공격: 칼날이 공간을 반달 모양으로 가르고, 그 틈(너머로 우주가 보인다)이 앞으로 날아가며 닿는 것을 모두 벤다(관통).
  *  - 오른손 우클릭: 시선 앞 하늘에 아홉 별이 떠올라 별자리를 이루고, 알타이르에서 별빛 광선이 뻗는다.
  *  - 왼손에 들고 우클릭: 조준 모드. 시야의 한 지점을 좌클릭하거나, M 으로 지금까지 불러온 지도를 열어 원하는 곳을 좌클릭하면
  *    그 하늘에 독수리자리가 떠올라 별빛이 낙하한다(조준은 클라이언트, 판정은 서버).
@@ -220,7 +220,7 @@ object Astra {
         }
     }
 
-    // ───────────── 1) 일반 공격: 암흑 별빛 검격(초승달 칼날 모델) ─────────────
+    // ───────────── 1) 일반 공격: 암흑 별빛 검격(공간을 가른 반달 모양의 틈) ─────────────
 
     private class Wave(val player: UUID, val level: ServerLevel, val origin: Vec3, val dir: Vec3, val a: Vec3, val b: Vec3,
                        var age: Int = 0, val hit: HashSet<Int> = HashSet())

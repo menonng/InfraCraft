@@ -95,140 +95,157 @@ object ScreenshotTour : FabricClientGameTest {
         if (hidden == visible) ctx.input.pressKey { o: net.minecraft.client.Options -> o.keyToggleGui }
     }
 
+    /** 환경 변수 INFRACRAFT_TOUR=astra,names 처럼 일부 장면만 찍을 수 있다(비우면 전부) */
+    private val only = System.getenv("INFRACRAFT_TOUR")?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()
+    private fun want(name: String) = only.isEmpty() || name in only
+
     private fun tour(ctx: ClientGameTestContext, sp: TestSingleplayerContext) {
         cmd(sp, "gamerule minecraft:advance_time false")
         cmd(sp, "gamerule minecraft:advance_weather false")
         cmd(sp, "gamerule minecraft:send_command_feedback false")
         cmd(sp, "weather clear")
         cmd(sp, "time set 1000")
-        // 독수리자리 발전과제를 먼저 모두 달성(알림이 다리 촬영 동안 사라지도록)
-        cmd(sp, "advancement grant @a from infracraft:astra/star_altair")
 
-        // ── 세 다리 ──
-        val kinds = listOf(
-            Triple(Bridges.Kind.TIMBER, "spruce_planks", 0),
-            Triple(Bridges.Kind.STONE, "stone_bricks", 120),
-            Triple(Bridges.Kind.COPPER, "cut_copper", 240),
-        )
-        val feetByKind = HashMap<Bridges.Kind, BlockPos>()
-        for ((kind, raw, z) in kinds) sp.server.onServer { s ->
-            val feet = valley(s, z)
-            bridge(s, feet, kind, BuiltInRegistries.BLOCK.getValue(Identifier.withDefaultNamespace(raw)))
-            feetByKind[kind] = feet
+        if (want("bridges")) {
+            // 독수리자리 발전과제를 먼저 모두 달성(알림이 다리 촬영 동안 사라지도록, 탭은 이 장면 끝에서 찍는다)
+            cmd(sp, "advancement grant @a from infracraft:astra/star_altair")
+            // ── 세 다리 ──
+            val kinds = listOf(
+                Triple(Bridges.Kind.TIMBER, "spruce_planks", 0),
+                Triple(Bridges.Kind.STONE, "stone_bricks", 120),
+                Triple(Bridges.Kind.COPPER, "cut_copper", 240),
+            )
+            val feetByKind = HashMap<Bridges.Kind, BlockPos>()
+            for ((kind, raw, z) in kinds) sp.server.onServer { s ->
+                val feet = valley(s, z)
+                bridge(s, feet, kind, BuiltInRegistries.BLOCK.getValue(Identifier.withDefaultNamespace(raw)))
+                feetByKind[kind] = feet
+            }
+            hud(ctx, false)
+            for ((kind, _, z) in kinds) {
+                val f = feetByKind.getValue(kind)
+                val name = kind.name.lowercase()
+                // 옆에서 본 모습(남쪽을 바라봄)과 다리 위에서 본 모습
+                cmd(sp, "tp @a 12 ${f.y + 3} ${z - 30} 0 6")
+                shot(ctx, "bridge_${name}_side", 120)
+                cmd(sp, "tp @a -4 ${f.y + 2} ${z} -90 8")
+                shot(ctx, "bridge_${name}_deck")
+                cmd(sp, "tp @a 18 ${f.y - 8} ${z - 12} 30 -12")
+                shot(ctx, "bridge_${name}_below")
+            }
+            cmd(sp, "time set 18000")
+            for ((kind, _, z) in kinds) {
+                val f = feetByKind.getValue(kind)
+                cmd(sp, "tp @a 12 ${f.y + 3} ${z - 30} 0 6")
+                shot(ctx, "bridge_${kind.name.lowercase()}_night", 80)
+            }
+            cmd(sp, "time set 1000")
+
+            // ── 다리 키트 홀로그램(손에 들면 놓일 자리가 반투명 블록으로) ──
+            val holo = sp.server.fromServer { s -> valley(s, 360) }
+            cmd(sp, "tp @a ${holo.x} ${holo.y} ${holo.z} -90 28")
+            cmd(sp, "give @a stone_bricks 1024")
+            cmd(sp, "item replace entity @a weapon.mainhand with infracraft:stone_bridge_kit")
+            hud(ctx, true)
+            shot(ctx, "hologram_stone", 80)
+            cmd(sp, "item replace entity @a weapon.mainhand with infracraft:copper_bridge_kit")
+            cmd(sp, "give @a cut_copper 1024")
+            shot(ctx, "hologram_copper", 60)
+            cmd(sp, "item replace entity @a weapon.mainhand with air")
+            ctx.waitTicks(10)
+
+            // ── 독수리자리 발전과제 탭 ──
+            ctx.onClient { mc -> mc.gui.toastManager().clear() }
+            ctx.setScreen { AdvancementsScreen(Minecraft.getInstance().connection!!.advancements) }
+            ctx.onClient { mc ->
+                val adv = mc.connection!!.advancements
+                adv.setSelectedTab(adv.get(Identifier.fromNamespaceAndPath("infracraft", "astra/star_altair")), true)
+            }
+            shot(ctx, "astra_advancements", 30)
+            ctx.setScreen { null }
+
+            // ── 별빛 좌표 지도 ──
+            cmd(sp, "item replace entity @a weapon.offhand with infracraft:astra_obliterator")
+            ctx.setScreen { AstraMapScreen() }
+            ctx.input.setCursorPos(0.62 * ctx.fromClient { it.window.screenWidth }, 0.45 * ctx.fromClient { it.window.screenHeight })
+            shot(ctx, "astra_map", 30)
+            ctx.setScreen { null }
+
         }
-        hud(ctx, false)
-        for ((kind, _, z) in kinds) {
-            val f = feetByKind.getValue(kind)
-            val name = kind.name.lowercase()
-            // 옆에서 본 모습(남쪽을 바라봄)과 다리 위에서 본 모습
-            cmd(sp, "tp @a 12 ${f.y + 3} ${z - 30} 0 6")
-            shot(ctx, "bridge_${name}_side", 120)
-            cmd(sp, "tp @a -4 ${f.y + 2} ${z} -90 8")
-            shot(ctx, "bridge_${name}_deck")
-            cmd(sp, "tp @a 18 ${f.y - 8} ${z - 12} 30 -12")
-            shot(ctx, "bridge_${name}_below")
+        if (want("astra")) {
+            // ── 아스트라: 모델로 그린 검격·레일건·아홉 별(밤에 찍어 빛이 잘 보이게) ──
+            val g0 = sp.server.fromServer { s ->
+                val lv = s.overworld()
+                for (cx in -4..5) for (cz in 34..40) lv.getChunk(cx, cz)
+                lv.getHeight(Heightmap.Types.MOTION_BLOCKING, 0, 600)
+            }
+            cmd(sp, "time set 6000")
+            ctx.waitTicks(5)
+            ctx.onClient { mc -> mc.gui.toastManager().clear(); mc.gui.hud.getChat().clearMessages(false) }
+            cmd(sp, "tp @a 0 $g0 600 -90 0")
+            cmd(sp, "item replace entity @a weapon.offhand with air")
+            cmd(sp, "item replace entity @a weapon.mainhand with infracraft:astra_obliterator")
+            hud(ctx, true)
+            ctx.waitTicks(60)
+            sp.server.onServer { s -> Astra.slash(player(s)) }
+            shot(ctx, "astra_slash_a", 2)
+            shot(ctx, "astra_slash_b", 3)
+            ctx.waitTicks(20)
+            sp.server.onServer { s -> Astra.slash(player(s)) }
+            cmd(sp, "tp @a 7 ${g0 + 2} 591 facing 9 ${g0 + 1} 600")
+            shot(ctx, "astra_slash_side", 4)
+            ctx.waitTicks(20)
+            cmd(sp, "time set 14000")
+            cmd(sp, "tp @a 0 $g0 600 -90 0")
+            ctx.waitTicks(20)
+            sp.server.onServer { s -> Astra.slash(player(s)) }
+            shot(ctx, "astra_slash_night", 3)
+            ctx.waitTicks(20)
+
+            // AS-01 별자리 레일건
+            cmd(sp, "tp @a 0 $g0 600 -90 -4")
+            ctx.waitTicks(10)
+            sp.server.onServer { s -> Astra.cast(player(s), player(s).mainHandItem) }
+            shot(ctx, "astra_rail_lock", 14)
+            shot(ctx, "astra_rail_charge", 22)
+            shot(ctx, "astra_rail_fire", 5)
+            shot(ctx, "astra_rail_fade", 8)
+            ctx.waitTicks(140)  // 쿨다운
+
+            // AS-09 아홉 별: 시네마틱 → 하늘의 투영 → 차례로 떨어짐 → 알타이르 → 흔적
+            cmd(sp, "tp @a 0 $g0 600 -90 0")
+            cmd(sp, "item replace entity @a weapon.offhand with infracraft:astra_obliterator")
+            ctx.waitTicks(5)
+            sp.server.onServer { s -> Astra.strike(player(s), Payloads.AstraStrike(Payloads.AstraStrike.VIEW, 40.5, g0.toDouble(), 600.5)) }
+            shot(ctx, "astra_nine_cinematic_a", 8)
+            shot(ctx, "astra_nine_cinematic_b", 14)
+            cmd(sp, "tp @a -12 ${g0 + 16} 552 facing 40 ${g0 + 22} 600")
+            shot(ctx, "astra_nine_projection", 16)
+            shot(ctx, "astra_nine_first", 12)
+            shot(ctx, "astra_nine_falling", 26)
+            shot(ctx, "astra_nine_altair_charge", 24)
+            shot(ctx, "astra_nine_altair_impact", 6)
+            shot(ctx, "astra_nine_altair_dome", 8)
+            cmd(sp, "time set 1000")
+            cmd(sp, "tp @a 18 ${g0 + 12} 578 facing 40 $g0 600")
+            shot(ctx, "astra_nine_aftermath", 60)
+            cmd(sp, "tp @a 40.5 ${g0 + 34} 600.5 0 90")
+            shot(ctx, "astra_nine_scar_top", 40)
+
         }
-        cmd(sp, "time set 18000")
-        for ((kind, _, z) in kinds) {
-            val f = feetByKind.getValue(kind)
-            cmd(sp, "tp @a 12 ${f.y + 3} ${z - 30} 0 6")
-            shot(ctx, "bridge_${kind.name.lowercase()}_night", 80)
+        if (want("names")) {
+            // ── 역 이름이 플레이어 언어를 따른다 ──
+            cmd(sp, "item replace entity @a weapon.mainhand with air")
+            fun names(s: MinecraftServer) = player(s).sendSystemMessage(
+                nm(autoName("station", 3)).append("  /  ").append(nm(lineName(autoName("station", 3), 1))).append("  /  ")
+                    .append(nm(autoName("harbor", 2))).append("  /  ").append(nm(lineName("Seoul", 2))))
+            sp.server.onServer { s -> names(s) }
+            shot(ctx, "names_ko_kr", 10)
+            language(ctx, "en_us")
+            sp.server.onServer { s -> names(s) }
+            shot(ctx, "names_en_us", 10)
+            // 아이템이 이 모드 것인지 확인(등록이 깨지면 위 명령이 조용히 실패하므로)
+            check(BuiltInRegistries.ITEM.getKey(ModItems.ASTRA_OBLITERATOR).path == "astra_obliterator")
         }
-        cmd(sp, "time set 1000")
-
-        // ── 다리 키트 홀로그램(손에 들면 놓일 자리가 반투명 블록으로) ──
-        val holo = sp.server.fromServer { s -> valley(s, 360) }
-        cmd(sp, "tp @a ${holo.x} ${holo.y} ${holo.z} -90 28")
-        cmd(sp, "give @a stone_bricks 1024")
-        cmd(sp, "item replace entity @a weapon.mainhand with infracraft:stone_bridge_kit")
-        hud(ctx, true)
-        shot(ctx, "hologram_stone", 80)
-        cmd(sp, "item replace entity @a weapon.mainhand with infracraft:copper_bridge_kit")
-        cmd(sp, "give @a cut_copper 1024")
-        shot(ctx, "hologram_copper", 60)
-        cmd(sp, "item replace entity @a weapon.mainhand with air")
-        ctx.waitTicks(10)
-
-        // ── 독수리자리 발전과제 탭 ──
-        ctx.onClient { mc -> mc.gui.toastManager().clear() }
-        ctx.setScreen { AdvancementsScreen(Minecraft.getInstance().connection!!.advancements) }
-        ctx.onClient { mc ->
-            val adv = mc.connection!!.advancements
-            adv.setSelectedTab(adv.get(Identifier.fromNamespaceAndPath("infracraft", "astra/star_altair")), true)
-        }
-        shot(ctx, "astra_advancements", 30)
-        ctx.setScreen { null }
-
-        // ── 별빛 좌표 지도 ──
-        cmd(sp, "item replace entity @a weapon.offhand with infracraft:astra_obliterator")
-        ctx.setScreen { AstraMapScreen() }
-        ctx.input.setCursorPos(0.62 * ctx.fromClient { it.window.screenWidth }, 0.45 * ctx.fromClient { it.window.screenHeight })
-        shot(ctx, "astra_map", 30)
-        ctx.setScreen { null }
-
-        // ── 아스트라: 모델로 그린 검격·레일건·아홉 별(밤에 찍어 빛이 잘 보이게) ──
-        val g0 = sp.server.fromServer { s ->
-            val lv = s.overworld()
-            for (cx in -4..5) for (cz in 34..40) lv.getChunk(cx, cz)
-            lv.getHeight(Heightmap.Types.MOTION_BLOCKING, 0, 600)
-        }
-        cmd(sp, "time set 6000")
-        cmd(sp, "tp @a 0 $g0 600 -90 0")
-        cmd(sp, "item replace entity @a weapon.offhand with air")
-        cmd(sp, "item replace entity @a weapon.mainhand with infracraft:astra_obliterator")
-        hud(ctx, true)
-        ctx.waitTicks(60)
-        sp.server.onServer { s -> Astra.slash(player(s)) }
-        shot(ctx, "astra_slash_a", 2)
-        shot(ctx, "astra_slash_b", 3)
-        ctx.waitTicks(20)
-        sp.server.onServer { s -> Astra.slash(player(s)) }
-        cmd(sp, "tp @a 7 ${g0 + 2} 591 facing 9 ${g0 + 1} 600")
-        shot(ctx, "astra_slash_side", 4)
-        ctx.waitTicks(20)
-        cmd(sp, "time set 14000")
-
-        // AS-01 별자리 레일건
-        cmd(sp, "tp @a 0 $g0 600 -90 -4")
-        ctx.waitTicks(10)
-        sp.server.onServer { s -> Astra.cast(player(s), player(s).mainHandItem) }
-        shot(ctx, "astra_rail_lock", 14)
-        shot(ctx, "astra_rail_charge", 22)
-        shot(ctx, "astra_rail_fire", 5)
-        shot(ctx, "astra_rail_fade", 8)
-        ctx.waitTicks(140)  // 쿨다운
-
-        // AS-09 아홉 별: 시네마틱 → 하늘의 투영 → 차례로 떨어짐 → 알타이르 → 흔적
-        cmd(sp, "tp @a 0 $g0 600 -90 0")
-        cmd(sp, "item replace entity @a weapon.offhand with infracraft:astra_obliterator")
-        ctx.waitTicks(5)
-        sp.server.onServer { s -> Astra.strike(player(s), Payloads.AstraStrike(Payloads.AstraStrike.VIEW, 40.5, g0.toDouble(), 600.5)) }
-        shot(ctx, "astra_nine_cinematic_a", 8)
-        shot(ctx, "astra_nine_cinematic_b", 14)
-        cmd(sp, "tp @a -12 ${g0 + 16} 552 facing 40 ${g0 + 22} 600")
-        shot(ctx, "astra_nine_projection", 16)
-        shot(ctx, "astra_nine_first", 12)
-        shot(ctx, "astra_nine_falling", 26)
-        shot(ctx, "astra_nine_altair_charge", 24)
-        shot(ctx, "astra_nine_altair_impact", 6)
-        shot(ctx, "astra_nine_altair_dome", 8)
-        cmd(sp, "time set 1000")
-        cmd(sp, "tp @a 18 ${g0 + 12} 578 facing 40 $g0 600")
-        shot(ctx, "astra_nine_aftermath", 60)
-        cmd(sp, "tp @a 40.5 ${g0 + 34} 600.5 0 90")
-        shot(ctx, "astra_nine_scar_top", 40)
-
-        // ── 역 이름이 플레이어 언어를 따른다 ──
-        cmd(sp, "item replace entity @a weapon.mainhand with air")
-        fun names(s: MinecraftServer) = player(s).sendSystemMessage(
-            nm(autoName("station", 3)).append("  /  ").append(nm(lineName(autoName("station", 3), 1))).append("  /  ")
-                .append(nm(autoName("harbor", 2))).append("  /  ").append(nm(lineName("Seoul", 2))))
-        sp.server.onServer { s -> names(s) }
-        shot(ctx, "names_ko_kr", 10)
-        language(ctx, "en_us")
-        sp.server.onServer { s -> names(s) }
-        shot(ctx, "names_en_us", 10)
-        // 아이템이 이 모드 것인지 확인(등록이 깨지면 위 명령이 조용히 실패하므로)
-        check(BuiltInRegistries.ITEM.getKey(ModItems.ASTRA_OBLITERATOR).path == "astra_obliterator")
     }
 }

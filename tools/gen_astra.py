@@ -522,34 +522,42 @@ def fx_beam(w=32, h=128, seed=11):
     return img
 
 
-def fx_void(w=128, h=64, seed=21):
-    """암흑 별빛 칼날의 몸: u = 칼날을 따라, v = 안쪽(0)에서 바깥 날(1). 보랏빛 성운에 작은 별이 박힌 어둠"""
+def fx_rift(size=256, seed=17):
+    """검격이 가른 틈 너머의 우주: 이어 붙여도 끊기지 않는 성운(밤에도 보이도록 발발광 쪽으로 밝게)"""
+    img = space(size, seed)
+    px = img.load()
+    for y in range(size):
+        for x in range(size):
+            r, g, b, _ = px[x, y]
+            # 어두운 바탕을 보랏빛으로 끌어올리고 밝은 곳은 더 밝게
+            r = min(255, int(r * 1.7 + 26)); g = min(255, int(g * 1.5 + 8)); b = min(255, int(b * 1.7 + 46))
+            px[x, y] = (r, g, b, 255)
+    return img
+
+
+def fx_rift_stars(size=256, seed=23):
+    """틈 너머 앞쪽 별 층(가산 혼합): 성운보다 크게 움직여 깊이가 느껴지게 한다"""
     rnd = random.Random(seed)
-    noise = value_noise(seed, 8)
-    img = Image.new("RGBA", (w, h))
-    for y in range(h):
-        v = (y + 0.5) / h
-        for x in range(w):
-            u = (x + 0.5) / w
-            nz = noise(u * 8, v * 4)
-            dark = hx("#08000F")
-            neb = hx("#3A0F7A")
-            edge = hx("#8A4DFF")
-            t = min(1.0, max(0.0, (v - 0.35) / 0.65)) ** 2
-            c = mix(mix(dark, neb, 0.35 * nz + 0.25 * t), edge, t * 0.75)
-            a = (min(1.0, v / 0.5) ** 1.5) * min(1.0, (1 - v) / 0.06) * min(1.0, u / 0.08, (1 - u) / 0.08)
-            img.putpixel((x, y), (*c, int(255 * max(0.0, min(1.0, a)) * 0.94)))
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    px = img.load()
     cols = [hx(c) for (_, _, _, c) in STARS]
-    for _ in range(70):
-        x, y = rnd.randrange(4, w - 4), rnd.randrange(h // 3, h - 4)
-        c = rnd.choice(cols) if rnd.random() < 0.4 else (255, 255, 255)
-        a = img.getpixel((x, y))[3]
-        if a > 60:
-            img.putpixel((x, y), (*c, 255))
-            if rnd.random() < 0.25:
-                for (dx, dy) in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-                    p = img.getpixel((x + dx, y + dy))
-                    img.putpixel((x + dx, y + dy), (*mix(p[:3], c, 0.6), max(p[3], 200)))
+    for _ in range(46):
+        cx, cy = rnd.randrange(size), rnd.randrange(size)
+        c = rnd.choice(cols) if rnd.random() < 0.6 else (255, 255, 255)
+        rad = rnd.uniform(1.2, 3.2)
+        L = int(rad * 3)
+        for dy in range(-L, L + 1):
+            for dx in range(-L, L + 1):
+                d = math.hypot(dx, dy)
+                a = math.exp(-(d / rad) ** 2) + (0.5 * math.exp(-abs(dy) / 0.6) * max(0, 1 - abs(dx) / L) if rnd.random() < 2 else 0)
+                a = min(1.0, a if (dx == 0 or dy == 0) else math.exp(-(d / rad) ** 2))
+                if a < 0.02:
+                    continue
+                xx, yy = (cx + dx) % size, (cy + dy) % size
+                r0, g0, b0, a0 = px[xx, yy]
+                k = max(a0 / 255, a)
+                cc = mix(c, (255, 255, 255), math.exp(-(d / (rad * 0.4)) ** 2))
+                px[xx, yy] = (max(r0, cc[0]), max(g0, cc[1]), max(b0, cc[2]), int(255 * k))
     return img
 
 
@@ -562,7 +570,8 @@ def effects():
     _save_fx(fx_glint(), "astra_glint")
     _save_fx(fx_line(), "astra_line")
     _save_fx(fx_beam(), "astra_beam")
-    _save_fx(fx_void(), "astra_void", additive=False)
+    _save_fx(fx_rift(), "astra_rift", additive=False)
+    _save_fx(fx_rift_stars(), "astra_rift_stars")
 
 
 def main():

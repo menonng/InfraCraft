@@ -30,7 +30,7 @@ import kotlin.math.sqrt
  * 아스트라 기술 연출을 파티클이 아니라 모델(면)로 그린다. 서버가 보낸 [Payloads.AstraFx] 를 받아
  * 시간(게임 틱 + 부분 틱)에 따라 [AstraShape] 의 같은 식으로 모양을 계산하고, 렌더 단계마다 다음 묶음으로 제출한다.
  *  - 빛(가산 혼합): 빛무리·별빛 반짝임·띠(선·고리·칼날 가장자리)·흐르는 빔
- *  - 어둠(반투명): 암흑 별빛 칼날의 몸
+ *  - 틈(반투명): 검격이 가른 공간 너머의 우주(보는 방향으로 텍스처를 짚는다)
  *  - 면(가산, 텍스처 없음): 충격파 돔
  */
 object AstraFx {
@@ -38,7 +38,8 @@ object AstraFx {
     private val GLINT = id("textures/effect/astra_glint.png")
     private val LINE = id("textures/effect/astra_line.png")
     private val BEAM = id("textures/effect/astra_beam.png")
-    private val VOID = id("textures/effect/astra_void.png")
+    private val RIFT = id("textures/effect/astra_rift.png")
+    private val RIFT_STARS = id("textures/effect/astra_rift_stars.png")
 
     private const val VIOLET = 0x8A4DFF
     private const val DEEP = 0x3A0F7A
@@ -130,9 +131,16 @@ object AstraFx {
         val glint = Buf(RenderTypes.energySwirl(GLINT, 0f, 0f), true)
         val line = Buf(RenderTypes.energySwirl(LINE, 0f, 0f), true)
         val beam = Buf(RenderTypes.energySwirl(BEAM, 0f, (-time * 0.08 % 1.0).toFloat()), true)
-        val dark = Buf(RenderTypes.eyes(VOID), true)
+        /** 검격이 가른 틈 너머의 우주(성운)와 그 앞의 별 층 */
+        val rift = Buf(RenderTypes.eyes(RIFT), true)
+        val riftStars = Buf(RenderTypes.energySwirl(RIFT_STARS, 0f, 0f), true)
         val flat = Buf(RenderTypes.lightning(), false)
-        val all get() = listOf(dark, flat, beam, line, glow, glint)
+        val all get() = listOf(rift, riftStars, flat, beam, line, glow, glint)
+
+        /** 꼭짓점마다 UV 를 주는 사각형. 뒷면을 지우는 렌더 타입이어도 보이도록 앞뒤 두 번 넣는다 */
+        fun quadUv(b: Buf, p: List<Vec3>, c: List<Int>, uv: List<Pair<Float, Float>>) {
+            for (k in listOf(0, 1, 2, 3, 3, 2, 1, 0)) b.add((p[k].x - cam.x).toFloat(), (p[k].y - cam.y).toFloat(), (p[k].z - cam.z).toFloat(), c[k], uv[k].first, uv[k].second)
+        }
 
         fun quad(b: Buf, p0: Vec3, p1: Vec3, p2: Vec3, p3: Vec3, c0: Int, c1: Int, c2: Int, c3: Int,
                  u0: Float = 0f, v0: Float = 0f, u1: Float = 1f, v1: Float = 1f) {
@@ -254,7 +262,7 @@ object AstraFx {
         for (b in fr.all) if (b.n > 0) collector.submitCustomGeometry(ps, b.type) { pose, vc -> b.emit(pose, vc) }
     }
 
-    // ── 1) 암흑 별빛 검격: 초승달 칼날 ──
+    // ── 1) 암흑 별빛 검격: 공간을 가른 반달 모양의 틈, 그 사이로 우주가 보인다 ──
 
     private fun slash(f: Frame, s: Slash, t: Double) {
         val level = Minecraft.getInstance().level ?: return
@@ -263,50 +271,109 @@ object AstraFx {
             val bp = BlockPos.containing(c)
             if (level.getBlockState(bp).isSuffocating(level, bp)) s.stopped = t
         }
-        // 본 칼날과 두 잔상
-        for ((lag, k) in listOf(0.0 to 1.0, 1.1 to 0.42, 2.2 to 0.18)) {
-            val age = t - lag
-            if (age < 0) continue
-            val end = if (s.stopped >= 0) s.stopped else AstraShape.SLASH_LIFE.toDouble()
-            if (age > end + 1.5) continue
-            val fadeIn = min(1.0, (age + 0.5) / 1.3)
-            val fadeOut = if (s.stopped >= 0 && age > s.stopped) max(0.0, 1 - (age - s.stopped) / 1.5) else 1 - (age / AstraShape.SLASH_LIFE).pow(3.0)
-            blade(f, s, min(age, end), k * fadeIn * max(0.0, fadeOut), lag == 0.0)
+        val end = if (s.stopped >= 0) s.stopped else AstraShape.SLASH_LIFE.toDouble()
+        // 벽에 닿으면 그 자리에서 빠르게 닫힌다
+        val age = min(t, end)
+        val open = if (s.stopped >= 0 && t > s.stopped) AstraShape.slashOpen(age) * max(0.0, 1 - (t - s.stopped) / 2) else AstraShape.slashOpen(t)
+        if (open <= 0.01) return
+        rift(f, s, age, open)
+        // 지나간 자리에 남는 가는 잔상(가장자리 빛만)
+        for ((lag, k) in listOf(1.2 to 0.35, 2.4 to 0.15)) {
+            val ga = t - lag
+            if (ga < 0 || ga > end) continue
+            rim(f, s, ga, AstraShape.slashOpen(ga) * 0.6, k)
         }
     }
 
-    private fun blade(f: Frame, s: Slash, age: Double, k: Double, main: Boolean) {
-        if (k <= 0.01) return
+    private const val SEG = 32
+
+    /** 가장자리가 찢긴 듯 완만하게 일렁이는 정도(칼날마다 다르고, 시간에 따라 천천히 흐른다) */
+    private fun tear(s: Slash, i: Int, edge: Int, time: Double): Double {
+        val seed = ((s.start * 37 + edge * 11) % 100).toDouble()
+        return 0.022 * sin(i * 0.55 + seed + time * 0.35) + 0.012 * sin(i * 1.35 + seed * 1.7 - time * 0.5)
+    }
+
+    private fun rift(f: Frame, s: Slash, age: Double, open: Double) {
         val c = AstraShape.slashCenter(s.origin, s.dir, age)
-        val n = 30
-        val w = AstraShape.SLASH_WIDTH
-        fun pt(i: Int, inset: Double) = AstraShape.slashPoint(c, s.dir, s.a, s.b, age, i / n.toDouble() * 2 - 1, inset)
-        fun th(i: Int) = AstraShape.slashThickness(i / n.toDouble() * 2 - 1)
-        for (i in 0 until n) {
-            val u0 = i / n.toFloat()
-            val u1 = (i + 1) / n.toFloat()
-            // 몸: 바깥 날(v=1)에서 안쪽(v=0)까지 암흑 별빛
-            val body = alpha(0xFFFFFF, k)
-            f.quad(f.dark, pt(i, w * th(i)), pt(i, 0.0), pt(i + 1, 0.0), pt(i + 1, w * th(i + 1)), body, body, body, body, u0, 0f, u1, 1f)
-            if (!main) continue
-            // 바깥 날의 별빛(흰 심 + 보랏빛 번짐)
-            val e0 = 0.35 + 0.65 * th(i)
-            val e1 = 0.35 + 0.65 * th(i + 1)
-            val hot0 = light(STARLIGHT, k * e0)
-            val hot1 = light(STARLIGHT, k * e1)
-            f.quad(f.line, pt(i, 0.12 * th(i)), pt(i, -0.12 * th(i)), pt(i + 1, -0.12 * th(i + 1)), pt(i + 1, 0.12 * th(i + 1)), hot0, hot0, hot1, hot1)
-            val haze0 = light(VIOLET, k * 0.8 * e0)
-            val haze1 = light(VIOLET, k * 0.8 * e1)
-            f.quad(f.line, pt(i, 0.55 * th(i)), pt(i, -0.5 * th(i)), pt(i + 1, -0.5 * th(i + 1)), pt(i + 1, 0.55 * th(i + 1)), haze0, haze0, haze1, haze1)
+        val r = AstraShape.slashRadius(age)
+        fun outer(i: Int): Vec3 {
+            val p = AstraShape.slashOuter(c, s.dir, s.a, s.b, age, i / SEG.toDouble() * 2 - 1)
+            return p.add(p.subtract(c).normalize().scale(r * tear(s, i, 0, f.time)))
         }
-        if (!main) return
-        // 칼날에 박힌 아홉 별
+        fun inner(i: Int): Vec3 {
+            val p = AstraShape.slashInner(c, s.dir, s.a, s.b, age, i / SEG.toDouble() * 2 - 1, open)
+            return p.add(s.b.scale(r * tear(s, i, 1, f.time) * open))
+        }
+        val o = (0..SEG).map { outer(it) }
+        val n = (0..SEG).map { inner(it) }
+        // 틈 너머의 우주: 보는 방향으로 텍스처를 짚어, 칼날이 움직여도 너머의 하늘은 제자리에 있는 창처럼 보인다
+        fun skyUv(p: Vec3, scale: Double, drift: Double): Pair<Float, Float> {
+            val d = p.subtract(f.cam).normalize()
+            return ((0.5 + d.dot(f.left) * scale + drift).toFloat()) to ((0.5 + d.dot(f.up) * scale).toFloat())
+        }
+        val a = (open * 255).toInt().coerceIn(0, 255)
+        for (i in 0 until SEG) {
+            val tip0 = edgeFade(i)
+            val tip1 = edgeFade(i + 1)
+            val c0 = (((a * tip0).toInt()) shl 24) or 0xFFFFFF
+            val c1 = (((a * tip1).toInt()) shl 24) or 0xFFFFFF
+            val pts = listOf(n[i], o[i], o[i + 1], n[i + 1])
+            val uv = pts.map { skyUv(it, 0.9, f.time * 0.002) }
+            f.quadUv(f.rift, pts, listOf(c0, c0, c1, c1), uv)
+            val uv2 = pts.map { skyUv(it, 1.6, f.time * 0.006) }
+            val s0 = light(0xFFFFFF, open * tip0)
+            val s1 = light(0xFFFFFF, open * tip1)
+            f.quadUv(f.riftStars, pts, listOf(s0, s0, s1, s1), uv2)
+        }
+        rimEdges(f, o, n, open, 1.0)
+        // 틈 안에 떠 있는 아홉 별(밝게 깜빡인다)
         for ((j, st) in Astra.STARS.withIndex()) {
-            val sp = -0.8 + j * 1.6 / 8
-            val i = ((sp + 1) / 2 * n).toInt().coerceIn(0, n)
-            val tw = 0.6 + 0.4 * sin(f.time * 0.9 + j * 1.7)
-            val p = AstraShape.slashPoint(c, s.dir, s.a, s.b, age, sp, w * th(i) * (0.3 + 0.4 * ((j * 37) % 10) / 10.0))
-            f.sprite(f.glint, p, 0.35 + 0.25 * tw, light(st.color, k * tw), f.time * 0.15 + j)
+            val i = 4 + j * (SEG - 8) / 8
+            val depth = 0.25 + 0.5 * ((j * 37) % 10) / 10.0
+            val p = o[i].add(n[i].subtract(o[i]).scale(depth))
+            val tw = 0.55 + 0.45 * sin(f.time * 0.8 + j * 1.9)
+            f.sprite(f.glint, p, (0.3 + 0.3 * tw) * open, light(st.color, tw * open), f.time * 0.1 + j)
+        }
+    }
+
+    /** 끝으로 갈수록 엷어진다 */
+    private fun edgeFade(i: Int): Double {
+        val s = i / SEG.toDouble() * 2 - 1
+        return (1 - s * s).coerceIn(0.0, 1.0).pow(0.35)
+    }
+
+    /** 찢긴 가장자리의 빛: 바깥 호는 흰 별빛 심과 보랏빛 번짐, 안쪽 가장자리는 가는 분홍빛 */
+    private fun rimEdges(f: Frame, o: List<Vec3>, n: List<Vec3>, open: Double, k: Double) {
+        for (i in 0 until SEG) {
+            val e0 = edgeFade(i) * k
+            val e1 = edgeFade(i + 1) * k
+            edge(f, o[i], o[i + 1], n[i], n[i + 1], 0.10, light(STARLIGHT, e0), light(STARLIGHT, e1))
+            edge(f, o[i], o[i + 1], n[i], n[i + 1], 0.38, light(VIOLET, 0.75 * e0), light(VIOLET, 0.75 * e1))
+            edge(f, n[i], n[i + 1], o[i], o[i + 1], 0.07 + 0.05 * open, light(0xFFB4CC, 0.8 * e0 * open), light(0xFFB4CC, 0.8 * e1 * open))
+            edge(f, n[i], n[i + 1], o[i], o[i + 1], 0.24, light(DEEP, 0.9 * e0 * open), light(DEEP, 0.9 * e1 * open))
+        }
+    }
+
+    /** 가장자리 p0→p1 을 따라 폭 w 의 빛 띠(틈 안팎으로 걸치게, 안쪽 방향은 q 쪽) */
+    private fun edge(f: Frame, p0: Vec3, p1: Vec3, q0: Vec3, q1: Vec3, w: Double, c0: Int, c1: Int) {
+        fun inward(p: Vec3, q: Vec3): Vec3 {
+            val d = q.subtract(p)
+            return if (d.lengthSqr() < 1e-8) Vec3.ZERO else d.normalize().scale(w / 2)
+        }
+        val i0 = inward(p0, q0)
+        val i1 = inward(p1, q1)
+        f.quad(f.line, p0.subtract(i0), p0.add(i0), p1.add(i1), p1.subtract(i1), c0, c0, c1, c1)
+    }
+
+    private fun rim(f: Frame, s: Slash, age: Double, open: Double, k: Double) {
+        if (open <= 0.01) return
+        val c = AstraShape.slashCenter(s.origin, s.dir, age)
+        val o = (0..SEG).map { AstraShape.slashOuter(c, s.dir, s.a, s.b, age, it / SEG.toDouble() * 2 - 1) }
+        val n = (0..SEG).map { AstraShape.slashInner(c, s.dir, s.a, s.b, age, it / SEG.toDouble() * 2 - 1, open) }
+        for (i in 0 until SEG) {
+            val e0 = edgeFade(i) * k
+            val e1 = edgeFade(i + 1) * k
+            edge(f, o[i], o[i + 1], n[i], n[i + 1], 0.3, light(VIOLET, e0), light(VIOLET, e1))
         }
     }
 
