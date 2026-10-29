@@ -1,6 +1,5 @@
 package dev.menonng.infracraft.client
 
-import com.mojang.blaze3d.platform.InputConstants
 import dev.menonng.infracraft.ClientHooks
 import dev.menonng.infracraft.Palette
 import dev.menonng.infracraft.compat.Compat
@@ -41,7 +40,7 @@ object AstraAim {
     private var ticks = 0
 
     private val CATEGORY: KeyMapping.Category = KeyMapping.Category.register(id("infracraft"))
-    val MAP_KEY: KeyMapping = KeyMapping("key.infracraft.astra_map", InputConstants.Type.KEYSYM, 77 /* M */, CATEGORY)
+    val MAP_KEY: KeyMapping = KeyMapping("key.infracraft.astra_map", 77 /* M */, CATEGORY)
 
     fun register() {
         KeyMappingHelper.registerKeyMapping(MAP_KEY)
@@ -94,7 +93,8 @@ object AstraAim {
             stop(); return
         }
         ticks++
-        if (MAP_KEY.consumeClick() && mc.screen == null) {
+        // 화면이 열려 있을 때는 키 매핑이 눌리지 않으므로 따로 확인하지 않는다
+        if (MAP_KEY.consumeClick()) {
             mc.setScreenAndShow(AstraMapScreen())
             return
         }
