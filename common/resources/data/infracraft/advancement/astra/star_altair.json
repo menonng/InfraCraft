@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "id": "infracraft:star_altair"
+    },
+    "title": {
+      "translate": "item.infracraft.star_altair",
+      "color": "#EAF4FF"
+    },
+    "description": {
+      "translate": "advancements.infracraft.astra.star_altair.description",
+      "color": "#C8B6FF"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false,
+    "background": "infracraft:gui/advancements/backgrounds/astra"
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "infracraft:star_altair"
+          }
+        ]
+      }
+    }
+  }
+}

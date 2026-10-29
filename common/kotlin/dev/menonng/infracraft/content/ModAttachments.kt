@@ -27,5 +27,10 @@ object ModAttachments {
         it.persistent(Codec.unboundedMap(Codec.STRING, CompoundTag.CODEC))
     }
 
+    /** 플레이어: 차원별로 지나며 불러온 32블록 칸(아스트라 오브리터레이터 지도 조준의 허용 범위). 죽어도 남는다. */
+    val EXPLORED: AttachmentType<dev.menonng.infracraft.system.Explored.Cells> = AttachmentRegistry.create(id("explored")) {
+        it.persistent(dev.menonng.infracraft.system.Explored.Cells.CODEC).copyOnDeath()
+    }
+
     fun init() {}
 }

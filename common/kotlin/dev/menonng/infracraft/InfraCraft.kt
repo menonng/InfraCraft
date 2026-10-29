@@ -14,6 +14,7 @@ import dev.menonng.infracraft.content.ModEnchantments
 import dev.menonng.infracraft.content.ModTags
 import dev.menonng.infracraft.system.Enchants
 import dev.menonng.infracraft.system.Bridges
+import dev.menonng.infracraft.system.Astra
 import dev.menonng.infracraft.system.CreateCompat
 import dev.menonng.infracraft.system.ElytraBan
 import dev.menonng.infracraft.system.Interactions
@@ -53,6 +54,13 @@ object InfraCraft : ModInitializer {
         FabricDefaultAttributeRegistry.register(Compat.playerType, Player.createAttributes().add(ModAttributes.ROAD_AFFINITY))
 
         CreateCompat.init()
+        dev.menonng.infracraft.net.Payloads.register()
+        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.registerGlobalReceiver(dev.menonng.infracraft.net.Payloads.AstraSlash.TYPE) { _, ctx ->
+            dev.menonng.infracraft.system.Astra.slash(ctx.player())
+        }
+        net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.registerGlobalReceiver(dev.menonng.infracraft.net.Payloads.AstraStrike.TYPE) { p, ctx ->
+            dev.menonng.infracraft.system.Astra.strike(ctx.player(), p)
+        }
         dev.menonng.infracraft.system.Loot.init()
 
         EntityElytraEvents.ALLOW.register { !Config.c.banElytra }
@@ -76,6 +84,7 @@ object InfraCraft : ModInitializer {
                 Network.tickMilestone(player)
                 dev.menonng.infracraft.system.Astra.tickHeld(player)
                 dev.menonng.infracraft.system.Bridges.tickHeld(player)
+                dev.menonng.infracraft.system.Explored.tick(player)
                 if (server.tickCount % 40 == 0) ElytraBan.sweep(player)
             }
             CreateCompat.tick(server)
@@ -137,8 +146,10 @@ object InfraCraft : ModInitializer {
             overworld.getChunk(0, 4)
             val err = Bridges.selfTest(overworld, feet)
             check("stone bridge built in world (${err ?: "ok"})", err == null)
-            for (adv in listOf("root", "first_bridge", "first_station", "road_1km", "surveyor", "tunneler", "rail_layer", "rider", "aquila"))
+            for (adv in listOf("root", "first_bridge", "first_station", "road_1km", "surveyor", "tunneler", "rail_layer", "rider"))
                 check("advancement $adv", server.advancements.get(Compat.id("infracraft", "journey/$adv")) != null)
+            for (adv in Astra.STARS.map { "star_${it.key}" } + listOf("aquila_core", "astra_obliterator"))
+                check("advancement astra/$adv", server.advancements.get(Compat.id("infracraft", "astra/$adv")) != null)
         }
         for (s in listOf("end_crystal", "beacon", "netherite_block", "totem_of_undying", "dragon_head", "shulker_shell", "sculk_catalyst",
             "amethyst_cluster", "recovery_compass", "breeze_rod", "ominous_trial_key", "heavy_core", "prismarine_crystals",

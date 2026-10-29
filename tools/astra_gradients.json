@@ -1,0 +1,46 @@
+{
+ "star_chesus": [
+  "#A8F0FF",
+  "#FF9A3C"
+ ],
+ "star_tarazed": [
+  "#FF9A3C",
+  "#BFD7FF"
+ ],
+ "star_deneb_el_okab": [
+  "#BFD7FF",
+  "#C8B6FF"
+ ],
+ "star_petra": [
+  "#C8B6FF",
+  "#FF4E6A"
+ ],
+ "star_phonix": [
+  "#FF4E6A",
+  "#9BFFB0"
+ ],
+ "star_libertas": [
+  "#9BFFB0",
+  "#EAF4FF"
+ ],
+ "star_altair": [
+  "#EAF4FF",
+  "#FFE27A"
+ ],
+ "star_alshain": [
+  "#FFE27A",
+  "#FFC531"
+ ],
+ "star_bezek": [
+  "#FFC531",
+  "#A8F0FF"
+ ],
+ "aquila_core": [
+  "#C8B6FF",
+  "#FFE27A"
+ ],
+ "astra_obliterator": [
+  "#8A4DFF",
+  "#F2F7FF"
+ ]
+}

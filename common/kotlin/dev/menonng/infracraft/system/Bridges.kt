@@ -7,6 +7,8 @@ import dev.menonng.infracraft.content.ModItems
 import dev.menonng.infracraft.content.ModStats
 import dev.menonng.infracraft.content.ModTags
 import dev.menonng.infracraft.msg
+import dev.menonng.infracraft.net.Payloads
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.particles.DustParticleOptions
@@ -292,6 +294,8 @@ object Bridges {
         }
         Inventories.consume(player, need) { it.`is`(fam.raw) }
         build(level, plan)
+        cache.remove(player)
+        clearHologram(player)
         level.playSound(null, player.blockPosition(), SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 0.5f, 1.3f)
         player.awardStat(ModStats.BRIDGE_BLOCKS, need)
         if (!player.isCreative) kit.hurtAndBreak(1, player, if (hand == InteractionHand.MAIN_HAND) EquipmentSlot.MAINHAND else EquipmentSlot.OFFHAND)
@@ -334,16 +338,32 @@ object Bridges {
 
     private class Cache(val key: List<Any>, val plan: Plan?, val at: Long)
     private val cache = WeakHashMap<ServerPlayer, Cache>()
+    /** 마지막으로 보낸 홀로그램(계획, 재료 충분 여부). 같으면 다시 보내지 않는다 */
+    private val sent = WeakHashMap<ServerPlayer, Pair<Plan?, Boolean>>()
+
+    private fun hologram(player: ServerPlayer) = ServerPlayNetworking.canSend(player, Payloads.BridgePreview.TYPE)
+
+    private fun clearHologram(player: ServerPlayer) {
+        if (sent.remove(player) != null && hologram(player)) ServerPlayNetworking.send(player, Payloads.BridgePreview(emptyList(), true))
+    }
+
+    /** 미리보기 블록마다 역할: 기둥(상판 아래 기둥 줄)이면 1, 나머지 0 */
+    private fun ghosts(plan: Plan): List<Payloads.Ghost> = plan.blocks.map { (pos, st) ->
+        val k = (pos.x - plan.base.x) * plan.dir.stepX + (pos.z - plan.base.z) * plan.dir.stepZ
+        val h = pos.y - plan.base.y
+        Payloads.Ghost(pos, Block.getId(st), if (k in plan.piers && h < 0) 1 else 0)
+    }
 
     fun tickHeld(player: ServerPlayer) {
         val kind = kind(player.mainHandItem)
         if (kind == null) {
-            cache.remove(player); return
+            cache.remove(player); clearHologram(player); return
         }
         val level = player.level() as ServerLevel
         if (level.gameTime % 4 != 0L) return
         val raw = findRaw(player, kind)
         if (raw == null) {
+            clearHologram(player)
             Compat.overlay(player, msg("bridge_kit.need_raw.${kind.name.lowercase()}", Palette.ORANGE)); return
         }
         val (rawStack, fam) = raw
@@ -352,26 +372,32 @@ object Bridges {
         val plan = if (old != null && old.key == key && level.gameTime - old.at < 20) old.plan
         else plan(level, player.blockPosition(), player.direction, kind, fam).also { cache[player] = Cache(key, it, level.gameTime) }
         if (plan == null) {
+            clearHologram(player)
             Compat.overlay(player, msg("bridge_kit.no_gap", Palette.ORANGE)); return
         }
         val need = plan.blocks.size
         val have = Inventories.count(player) { it.`is`(fam.raw) }
         val enough = player.isCreative || have >= need
-        val color = if (enough) Palette.SKY else Palette.RED
-        val dust = DustParticleOptions(color, 1.0f)
-        fun spark(pos: BlockPos, dy: Double) =
-            level.sendParticles(player, dust, true, false, pos.x + 0.5, pos.y + dy, pos.z + 0.5, 1, 0.0, 0.0, 0.0, 0.0)
-        // 상판 양쪽 가장자리와 양 끝
-        for (k in plan.start..plan.end) for (o in listOf(-HALF, HALF)) spark(plan.at(k, o, 0), 1.05)
-        for (o in -HALF + 1 until HALF) {
-            spark(plan.at(plan.start, o, 0), 1.05); spark(plan.at(plan.end, o, 0), 1.05)
-        }
-        // 기둥 자리: 세로 점선
-        val pierDust = DustParticleOptions(Palette.YELLOW, 1.2f)
-        for (k in plan.piers) for (h in 0 downTo -24 step 2) {
-            val pos = plan.at(k, 0, h)
-            if (h < 0 && !open(level, pos)) break
-            level.sendParticles(player, pierDust, true, false, pos.x + 0.5, pos.y + 0.5, pos.z + 0.5, 1, 0.0, 0.0, 0.0, 0.0)
+        if (hologram(player)) {
+            // 리터매티카처럼 놓일 블록을 반투명 홀로그램으로(색: 충분하면 하늘, 모자라면 빨강, 기둥은 노랑)
+            val now = plan to enough
+            if (sent[player]?.first !== plan || sent[player]?.second != enough) {
+                ServerPlayNetworking.send(player, Payloads.BridgePreview(ghosts(plan), enough))
+                sent[player] = now
+            }
+        } else {
+            // 모드가 없는 클라이언트: 입자 점선
+            val color = if (enough) Palette.SKY else Palette.RED
+            val dust = DustParticleOptions(color, 1.0f)
+            fun spark(pos: BlockPos, dy: Double) =
+                level.sendParticles(player, dust, true, false, pos.x + 0.5, pos.y + dy, pos.z + 0.5, 1, 0.0, 0.0, 0.0, 0.0)
+            for (k in plan.start..plan.end) for (o in listOf(-HALF, HALF)) spark(plan.at(k, o, 0), 1.05)
+            val pierDust = DustParticleOptions(Palette.YELLOW, 1.2f)
+            for (k in plan.piers) for (h in 0 downTo -24 step 2) {
+                val pos = plan.at(k, 0, h)
+                if (h < 0 && !open(level, pos)) break
+                level.sendParticles(player, pierDust, true, false, pos.x + 0.5, pos.y + 0.5, pos.z + 0.5, 1, 0.0, 0.0, 0.0, 0.0)
+            }
         }
         val tail = if (plan.landed) "" else " ↷"
         val snap = if (plan.snapped) msg("bridge_kit.snapped", Palette.GREEN) else null

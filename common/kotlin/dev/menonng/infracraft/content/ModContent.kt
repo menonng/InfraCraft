@@ -11,6 +11,7 @@ import dev.menonng.infracraft.block.TickedBlock
 import dev.menonng.infracraft.block.TierRailBlock
 import dev.menonng.infracraft.compat.Compat
 import dev.menonng.infracraft.system.Astra
+import dev.menonng.infracraft.system.AstraItem
 import dev.menonng.infracraft.compat.Id
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Holder
@@ -97,9 +98,12 @@ object ModItems {
     val COPPER_BRIDGE_KIT = Compat.item("copper_bridge_kit", Compat.toolProperties(30))
 
     // 히든: 독수리자리 별조각 9개 → 아퀼라 성좌핵 → 아스트라 오브리터레이터(창작 탭에 없음)
-    val STAR_SHARDS = Astra.STARS.associate { it.key to Compat.item("star_${it.key}", Astra.shardProperties(it)) }
-    val AQUILA_CORE = Compat.item("aquila_core", Astra.coreProperties())
-    val ASTRA_OBLITERATOR = Compat.item("astra_obliterator", Astra.weaponProperties())
+    val STAR_SHARDS = Astra.STARS.associate { s ->
+        val (a, b) = Astra.shardGradient(s.key)
+        s.key to Compat.item("star_${s.key}", Astra.shardProperties(s)) { AstraItem(it, a, b) }
+    }
+    val AQUILA_CORE = Compat.item("aquila_core", Astra.coreProperties()) { AstraItem(it, Astra.CORE_GRADIENT.first, Astra.CORE_GRADIENT.second) }
+    val ASTRA_OBLITERATOR = Compat.item("astra_obliterator", Astra.weaponProperties()) { AstraItem(it, Astra.WEAPON_GRADIENT.first, Astra.WEAPON_GRADIENT.second) }
 
     fun init() {
         Compat.creativeTab("main", { ItemStack(ModBlocks.EXPRESS_RAIL) }) {

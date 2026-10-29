@@ -728,8 +728,8 @@
   "en_us": "The eagle that crossed the sky has landed on the blade"
  },
  "item.infracraft.lore.weapon_use": {
-  "ko_kr": "우클릭: 독수리자리 강림",
-  "en_us": "Use: Descent of Aquila"
+  "ko_kr": "오른손 우클릭: 독수리자리를 그리고 알타이르에서 별빛 광선을 쏩니다.",
+  "en_us": "Main hand, use: draws Aquila and fires a starlight beam from Altair."
  },
  "infracraft.msg.astra.cast": {
   "ko_kr": "✦ 독수리자리가 강림합니다 ✦",
@@ -855,12 +855,108 @@
   "ko_kr": "호루라기로 말을 부르세요.",
   "en_us": "Call your horse with a whistle."
  },
- "advancements.infracraft.journey.aquila.title": {
-  "ko_kr": "독수리가 날아오르다",
-  "en_us": "The Eagle Rises"
+ "item.infracraft.lore.weapon_attack": {
+  "ko_kr": "일반 공격: 칼끝에서 암흑 별빛 검격이 날아가 닿는 것을 모두 벱니다.",
+  "en_us": "Attack: a crescent of dark starlight flies from the blade, cutting through everything in its path."
  },
- "advancements.infracraft.journey.aquila.description": {
-  "ko_kr": "아스트라 오브리터레이터를 손에 넣으세요.",
-  "en_us": "Obtain the Astra Obliterator."
+ "item.infracraft.lore.weapon_aim": {
+  "ko_kr": "왼손 우클릭: 조준 모드. 바라보는 곳을 좌클릭하면 그곳에 별빛이 낙하합니다.",
+  "en_us": "Off hand, use: aim mode. Left-click the spot you look at to call starfall there."
+ },
+ "item.infracraft.lore.weapon_map": {
+  "ko_kr": "조준 중 M: 지금까지 불러온 지도를 열어 원하는 곳을 좌클릭합니다.",
+  "en_us": "While aiming, M: open the map of every place you have loaded and left-click a spot."
+ },
+ "infracraft.msg.astra.cooldown": {
+  "ko_kr": "별빛이 아직 모이는 중입니다.",
+  "en_us": "The starlight is still gathering."
+ },
+ "infracraft.msg.astra.unexplored": {
+  "ko_kr": "가 본 적 없는 곳에는 별빛이 닿지 않습니다.",
+  "en_us": "Starlight cannot reach a place you have never been."
+ },
+ "infracraft.msg.astra.strike": {
+  "ko_kr": "독수리자리가 (%1$s, %2$s, %3$s) 하늘에 떠오릅니다.",
+  "en_us": "Aquila rises over (%1$s, %2$s, %3$s)."
+ },
+ "infracraft.msg.astra.aim_on": {
+  "ko_kr": "조준: 좌클릭 발동 · M 지도 · 왼손 우클릭 취소",
+  "en_us": "Aiming: left-click to strike · M map · off-hand use to cancel"
+ },
+ "infracraft.msg.astra.aim_off": {
+  "ko_kr": "조준을 거둡니다.",
+  "en_us": "Aim cancelled."
+ },
+ "infracraft.msg.astra.aim_none": {
+  "ko_kr": "하늘만 보입니다. 땅을 겨누세요.",
+  "en_us": "Only sky ahead. Aim at the ground."
+ },
+ "infracraft.map.title": {
+  "ko_kr": "별빛 좌표",
+  "en_us": "Starlight Coordinates"
+ },
+ "infracraft.map.hint": {
+  "ko_kr": "좌클릭: 발동 · 드래그: 이동 · 휠: 확대 · ESC: 닫기",
+  "en_us": "Left-click: strike · drag: pan · wheel: zoom · Esc: close"
+ },
+ "infracraft.map.unexplored": {
+  "ko_kr": "가 본 적 없는 곳",
+  "en_us": "Unexplored"
+ },
+ "infracraft.map.you": {
+  "ko_kr": "나",
+  "en_us": "You"
+ },
+ "key.infracraft.astra_map": {
+  "ko_kr": "아스트라 지도(조준 중)",
+  "en_us": "Astra map (while aiming)"
+ },
+ "key.category.infracraft.infracraft": {
+  "ko_kr": "InfraCraft",
+  "en_us": "InfraCraft"
+ },
+ "advancements.infracraft.astra.star_altair.description": {
+  "ko_kr": "독수리자리의 알파, 알타이르의 별조각을 얻습니다.",
+  "en_us": "Obtain the shard of Altair, alpha of Aquila."
+ },
+ "advancements.infracraft.astra.star_tarazed.description": {
+  "ko_kr": "주황빛 거성 타라제드의 별조각을 얻습니다.",
+  "en_us": "Obtain the shard of Tarazed, the orange giant."
+ },
+ "advancements.infracraft.astra.star_alshain.description": {
+  "ko_kr": "알샤인의 별조각을 얻습니다.",
+  "en_us": "Obtain the shard of Alshain."
+ },
+ "advancements.infracraft.astra.star_deneb_el_okab.description": {
+  "ko_kr": "독수리의 꼬리, 데네브 엘 오카브의 별조각을 얻습니다.",
+  "en_us": "Obtain the shard of Deneb el Okab, the eagle's tail."
+ },
+ "advancements.infracraft.astra.star_bezek.description": {
+  "ko_kr": "베제크의 별조각을 얻습니다.",
+  "en_us": "Obtain the shard of Bezek."
+ },
+ "advancements.infracraft.astra.star_chesus.description": {
+  "ko_kr": "체수스의 별조각을 얻습니다.",
+  "en_us": "Obtain the shard of Chesus."
+ },
+ "advancements.infracraft.astra.star_libertas.description": {
+  "ko_kr": "리베르타스의 별조각을 얻습니다.",
+  "en_us": "Obtain the shard of Libertas."
+ },
+ "advancements.infracraft.astra.star_phonix.description": {
+  "ko_kr": "포닉스의 별조각을 얻습니다.",
+  "en_us": "Obtain the shard of Phonix."
+ },
+ "advancements.infracraft.astra.star_petra.description": {
+  "ko_kr": "페트라의 별조각을 얻습니다.",
+  "en_us": "Obtain the shard of Petra."
+ },
+ "advancements.infracraft.astra.aquila_core.description": {
+  "ko_kr": "아홉 별을 하늘의 모양대로 모아 성좌핵을 빚습니다.",
+  "en_us": "Gather the nine stars in their sky shape and forge the constellation core."
+ },
+ "advancements.infracraft.astra.astra_obliterator.description": {
+  "ko_kr": "독수리가 날아오릅니다.",
+  "en_us": "The eagle rises."
  }
 }

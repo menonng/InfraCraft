@@ -4,10 +4,12 @@
       "id": "infracraft:astra_obliterator"
     },
     "title": {
-      "translate": "advancements.infracraft.journey.aquila.title"
+      "translate": "item.infracraft.astra_obliterator",
+      "color": "#8A4DFF"
     },
     "description": {
-      "translate": "advancements.infracraft.journey.aquila.description"
+      "translate": "advancements.infracraft.astra.astra_obliterator.description",
+      "color": "#C8B6FF"
     },
     "frame": "challenge",
     "show_toast": true,
@@ -15,7 +17,7 @@
     "hidden": true
   },
   "criteria": {
-    "done": {
+    "obtained": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
@@ -26,5 +28,5 @@
       }
     }
   },
-  "parent": "infracraft:journey/root"
+  "parent": "infracraft:astra/aquila_core"
 }

@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "id": "infracraft:star_tarazed"
+    },
+    "title": {
+      "translate": "item.infracraft.star_tarazed",
+      "color": "#FF9A3C"
+    },
+    "description": {
+      "translate": "advancements.infracraft.astra.star_tarazed.description",
+      "color": "#C8B6FF"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "infracraft:star_tarazed"
+          }
+        ]
+      }
+    }
+  },
+  "parent": "infracraft:astra/star_altair"
+}

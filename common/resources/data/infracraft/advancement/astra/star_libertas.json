@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "id": "infracraft:star_libertas"
+    },
+    "title": {
+      "translate": "item.infracraft.star_libertas",
+      "color": "#9BFFB0"
+    },
+    "description": {
+      "translate": "advancements.infracraft.astra.star_libertas.description",
+      "color": "#C8B6FF"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "infracraft:star_libertas"
+          }
+        ]
+      }
+    }
+  },
+  "parent": "infracraft:astra/star_altair"
+}

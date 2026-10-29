@@ -6,7 +6,8 @@
   "mixins": [
     "AbstractMinecartMixin",
     "DimensionTypeMixin",
-    "EnchantmentMixin"
+    "EnchantmentMixin",
+    "TreeNodePositionMixin"
   ],
   "injectors": {
     "defaultRequire": 1

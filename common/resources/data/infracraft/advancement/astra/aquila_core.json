@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "id": "infracraft:aquila_core"
+    },
+    "title": {
+      "translate": "item.infracraft.aquila_core",
+      "color": "#C8B6FF"
+    },
+    "description": {
+      "translate": "advancements.infracraft.astra.aquila_core.description",
+      "color": "#C8B6FF"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "infracraft:aquila_core"
+          }
+        ]
+      }
+    }
+  },
+  "parent": "infracraft:astra/star_altair"
+}

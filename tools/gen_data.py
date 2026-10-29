@@ -265,9 +265,36 @@ advancement("surveyor", f"{NS}:signpost", "first_station", stat_tick("routes_sur
 advancement("rail_layer", f"{NS}:track_layer", "first_station", stat_tick("track_placed", 256))
 advancement("tunneler", f"{NS}:subway_shield", "rail_layer", stat_tick("blocks_bored", 2000), frame="goal")
 advancement("rider", f"{NS}:whistle", "root", stat_tick("horses_called", 1))
-advancement("aquila", f"{NS}:astra_obliterator", "root",
-            {"trigger": "minecraft:inventory_changed", "conditions": {"items": [{"items": f"{NS}:astra_obliterator"}]}},
-            frame="challenge", hidden=True)
+
+# ── 발전과제: 독수리자리 탭(아스트라 오브리터레이터 관련 아이템 11개, 각각 얻으면 달성) ──
+# 뿌리는 알타이르: 알타이르를 얻으면 별자리 전체가 드러난다. 배치(원형)는 AstraAdvancements.kt 가 정한다.
+import shutil
+shutil.rmtree(os.path.join(D, NS, "advancement", "astra"), ignore_errors=True)
+stale = os.path.join(D, NS, "advancement", "journey", "aquila.json")
+if os.path.exists(stale):
+    os.remove(stale)
+ASTRA_STARS = ["altair", "tarazed", "alshain", "deneb_el_okab", "bezek", "chesus", "libertas", "phonix", "petra"]
+with open(os.path.join(HERE, "astra_gradients.json"), encoding="utf-8") as f:
+    ASTRA_GRAD = json.load(f)
+
+def astra_adv(item, parent, frame, hidden=False, background=None, announce=False):
+    display = {"icon": {"id": f"{NS}:{item}"},
+               "title": {"translate": f"item.{NS}.{item}", "color": ASTRA_GRAD[item][0]},
+               "description": {"translate": f"advancements.{NS}.astra.{item}.description", "color": "#C8B6FF"},
+               "frame": frame, "show_toast": True, "announce_to_chat": announce, "hidden": hidden}
+    if background:
+        display["background"] = background
+    obj = {"display": display, "criteria": {"obtained": {"trigger": "minecraft:inventory_changed",
+                                                          "conditions": {"items": [{"items": f"{NS}:{item}"}]}}}}
+    if parent:
+        obj["parent"] = f"{NS}:astra/{parent}"
+    write(D, f"{NS}/advancement/astra/{item}.json", obj)
+
+astra_adv("star_altair", None, "goal", background=f"{NS}:gui/advancements/backgrounds/astra")
+for k in ASTRA_STARS[1:]:
+    astra_adv(f"star_{k}", "star_altair", "goal")
+astra_adv("aquila_core", "star_altair", "challenge", announce=True)
+astra_adv("astra_obliterator", "aquila_core", "challenge", hidden=True, announce=True)
 
 # ── 레시피 ──
 RECIPES = [

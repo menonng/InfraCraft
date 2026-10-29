@@ -105,6 +105,11 @@ object Compat : CompatApi {
         return Registry.register(BuiltInRegistries.ITEM, key, Item(props.setId(ResourceKey.create(Registries.ITEM, key))))
     }
 
+    override fun <T : Item> item(name: String, props: Item.Properties, factory: (Item.Properties) -> T): T {
+        val key = id("infracraft", name)
+        return Registry.register(BuiltInRegistries.ITEM, key, factory(props.setId(ResourceKey.create(Registries.ITEM, key))))
+    }
+
     override fun toolProperties(durability: Int): Item.Properties = Item.Properties().durability(durability).enchantable(10)
 
     override fun creativeTab(name: String, icon: () -> ItemStack, items: () -> List<ItemLike>) {
@@ -131,4 +136,8 @@ object Compat : CompatApi {
     }
 
     override fun halt(server: MinecraftServer) = server.halt(false)
+
+    override fun setAdvancementLocation(node: net.minecraft.advancements.AdvancementNode, x: Float, y: Float) {
+        node.advancement().display().ifPresent { it.setLocation(x, y) }
+    }
 }

@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": {
+      "id": "infracraft:star_petra"
+    },
+    "title": {
+      "translate": "item.infracraft.star_petra",
+      "color": "#C8B6FF"
+    },
+    "description": {
+      "translate": "advancements.infracraft.astra.star_petra.description",
+      "color": "#C8B6FF"
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false
+  },
+  "criteria": {
+    "obtained": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "infracraft:star_petra"
+          }
+        ]
+      }
+    }
+  },
+  "parent": "infracraft:astra/star_altair"
+}

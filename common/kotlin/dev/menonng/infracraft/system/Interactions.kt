@@ -41,6 +41,11 @@ object Interactions {
             stack.`is`(ModItems.ROAD_PAVER) || stack.`is`(ModItems.TRACK_LAYER) -> handled(player) { Tools.toggle(it, stack) }
             stack.`is`(ModItems.SUBWAY_SHIELD) -> handled(player) { Subway.shield(it, hand) }
             Bridges.kind(stack) != null -> handled(player) { Bridges.use(it, hand) }
+            // 왼손: 조준 모드(클라이언트가 조준하고, 발동은 패킷으로 서버에 묻는다)
+            stack.`is`(ModItems.ASTRA_OBLITERATOR) && hand == InteractionHand.OFF_HAND -> {
+                if (player.level().isClientSide) dev.menonng.infracraft.ClientHooks.astraAim?.invoke()
+                InteractionResult.SUCCESS
+            }
             stack.`is`(ModItems.ASTRA_OBLITERATOR) -> handled(player) { Astra.cast(it, stack) }
             stack.`is`(ModItems.STATION_BLUEPRINT) -> handled(player) { Subway.buildStation(it, hand) }
             stack.`is`(ModItems.GROUND_STATION_BLUEPRINT) -> handled(player) { Stations.buildGround(it, hand) }

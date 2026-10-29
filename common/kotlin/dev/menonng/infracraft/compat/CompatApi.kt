@@ -52,6 +52,8 @@ interface CompatApi {
     /** 블록과 그 BlockItem 을 함께 등록한다. */
     fun <T : Block> block(name: String, props: BlockBehaviour.Properties, factory: (BlockBehaviour.Properties) -> T): T
     fun item(name: String, props: Item.Properties): Item
+    /** 바닐라 Item 대신 하위 클래스로 등록할 때 */
+    fun <T : Item> item(name: String, props: Item.Properties, factory: (Item.Properties) -> T): T
     /** 내구도가 있고 인챈트 가능한 1개짜리 도구 속성 */
     fun toolProperties(durability: Int): Item.Properties
     fun creativeTab(name: String, icon: () -> ItemStack, items: () -> List<ItemLike>)
@@ -61,4 +63,6 @@ interface CompatApi {
     fun onLevelTick(handler: (ServerLevel) -> Unit)
     fun onPlayerChangedLevel(handler: (ServerPlayer, ServerLevel, ServerLevel) -> Unit)
     fun halt(server: MinecraftServer)
+    /** 발전과제 노드의 화면 좌표(26.2 는 DisplayInfo, 26.3 은 AdvancementNode 가 갖는다) */
+    fun setAdvancementLocation(node: net.minecraft.advancements.AdvancementNode, x: Float, y: Float)
 }
