@@ -444,6 +444,127 @@ def tile16():
     return img
 
 
+# ───────────── 기술 연출 모델용 텍스처(textures/effect) ─────────────
+# 모두 흰색(또는 암흑 별빛) 바탕이고, 색은 렌더링할 때 꼭짓점 색으로 곱한다.
+
+def _save_fx(img, name, blur=True, additive=True):
+    """additive: 가산 혼합(빛)용은 투명도를 밝기에 미리 곱하고 불투명하게 저장한다(가산 혼합은 투명도를 보지 않는다)"""
+    if additive:
+        px = img.load()
+        for y in range(img.height):
+            for x in range(img.width):
+                r, g, b, a = px[x, y]
+                px[x, y] = (r * a // 255, g * a // 255, b * a // 255, 255)
+    d = os.path.join(TEX, "effect")
+    os.makedirs(d, exist_ok=True)
+    img.save(os.path.join(d, name + ".png"))
+    with open(os.path.join(d, name + ".png.mcmeta"), "w", encoding="utf-8") as f:
+        json.dump({"texture": {"blur": blur, "clamp": False}}, f)
+
+
+def fx_glow(n=64):
+    """둥근 빛무리: 가운데는 하얗게 타고, 바깥으로 부드럽게 사라진다"""
+    img = Image.new("RGBA", (n, n))
+    for y in range(n):
+        for x in range(n):
+            r = math.hypot((x + 0.5) / n * 2 - 1, (y + 0.5) / n * 2 - 1)
+            a = math.exp(-(r / 0.42) ** 2) * 0.85 + math.exp(-(r / 0.12) ** 2) * 0.6
+            img.putpixel((x, y), (255, 255, 255, int(255 * min(1.0, a) * max(0.0, 1 - r))))
+    return img
+
+
+def fx_glint(n=64):
+    """네 갈래 별빛(가로·세로 긴 빛살, 대각선 짧은 빛살)"""
+    img = Image.new("RGBA", (n, n))
+    for y in range(n):
+        for x in range(n):
+            u = (x + 0.5) / n * 2 - 1
+            v = (y + 0.5) / n * 2 - 1
+            r = math.hypot(u, v)
+            ray = max(math.exp(-abs(v) / 0.035) * max(0, 1 - abs(u)) ** 2.2,
+                      math.exp(-abs(u) / 0.035) * max(0, 1 - abs(v)) ** 2.2)
+            d1, d2 = (u + v) / math.sqrt(2), (u - v) / math.sqrt(2)
+            diag = max(math.exp(-abs(d1) / 0.03) * max(0, 1 - abs(d2) / 0.55) ** 2,
+                       math.exp(-abs(d2) / 0.03) * max(0, 1 - abs(d1) / 0.55) ** 2) * 0.5
+            core = math.exp(-(r / 0.14) ** 2)
+            a = min(1.0, ray + diag + core)
+            img.putpixel((x, y), (255, 255, 255, int(255 * a)))
+    return img
+
+
+def fx_line(w=4, h=64):
+    """띠(선·고리·칼날 가장자리): 가로로는 같고, 세로(v)로 가운데가 밝은 단면"""
+    img = Image.new("RGBA", (w, h))
+    for y in range(h):
+        v = (y + 0.5) / h * 2 - 1
+        a = math.exp(-(v / 0.45) ** 2) * 0.7 + math.exp(-(v / 0.12) ** 2) * 0.5
+        for x in range(w):
+            img.putpixel((x, y), (255, 255, 255, int(255 * min(1.0, a))))
+    return img
+
+
+def fx_beam(w=32, h=128, seed=11):
+    """빔: 가로(u)는 단면(가운데 밝음), 세로(v)는 흐르는 빛줄기 무늬(이어 붙여도 끊기지 않게)"""
+    rnd = random.Random(seed)
+    streaks = [(rnd.uniform(-0.8, 0.8), rnd.uniform(0.05, 0.16), rnd.randrange(h), rnd.randint(8, 40), rnd.uniform(0.3, 0.8)) for _ in range(26)]
+    img = Image.new("RGBA", (w, h))
+    for y in range(h):
+        for x in range(w):
+            u = (x + 0.5) / w * 2 - 1
+            base = math.exp(-(u / 0.5) ** 2) * 0.55 + math.exp(-(u / 0.16) ** 2) * 0.45
+            s = 0.0
+            for (cu, wu, y0, ln, k) in streaks:
+                dy = (y - y0) % h
+                if dy < ln:
+                    s += k * math.exp(-((u - cu) / wu) ** 2) * math.sin(math.pi * dy / ln)
+            a = min(1.0, base + s * 0.5 * max(0, 1 - abs(u)))
+            img.putpixel((x, y), (255, 255, 255, int(255 * a)))
+    return img
+
+
+def fx_void(w=128, h=64, seed=21):
+    """암흑 별빛 칼날의 몸: u = 칼날을 따라, v = 안쪽(0)에서 바깥 날(1). 보랏빛 성운에 작은 별이 박힌 어둠"""
+    rnd = random.Random(seed)
+    noise = value_noise(seed, 8)
+    img = Image.new("RGBA", (w, h))
+    for y in range(h):
+        v = (y + 0.5) / h
+        for x in range(w):
+            u = (x + 0.5) / w
+            nz = noise(u * 8, v * 4)
+            dark = hx("#08000F")
+            neb = hx("#3A0F7A")
+            edge = hx("#8A4DFF")
+            t = min(1.0, max(0.0, (v - 0.35) / 0.65)) ** 2
+            c = mix(mix(dark, neb, 0.35 * nz + 0.25 * t), edge, t * 0.75)
+            a = (min(1.0, v / 0.5) ** 1.5) * min(1.0, (1 - v) / 0.06) * min(1.0, u / 0.08, (1 - u) / 0.08)
+            img.putpixel((x, y), (*c, int(255 * max(0.0, min(1.0, a)) * 0.94)))
+    cols = [hx(c) for (_, _, _, c) in STARS]
+    for _ in range(70):
+        x, y = rnd.randrange(4, w - 4), rnd.randrange(h // 3, h - 4)
+        c = rnd.choice(cols) if rnd.random() < 0.4 else (255, 255, 255)
+        a = img.getpixel((x, y))[3]
+        if a > 60:
+            img.putpixel((x, y), (*c, 255))
+            if rnd.random() < 0.25:
+                for (dx, dy) in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                    p = img.getpixel((x + dx, y + dy))
+                    img.putpixel((x + dx, y + dy), (*mix(p[:3], c, 0.6), max(p[3], 200)))
+    return img
+
+
+def effects():
+    # 화면(HUD) 시네마틱용: 보통 투명도 그대로
+    _save_fx(fx_glow(), "astra_glow_a", additive=False)
+    _save_fx(fx_glint(), "astra_glint_a", additive=False)
+    _save_fx(fx_line(), "astra_line_a", additive=False)
+    _save_fx(fx_glow(), "astra_glow")
+    _save_fx(fx_glint(), "astra_glint")
+    _save_fx(fx_line(), "astra_line")
+    _save_fx(fx_beam(), "astra_beam")
+    _save_fx(fx_void(), "astra_void", additive=False)
+
+
 def main():
     for i, (k, _, _, col) in enumerate(STARS):
         save_anim(shard(k, col, 100 + i), f"item/star_{k}")
@@ -453,6 +574,7 @@ def main():
     os.makedirs(bg, exist_ok=True)
     space().save(os.path.join(bg, "astra_space.png"))
     tile16().save(os.path.join(bg, "astra.png"))
+    effects()
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "astra_gradients.json"), "w", encoding="utf-8") as f:
         json.dump(gradient_pairs(), f, ensure_ascii=False, indent=1)
     print("astra textures written")

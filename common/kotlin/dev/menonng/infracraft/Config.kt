@@ -40,6 +40,8 @@ class InfraConfig {
 
     // 히든 무기: 다른 플레이어도 맞는가(서버에서 PvP 를 막고 싶으면 false)
     var astraHitsPlayers = true
+    // 히든 무기: 아홉 별·레일건이 땅에 크레이터와 별핵 수정, 불탄 별자리 선을 남기는가(보호 구역은 언제나 건드리지 않는다)
+    var astraReshapesTerrain = true
     var bridgePierHeight = 5
     var bridgePierMaxDepth = 48
 

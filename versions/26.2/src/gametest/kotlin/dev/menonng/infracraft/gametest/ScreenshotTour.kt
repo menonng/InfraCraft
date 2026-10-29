@@ -166,18 +166,57 @@ object ScreenshotTour : FabricClientGameTest {
         shot(ctx, "astra_map", 30)
         ctx.setScreen { null }
 
-        // ── 별빛 검격과 낙하 ──
-        val open = sp.server.fromServer { s -> valley(s, 480) }
-        cmd(sp, "tp @a ${open.x} ${open.y} ${open.z} -90 10")
+        // ── 아스트라: 모델로 그린 검격·레일건·아홉 별(밤에 찍어 빛이 잘 보이게) ──
+        val g0 = sp.server.fromServer { s ->
+            val lv = s.overworld()
+            for (cx in -4..5) for (cz in 34..40) lv.getChunk(cx, cz)
+            lv.getHeight(Heightmap.Types.MOTION_BLOCKING, 0, 600)
+        }
+        cmd(sp, "time set 6000")
+        cmd(sp, "tp @a 0 $g0 600 -90 0")
         cmd(sp, "item replace entity @a weapon.offhand with air")
         cmd(sp, "item replace entity @a weapon.mainhand with infracraft:astra_obliterator")
-        ctx.waitTicks(40)
+        hud(ctx, true)
+        ctx.waitTicks(60)
         sp.server.onServer { s -> Astra.slash(player(s)) }
-        shot(ctx, "astra_slash", 5)
+        shot(ctx, "astra_slash_a", 2)
+        shot(ctx, "astra_slash_b", 3)
         ctx.waitTicks(20)
-        val target = Vec3(open.x + 40.5, open.y - 1.0, open.z + 0.5)
-        sp.server.onServer { s -> Astra.strike(player(s), Payloads.AstraStrike(Payloads.AstraStrike.VIEW, target.x, target.y, target.z)) }
-        for (t in listOf(25, 45, 70)) shot(ctx, "astra_strike_$t", if (t == 25) 25 else if (t == 45) 20 else 25)
+        sp.server.onServer { s -> Astra.slash(player(s)) }
+        cmd(sp, "tp @a 7 ${g0 + 2} 591 facing 9 ${g0 + 1} 600")
+        shot(ctx, "astra_slash_side", 4)
+        ctx.waitTicks(20)
+        cmd(sp, "time set 14000")
+
+        // AS-01 별자리 레일건
+        cmd(sp, "tp @a 0 $g0 600 -90 -4")
+        ctx.waitTicks(10)
+        sp.server.onServer { s -> Astra.cast(player(s), player(s).mainHandItem) }
+        shot(ctx, "astra_rail_lock", 14)
+        shot(ctx, "astra_rail_charge", 22)
+        shot(ctx, "astra_rail_fire", 5)
+        shot(ctx, "astra_rail_fade", 8)
+        ctx.waitTicks(140)  // 쿨다운
+
+        // AS-09 아홉 별: 시네마틱 → 하늘의 투영 → 차례로 떨어짐 → 알타이르 → 흔적
+        cmd(sp, "tp @a 0 $g0 600 -90 0")
+        cmd(sp, "item replace entity @a weapon.offhand with infracraft:astra_obliterator")
+        ctx.waitTicks(5)
+        sp.server.onServer { s -> Astra.strike(player(s), Payloads.AstraStrike(Payloads.AstraStrike.VIEW, 40.5, g0.toDouble(), 600.5)) }
+        shot(ctx, "astra_nine_cinematic_a", 8)
+        shot(ctx, "astra_nine_cinematic_b", 14)
+        cmd(sp, "tp @a -12 ${g0 + 16} 552 facing 40 ${g0 + 22} 600")
+        shot(ctx, "astra_nine_projection", 16)
+        shot(ctx, "astra_nine_first", 12)
+        shot(ctx, "astra_nine_falling", 26)
+        shot(ctx, "astra_nine_altair_charge", 24)
+        shot(ctx, "astra_nine_altair_impact", 6)
+        shot(ctx, "astra_nine_altair_dome", 8)
+        cmd(sp, "time set 1000")
+        cmd(sp, "tp @a 18 ${g0 + 12} 578 facing 40 $g0 600")
+        shot(ctx, "astra_nine_aftermath", 60)
+        cmd(sp, "tp @a 40.5 ${g0 + 34} 600.5 0 90")
+        shot(ctx, "astra_nine_scar_top", 40)
 
         // ── 역 이름이 플레이어 언어를 따른다 ──
         cmd(sp, "item replace entity @a weapon.mainhand with air")

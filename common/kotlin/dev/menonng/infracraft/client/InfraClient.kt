@@ -11,6 +11,9 @@ object InfraClient {
         BridgeHologram.register()
         ExploredMap.register()
         AstraAim.register()
-        ClientPlayConnectionEvents.DISCONNECT.register { _, _ -> AstraMapScreen.Tiles.clear(); AstraAim.stop() }
+        AstraFx.register()
+        AstraHud.register()
+        // 끊김 알림은 네트워크 스레드에서 오므로 텍스처 해제 등은 렌더 스레드에서 한다
+        ClientPlayConnectionEvents.DISCONNECT.register { _, mc -> mc.execute { AstraMapScreen.Tiles.clear(); AstraAim.stop() } }
     }
 }

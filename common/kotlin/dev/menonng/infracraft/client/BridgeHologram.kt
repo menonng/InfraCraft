@@ -39,7 +39,7 @@ object BridgeHologram {
             ghosts = p.ghosts.map { Ghost(it.pos, Block.stateById(it.state), it.role == 1) }
             enough = p.enough
         }
-        ClientPlayConnectionEvents.DISCONNECT.register { _, _ -> ghosts = emptyList(); quadCache.clear() }
+        ClientPlayConnectionEvents.DISCONNECT.register { _, mc -> mc.execute { ghosts = emptyList(); quadCache.clear() } }
         LevelRenderEvents.COLLECT_SUBMITS.register { ctx -> render(ctx) }
     }
 

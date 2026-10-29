@@ -728,12 +728,8 @@
   "en_us": "The eagle that crossed the sky has landed on the blade"
  },
  "item.infracraft.lore.weapon_use": {
-  "ko_kr": "오른손 우클릭: 독수리자리를 그리고 알타이르에서 별빛 광선을 쏩니다.",
-  "en_us": "Main hand, use: draws Aquila and fires a starlight beam from Altair."
- },
- "infracraft.msg.astra.cast": {
-  "ko_kr": "✦ 독수리자리가 강림합니다 ✦",
-  "en_us": "✦ Aquila descends ✦"
+  "ko_kr": "오른손 우클릭: AS-01 별자리 레일건. 독수리자리를 펼쳐 조준한 뒤 알타이르에서 아홉 빛깔 고리를 감은 광선을 쏩니다.",
+  "en_us": "Main hand, use: AS-01 Constellation Railgun. Unfolds Aquila, locks on, then fires a beam wrapped in nine-coloured rings from Altair."
  },
  "item.infracraft.timber_bridge_kit": {
   "ko_kr": "목조 다리 키트",
@@ -856,12 +852,12 @@
   "en_us": "Call your horse with a whistle."
  },
  "item.infracraft.lore.weapon_attack": {
-  "ko_kr": "일반 공격: 칼끝에서 암흑 별빛 검격이 날아가 닿는 것을 모두 벱니다.",
-  "en_us": "Attack: a crescent of dark starlight flies from the blade, cutting through everything in its path."
+  "ko_kr": "일반 공격: 칼끝에서 초승달 모양의 암흑 별빛 검격이 날아가 닿는 것을 모두 벱니다.",
+  "en_us": "Attack: a crescent blade of dark starlight flies from the edge, cutting through everything in its path."
  },
  "item.infracraft.lore.weapon_aim": {
-  "ko_kr": "왼손 우클릭: 조준 모드. 바라보는 곳을 좌클릭하면 그곳에 별빛이 낙하합니다.",
-  "en_us": "Off hand, use: aim mode. Left-click the spot you look at to call starfall there."
+  "ko_kr": "왼손 우클릭: 조준 모드. 바라보는 곳을 좌클릭하면 AS-09 아홉 별이 그곳에 차례로 떨어집니다.",
+  "en_us": "Off hand, use: aim mode. Left-click the spot you look at and AS-09 Nine Stars fall there one by one."
  },
  "item.infracraft.lore.weapon_map": {
   "ko_kr": "조준 중 M: 지금까지 불러온 지도를 열어 원하는 곳을 좌클릭합니다.",
@@ -874,10 +870,6 @@
  "infracraft.msg.astra.unexplored": {
   "ko_kr": "가 본 적 없는 곳에는 별빛이 닿지 않습니다.",
   "en_us": "Starlight cannot reach a place you have never been."
- },
- "infracraft.msg.astra.strike": {
-  "ko_kr": "독수리자리가 (%1$s, %2$s, %3$s) 하늘에 떠오릅니다.",
-  "en_us": "Aquila rises over (%1$s, %2$s, %3$s)."
  },
  "infracraft.msg.astra.aim_on": {
   "ko_kr": "조준: 좌클릭 발동 · M 지도 · 왼손 우클릭 취소",
@@ -1006,5 +998,49 @@
  "modmenu.descriptionTranslation.infracraft": {
   "ko_kr": "낭만 교통 인프라 모드: 겉날개 금지, 네더 1:1, 순간이동 없이 도로·철도·지하철·항구·말로 세계를 여행합니다.",
   "en_us": "Romantic transport infrastructure: no elytra, 1:1 Nether, no teleporting. See the world by road, rail, subway, harbor and horse."
+ },
+ "infracraft.astra.hud.uplink": {
+  "ko_kr": "UPLINK // 아스트라 오브리터레이터",
+  "en_us": "UPLINK // ASTRA OBLITERATOR"
+ },
+ "infracraft.astra.hud.array": {
+  "ko_kr": "성좌 배열 %s/9",
+  "en_us": "STELLAR ARRAY %s/9"
+ },
+ "infracraft.astra.hud.tminus": {
+  "ko_kr": "착탄까지 %s초",
+  "en_us": "T-MINUS %ss"
+ },
+ "infracraft.astra.hud.skip": {
+  "ko_kr": "[%s] 건너뛰기",
+  "en_us": "[%s] Skip"
+ },
+ "infracraft.astra.hud.nine.title": {
+  "ko_kr": "AS-09 · 아홉 별",
+  "en_us": "AS-09 · NINE STARS"
+ },
+ "infracraft.astra.hud.nine.sub": {
+  "ko_kr": "독수리자리 성좌 투영 · 목표 %s, %s, %s",
+  "en_us": "Aquila projection · target %s, %s, %s"
+ },
+ "infracraft.astra.hud.nine.distance": {
+  "ko_kr": "알타이르 16.7광년 · 별 아홉이 차례로 떨어집니다",
+  "en_us": "Altair, 16.7 light-years · nine stars fall in turn"
+ },
+ "infracraft.astra.hud.landed": {
+  "ko_kr": "착탄 %s/9",
+  "en_us": "IMPACT %s/9"
+ },
+ "infracraft.astra.hud.rail.title": {
+  "ko_kr": "AS-01 · 별자리 레일건",
+  "en_us": "AS-01 · CONSTELLATION RAILGUN"
+ },
+ "infracraft.astra.hud.rail.charge": {
+  "ko_kr": "충전 %s%%",
+  "en_us": "CHARGE %s%%"
+ },
+ "infracraft.astra.hud.rail.fire": {
+  "ko_kr": "발사",
+  "en_us": "FIRE"
  }
 }

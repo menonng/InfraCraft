@@ -37,7 +37,7 @@ object ExploredMap {
     fun register() {
         ClientChunkEvents.CHUNK_LOAD.register { level, chunk -> record(level, chunk) }
         ClientPlayConnectionEvents.JOIN.register { _, _, mc -> load(mc) }
-        ClientPlayConnectionEvents.DISCONNECT.register { _, _ -> save(); chunks.clear(); worldKey = null }
+        ClientPlayConnectionEvents.DISCONNECT.register { _, mc -> mc.execute { save(); chunks.clear(); worldKey = null } }
         ClientTickEvents.END_CLIENT_TICK.register { if (++ticks % (20 * 300) == 0) save() }
     }
 
