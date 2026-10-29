@@ -16,29 +16,7 @@
   },
   "criteria": {
     "done": {
-      "trigger": "minecraft:tick",
-      "conditions": {
-        "player": [
-          {
-            "condition": "minecraft:entity_properties",
-            "entity": "this",
-            "predicate": {
-              "type_specific": {
-                "type": "minecraft:player",
-                "stats": [
-                  {
-                    "type": "minecraft:custom",
-                    "stat": "infracraft:blocks_bored",
-                    "value": {
-                      "min": 2000
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        ]
-      }
+      "trigger": "minecraft:impossible"
     }
   },
   "parent": "infracraft:journey/rail_layer"

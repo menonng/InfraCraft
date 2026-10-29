@@ -85,6 +85,7 @@ object InfraCraft : ModInitializer {
                 dev.menonng.infracraft.system.Astra.tickHeld(player)
                 dev.menonng.infracraft.system.Bridges.tickHeld(player)
                 dev.menonng.infracraft.system.Explored.tick(player)
+                dev.menonng.infracraft.system.Journey.tick(player)
                 if (server.tickCount % 40 == 0) ElytraBan.sweep(player)
             }
             CreateCompat.tick(server)

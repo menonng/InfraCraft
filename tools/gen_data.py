@@ -241,10 +241,10 @@ for t in ("in_enchanting_table", "non_treasure", "tradeable", "on_random_loot", 
     tag(f"minecraft/tags/enchantment/{t}.json", ALL_ENCH)
 
 # ── 발전과제: 여정 기록(사용자 통계로 판정) ──
+# 엔티티 조건식 JSON 형식이 26.2 와 26.3 에서 서로 달라서, 통계 기준은 코드(Journey.kt)가 판정해 수여한다.
+# 여기서는 그 기준을 Journey.kt 와 같은 표로 남기고, 발전과제 파일에는 수동 수여용 조건만 둔다.
 def stat_tick(stat, n):
-    return {"trigger": "minecraft:tick", "conditions": {"player": [{"condition": "minecraft:entity_properties", "entity": "this",
-        "predicate": {"type_specific": {"type": "minecraft:player", "stats": [
-            {"type": "minecraft:custom", "stat": f"{NS}:{stat}", "value": {"min": n}}]}}}]}}
+    return {"trigger": "minecraft:impossible"}
 
 def advancement(name, icon, parent, criterion, frame="task", hidden=False, background=None):
     display = {"icon": {"id": icon}, "title": {"translate": f"advancements.{NS}.journey.{name}.title"},
