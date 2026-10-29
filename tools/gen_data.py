@@ -26,11 +26,12 @@ CUBE_ALL = ["setts", "brick_paving", "flagstone", "asphalt", "road_line", "stree
 RAILS = ["high_speed_rail", "express_rail", "blaze_rail"]
 ITEMS = ["ticket", "road_paver", "track_layer", "tunnel_borer", "surveyor", "whistle",
          "iron_horseshoe", "diamond_horseshoe", "ender_rail_core", "subway_shield", "station_blueprint",
-         "ground_station_blueprint", "harbor_blueprint", "metro_car_blueprint", "coach_blueprint", "cargo_crate",
+         "ground_station_blueprint", "harbor_blueprint", "metro_car_blueprint", "coach_blueprint",
+         "timber_bridge_kit", "stone_bridge_kit", "copper_bridge_kit",
          "aquila_core", "astra_obliterator"] + [f"star_{k}" for k in
          ("altair", "tarazed", "alshain", "deneb_el_okab", "bezek", "chesus", "libertas", "phonix", "petra")]
 BLOCKS = CUBE_ALL + RAILS + ["station", "rail_switch", "water_current", "boat_lift", "stable", "station_elevator",
-                             "screen_door", "trading_post", "milestone"]
+                             "screen_door", "milestone"]
 
 def item_def(name, model):
     # 1.21.4+ 아이템 정의(1.21.1 은 이 폴더를 무시한다)
@@ -78,9 +79,6 @@ write(A, "models/block/milestone.json", {
             "up": {"texture": "#top"}, "down": {"texture": "#top"}}},
     ]})
 write(A, "blockstates/milestone.json", {"variants": {"": {"model": f"{NS}:block/milestone"}}})
-write(A, "models/block/trading_post.json", {"parent": "minecraft:block/cube_bottom_top", "textures": {
-    "top": f"{NS}:block/trading_post_top", "bottom": f"{NS}:block/trading_post_bottom", "side": f"{NS}:block/trading_post_side"}})
-write(A, "blockstates/trading_post.json", {"variants": {"": {"model": f"{NS}:block/trading_post"}}})
 
 # 승강장 안전문: 북쪽(선로 쪽)을 향한 모델을 돌려 쓴다. 판은 북쪽 면 0..2 에 붙는다.
 def cuboid(a, b, tex):
@@ -177,15 +175,16 @@ tag(f"{NS}/tags/block/paveable.json", mc(
 tag("minecraft/tags/block/mineable/pickaxe.json", [f"{NS}:{b}" for b in
     ("asphalt", "road_line", "setts", "brick_paving", "flagstone", "milestone", "station", "rail_switch", "water_current", "boat_lift", "tunnel_lining", "platform_edge", "station_elevator",
      "screen_door", *RAILS)])
-tag("minecraft/tags/block/mineable/axe.json", [f"{NS}:signpost", f"{NS}:trading_post"])
+tag("minecraft/tags/block/mineable/axe.json", [f"{NS}:signpost"])
 tag("minecraft/tags/block/mineable/hoe.json", [f"{NS}:stable"])
 tag("minecraft/tags/block/rails.json", [f"{NS}:{r}" for r in RAILS])
 tag("minecraft/tags/item/rails.json", [f"{NS}:{r}" for r in RAILS])
 TOOLS = [f"{NS}:road_paver", f"{NS}:track_layer", f"{NS}:tunnel_borer", f"{NS}:subway_shield"]
+KITS = [f"{NS}:timber_bridge_kit", f"{NS}:stone_bridge_kit", f"{NS}:copper_bridge_kit"]
 tag(f"{NS}/tags/item/enchantable/road_paver.json", [f"{NS}:road_paver"])
 tag(f"{NS}/tags/item/enchantable/tunnel_borer.json", [f"{NS}:tunnel_borer"])
 tag(f"{NS}/tags/item/enchantable/construction.json", TOOLS)
-tag("minecraft/tags/item/enchantable/durability.json", TOOLS)
+tag("minecraft/tags/item/enchantable/durability.json", TOOLS + KITS)
 tag("minecraft/tags/item/enchantable/mining.json", [f"{NS}:tunnel_borer"])
 
 # Create(Create Fly) 장식 돌: Create 가 없으면 무시되는 선택 항목으로 넣는다
@@ -276,6 +275,10 @@ RECIPES = [
     ("subway_shield", 1, ["III", "DTD", "III"], {"I": "minecraft:iron_block", "D": "minecraft:diamond", "T": f"{NS}:tunnel_borer"}),
     ("station_blueprint", 1, ["BPB", "PSP", "BPB"], {"B": "minecraft:blue_dye", "P": "minecraft:paper", "S": f"{NS}:station"}),
     ("screen_door", 2, ["IPI", "IPI"], {"I": "minecraft:iron_ingot", "P": "minecraft:glass_pane"}),
+    # 다리 키트(내구도 30): 연장 + 그 다리의 재료 견본
+    ("timber_bridge_kit", 1, ["SAS", "PPP", "L L"], {"S": "minecraft:string", "A": "minecraft:iron_axe", "P": "#minecraft:planks", "L": "#minecraft:logs"}),
+    ("stone_bridge_kit", 1, ["CPC", "BBB", "B B"], {"C": "minecraft:chiseled_stone_bricks", "P": "minecraft:iron_pickaxe", "B": "minecraft:stone_bricks"}),
+    ("copper_bridge_kit", 1, ["ILI", "CCC", "I I"], {"I": "minecraft:copper_ingot", "L": "minecraft:lightning_rod", "C": "minecraft:cut_copper"}),
     ("ground_station_blueprint", 1, ["BLB", "PSP", "BWB"], {"B": "minecraft:blue_dye", "L": "minecraft:lantern", "P": "minecraft:paper",
                                                             "S": f"{NS}:station", "W": "minecraft:spruce_slab"}),
 ]
@@ -305,7 +308,7 @@ HIDDEN_RECIPES = [
     ("astra_obliterator", 1, [" N ", "NCN", " W "], {"N": "minecraft:nether_star", "C": f"{NS}:aquila_core", "W": "minecraft:netherite_sword"}),
 ]
 
-# 조합법이 없는 아이템(획득처는 Loot.kt·교역·설계도)
+# 조합법이 없는 아이템(획득처는 Loot.kt·설계도)
 REMOVED_RECIPES = ["diamond_horseshoe"]
 
 GUIDE_PAGES = 9

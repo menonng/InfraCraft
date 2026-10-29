@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "infracraft:item/cargo_crate"
+    "layer0": "infracraft:item/copper_bridge_kit"
   }
 }

@@ -252,28 +252,16 @@
   "en_us": "Survey start: %1$s"
  },
  "infracraft.msg.surveyor.result": {
-  "ko_kr": "수평 %1$sm · 높이 %2$sm · 경사 %3$s%% · 폭 3 교량 블록 약 %4$s개",
-  "en_us": "Horizontal %1$sm · rise %2$sm · grade %3$s%% · ~%4$s blocks for a 3-wide bridge"
+  "ko_kr": "수평 %1$sm · 높이 %2$sm · 경사 %3$s%%",
+  "en_us": "Horizontal %1$sm · rise %2$sm · grade %3$s%%"
  },
  "infracraft.msg.surveyor.hint": {
-  "ko_kr": "웅크리고 두 번째 지점을 찍으면 왼손의 블록으로 교량을 놓습니다.",
-  "en_us": "Sneak while picking the second point to build a bridge with your off-hand block."
+  "ko_kr": "다리를 놓으려면 다리 키트를 오른손에 들어 보세요. 놓일 자리와 재료가 보입니다.",
+  "en_us": "To build a bridge, hold a bridge kit in your main hand: it shows where the bridge goes and what it needs."
  },
  "infracraft.msg.surveyor.cleared": {
   "ko_kr": "측량 지점을 지웠습니다.",
   "en_us": "Survey point cleared."
- },
- "infracraft.msg.bridge.too_long": {
-  "ko_kr": "교량은 %1$s칸까지만 놓을 수 있습니다.",
-  "en_us": "Bridges are limited to %1$s blocks."
- },
- "infracraft.msg.bridge.out_of_material": {
-  "ko_kr": "재료가 떨어졌습니다. %1$s칸 놓았습니다.",
-  "en_us": "Out of material after %1$s blocks."
- },
- "infracraft.msg.bridge.done": {
-  "ko_kr": "교량 완성: %1$s블록",
-  "en_us": "Bridge built: %1$s blocks"
  },
  "infracraft.msg.whistle.untamed": {
   "ko_kr": "길들인 말에만 호루라기를 묶을 수 있습니다.",
@@ -475,10 +463,6 @@
   "ko_kr": "승강장 안전문",
   "en_us": "Platform Screen Door"
  },
- "block.infracraft.trading_post": {
-  "ko_kr": "교역소",
-  "en_us": "Trading Post"
- },
  "item.infracraft.ground_station_blueprint": {
   "ko_kr": "지상 역사 설계도",
   "en_us": "Surface Station Blueprint"
@@ -494,18 +478,6 @@
  "item.infracraft.coach_blueprint": {
   "ko_kr": "객차 도면",
   "en_us": "Passenger Coach Plan"
- },
- "item.infracraft.cargo_crate": {
-  "ko_kr": "화물 상자",
-  "en_us": "Cargo Crate"
- },
- "stat.infracraft.cargo_delivered": {
-  "ko_kr": "배달한 화물",
-  "en_us": "Cargo Delivered"
- },
- "stat.infracraft.trade_one_cm": {
-  "ko_kr": "교역 항해 거리",
-  "en_us": "Trade Voyage Distance"
  },
  "infracraft.msg.ground_station.built": {
   "ko_kr": "지상 복선 역사 완성! 역 '%1$s'·'%2$s'. 이름표로 역 이름을 바꾸세요.",
@@ -570,54 +542,6 @@
  "infracraft.msg.region.temperate": {
   "ko_kr": "온대",
   "en_us": "Temperate"
- },
- "infracraft.msg.trade.no_harbor": {
-  "ko_kr": "%1$s칸 안에 항구(물속 역 블록)가 없습니다.",
-  "en_us": "No harbor (station block under water) within %1$s blocks."
- },
- "infracraft.msg.trade.post_info": {
-  "ko_kr": "교역소 — %1$s",
-  "en_us": "Trading post — %1$s"
- },
- "infracraft.msg.trade.specialties": {
-  "ko_kr": "이 항구의 특산품: ",
-  "en_us": "Local specialties: "
- },
- "infracraft.msg.trade.how": {
-  "ko_kr": "특산품을 들고 교역소를 쓰면 화물 상자가 됩니다. 배를 타고 %1$s블록 넘게 떨어진 다른 지역 항구에 닿으면 그곳 특산품으로 바꿔 줍니다. 멀수록 더 많이, 가끔 진귀품도 얹어 줍니다.",
-  "en_us": "Use a local specialty on the trading post to pack a cargo crate. Sail to a harbor in another region more than %1$s blocks away and it is exchanged for their specialties. The farther, the more — sometimes with a rare find."
- },
- "infracraft.msg.trade.not_specialty": {
-  "ko_kr": "%1$s의 특산품만 실을 수 있습니다: ",
-  "en_us": "Only local specialties of %1$s can be loaded: "
- },
- "infracraft.msg.trade.loaded": {
-  "ko_kr": "%1$s개를 화물 상자에 실었습니다(출발: %2$s). 배를 타고 다른 지역 항구로 가세요.",
-  "en_us": "Packed %1$s into a cargo crate (from %2$s). Sail it to a harbor in another region."
- },
- "infracraft.msg.trade.lore_from": {
-  "ko_kr": "출발: %1$s",
-  "en_us": "From: %1$s"
- },
- "infracraft.msg.trade.delivered": {
-  "ko_kr": "화물 하역: %1$s → %2$s, 항해 %3$sm. 대가로 특산품 %4$s개를 받았습니다.",
-  "en_us": "Cargo unloaded: %1$s → %2$s, %3$sm voyage. Received %4$s local goods."
- },
- "infracraft.msg.trade.exotic": {
-  "ko_kr": "먼 항해의 선물: ",
-  "en_us": "A gift for the long voyage: "
- },
- "infracraft.msg.trade.refuse.same_region": {
-  "ko_kr": "%1$s도 같은 지역이라 이 화물을 사지 않습니다.",
-  "en_us": "%1$s is in the same region and will not buy this cargo."
- },
- "infracraft.msg.trade.refuse.too_close": {
-  "ko_kr": "%1$s는 출발 항구와 너무 가깝습니다.",
-  "en_us": "%1$s is too close to the origin harbor."
- },
- "infracraft.msg.trade.refuse.other_dimension": {
-  "ko_kr": "다른 차원의 화물은 %1$s에서 받지 않습니다.",
-  "en_us": "%1$s does not accept cargo from another dimension."
  },
  "infracraft.msg.car.need_create": {
   "ko_kr": "Create(Create Fly)가 있어야 쓸 수 있는 도면입니다.",
@@ -810,5 +734,61 @@
  "infracraft.msg.astra.cast": {
   "ko_kr": "✦ 독수리자리가 강림합니다 ✦",
   "en_us": "✦ Aquila descends ✦"
+ },
+ "item.infracraft.timber_bridge_kit": {
+  "ko_kr": "목조 다리 키트",
+  "en_us": "Timber Bridge Kit"
+ },
+ "item.infracraft.stone_bridge_kit": {
+  "ko_kr": "석조 아치교 키트",
+  "en_us": "Stone Arch Bridge Kit"
+ },
+ "item.infracraft.copper_bridge_kit": {
+  "ko_kr": "구리 트러스교 키트",
+  "en_us": "Copper Truss Bridge Kit"
+ },
+ "stat.infracraft.bridge_blocks": {
+  "ko_kr": "다리에 놓은 블록",
+  "en_us": "Bridge Blocks Placed"
+ },
+ "infracraft.msg.bridge_kit.preview": {
+  "ko_kr": "길이 %1$s · 기둥 %2$s · %3$s %4$s개 필요(보유 %5$s)",
+  "en_us": "Length %1$s · piers %2$s · needs %4$s %3$s (have %5$s)"
+ },
+ "infracraft.msg.bridge_kit.snapped": {
+  "ko_kr": "[길에 맞춤]",
+  "en_us": "[aligned to road]"
+ },
+ "infracraft.msg.bridge_kit.need_raw.timber": {
+  "ko_kr": "판자가 필요합니다. 인벤토리의 판자 한 종류로 난간·보·기둥까지 짓습니다.",
+  "en_us": "Needs planks. One kind of planks from your inventory builds the deck, rails, beams and piers."
+ },
+ "infracraft.msg.bridge_kit.need_raw.stone": {
+  "ko_kr": "석재가 필요합니다(석재 벽돌·조약돌·벽돌·사암 등 담장이 있는 석재). 한 종류로 아치와 난간까지 짓습니다.",
+  "en_us": "Needs masonry with a wall variant (stone bricks, cobblestone, bricks, sandstone…). One kind builds the arches and parapets too."
+ },
+ "infracraft.msg.bridge_kit.need_raw.copper": {
+  "ko_kr": "깎인 구리가 필요합니다. 녹슨 정도도 그대로 다리의 빛깔이 됩니다.",
+  "en_us": "Needs cut copper. Its weathering becomes the colour of the bridge."
+ },
+ "infracraft.msg.bridge_kit.no_gap": {
+  "ko_kr": "앞쪽 8칸 안에 건널 곳이 없습니다. 벼랑이나 물가 끝에서 건너편을 바라보세요.",
+  "en_us": "Nothing to cross within 8 blocks ahead. Stand at the edge and face the far side."
+ },
+ "infracraft.msg.bridge_kit.nothing": {
+  "ko_kr": "이미 다리가 놓여 있습니다.",
+  "en_us": "The bridge is already here."
+ },
+ "infracraft.msg.bridge_kit.short": {
+  "ko_kr": "%1$s이(가) 모자랍니다: %2$s개 필요, %3$s개 보유.",
+  "en_us": "Not enough %1$s: needs %2$s, have %3$s."
+ },
+ "infracraft.msg.bridge_kit.built": {
+  "ko_kr": "길이 %1$s, 기둥 %2$s개짜리 다리를 놓았습니다(%4$s %3$s개).",
+  "en_us": "Built a bridge, length %1$s with %2$s piers (%3$s %4$s)."
+ },
+ "infracraft.msg.bridge_kit.built_open": {
+  "ko_kr": "길이 %1$s, 기둥 %2$s개를 놓았습니다(%4$s %3$s개). 아직 건너편에 닿지 않았으니 끝에 서서 이어 놓으세요.",
+  "en_us": "Built %1$s blocks with %2$s piers (%3$s %4$s). It doesn't reach the far side yet: stand at the end and continue."
  }
 }

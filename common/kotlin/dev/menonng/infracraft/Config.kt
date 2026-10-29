@@ -35,7 +35,9 @@ class InfraConfig {
     var paverBaseWidth = 3
     var borerBaseRadius = 1
     var borerMaxHardness = 30.0
-    var bridgeMaxLength = 96
+    var bridgeKitMaxLength = 64
+    var bridgePierHeight = 5
+    var bridgePierMaxDepth = 48
 
     // ── 지하철 ──
     /** 굴진기·설계도가 까는 선로: auto(Create 트랙이 있으면 그것, 없으면 바닐라), create, vanilla, none */

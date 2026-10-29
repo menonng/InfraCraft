@@ -12,7 +12,6 @@ import dev.menonng.infracraft.content.ModItems
 import dev.menonng.infracraft.content.ModStats
 import dev.menonng.infracraft.content.ModEnchantments
 import dev.menonng.infracraft.content.ModTags
-import dev.menonng.infracraft.system.TradeRules
 import dev.menonng.infracraft.system.Enchants
 import dev.menonng.infracraft.system.CreateCompat
 import dev.menonng.infracraft.system.ElytraBan
@@ -75,6 +74,7 @@ object InfraCraft : ModInitializer {
                 Network.rememberPosition(player)
                 Network.tickMilestone(player)
                 dev.menonng.infracraft.system.Astra.tickHeld(player)
+                dev.menonng.infracraft.system.Bridges.tickHeld(player)
                 if (server.tickCount % 40 == 0) ElytraBan.sweep(player)
             }
             CreateCompat.tick(server)
@@ -116,18 +116,31 @@ object InfraCraft : ModInitializer {
         check("rails tag", ModBlocks.EXPRESS_RAIL.defaultBlockState().`is`(net.minecraft.tags.BlockTags.RAILS))
         check("network attachment", Network.data(server).stations.isEmpty())
         check("screen door states", ModBlocks.SCREEN_DOOR.stateDefinition.possibleStates.size == 16)
-        check("trade regions", TradeRules.region("snowy_taiga") == TradeRules.Region.SNOWY &&
-            TradeRules.region("mangrove_swamp") == TradeRules.Region.SWAMP && TradeRules.region("plains") == TradeRules.Region.TEMPERATE)
-        for (r in TradeRules.Region.entries) for (s in r.specialties) {
-            check("trade item minecraft:$s", net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(Compat.id("minecraft", s)))
+        run {
+            // 다리 키트 원재료 묶음: 이름 규칙으로 찾은 블록이 실제로 있는지
+            val B = dev.menonng.infracraft.system.Bridges
+            fun fam(kind: dev.menonng.infracraft.system.Bridges.Kind, item: net.minecraft.world.item.Item) =
+                B.family(kind, net.minecraft.world.item.ItemStack(item))
+            val timber = fam(B.Kind.TIMBER, net.minecraft.world.item.Items.SPRUCE_PLANKS)
+            check("bridge timber family", timber?.rail == net.minecraft.world.level.block.Blocks.SPRUCE_FENCE && timber.post == net.minecraft.world.level.block.Blocks.SPRUCE_LOG)
+            check("bridge crimson family", fam(B.Kind.TIMBER, net.minecraft.world.item.Items.CRIMSON_PLANKS)?.post == net.minecraft.world.level.block.Blocks.CRIMSON_STEM)
+            val stone = fam(B.Kind.STONE, net.minecraft.world.item.Items.STONE_BRICKS)
+            check("bridge stone family", stone?.rail == net.minecraft.world.level.block.Blocks.STONE_BRICK_WALL && stone.stairs == net.minecraft.world.level.block.Blocks.STONE_BRICK_STAIRS)
+            check("bridge tiles family", fam(B.Kind.STONE, net.minecraft.world.item.Items.DEEPSLATE_TILES)?.rail == net.minecraft.world.level.block.Blocks.DEEPSLATE_TILE_WALL)
+            check("bridge cobble family", fam(B.Kind.STONE, net.minecraft.world.item.Items.COBBLESTONE) != null && fam(B.Kind.STONE, net.minecraft.world.item.Items.STONE) == null)
+            val copper = fam(B.Kind.COPPER, net.minecraft.world.item.Items.WEATHERED_CUT_COPPER)
+            check("bridge copper family", copper?.slab == net.minecraft.world.level.block.Blocks.WEATHERED_CUT_COPPER_SLAB &&
+                copper.accent == net.minecraft.world.level.block.Blocks.WEATHERED_COPPER_GRATE)
+            check("bridge wrong kit refuses", fam(B.Kind.COPPER, net.minecraft.world.item.Items.OAK_PLANKS) == null)
+            val feet = net.minecraft.core.BlockPos(0, 300, 64)
+            overworld.getChunk(0, 4)
+            val err = B.selfTest(overworld, feet)
+            check("stone bridge built in world (${err ?: "ok"})", err == null)
         }
         for (s in listOf("end_crystal", "beacon", "netherite_block", "totem_of_undying", "dragon_head", "shulker_shell", "sculk_catalyst",
             "amethyst_cluster", "recovery_compass", "breeze_rod", "ominous_trial_key", "heavy_core", "prismarine_crystals",
             "enchanted_golden_apple", "ghast_tear", "crying_obsidian", "lodestone", "nether_star", "netherite_sword")) {
             check("astra ingredient minecraft:$s", net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(Compat.id("minecraft", s)))
-        }
-        for (s in listOf("nautilus_shell", "name_tag", "tropical_fish_bucket", "sniffer_egg", "saddle", "heart_of_the_sea")) {
-            check("exotic item minecraft:$s", net.minecraft.core.registries.BuiltInRegistries.ITEM.containsKey(Compat.id("minecraft", s)))
         }
         if (System.getenv("INFRACRAFT_SMOKE_CREATE") == "true") {
             check("create loaded", CreateCompat.loaded)

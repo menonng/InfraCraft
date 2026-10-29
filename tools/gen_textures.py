@@ -441,18 +441,6 @@ def car_sheet(body, body_dark, tag):
 save(car_sheet("#B9C2C8", "#6E7A82", "#39C5BB"), "item/metro_car_blueprint")
 save(car_sheet("#8A5A33", "#5A3A1E", "#FF0045"), "item/coach_blueprint")
 
-# 화물 상자: 가문비나무 판자 + 쇠 모서리 + 꼬리표
-img = new()
-planks(img, SPRUCE, 41, 2, 3, 13, 13)
-for i in range(2, 14):
-    img.putpixel((i, 3), hx(SPRUCE[3])); img.putpixel((i, 13), hx(SPRUCE[3]))
-    img.putpixel((2, min(13, i + 1)), hx(SPRUCE[3])); img.putpixel((13, min(13, i + 1)), hx(SPRUCE[3]))
-for (x, y) in [(2, 3), (13, 3), (2, 13), (13, 13), (3, 4), (12, 4), (3, 12), (12, 12)]:
-    img.putpixel((x, y), hx(IRON[2]))
-px(img, [(x, x + 1) for x in range(3, 12)], SPRUCE[2])
-rect(img, 9, 1, 12, 3, "#F2E6C8"); px(img, [(8, 2)], "#C8B48A"); px(img, [(10, 2), (11, 2)], "#8A2A1E")
-save(img, "item/cargo_crate")
-
 # 승강장 안전문: 틀(밝은 철 + 노란 표시등)과 반투명 유리
 img = new("#000000"); casing(img, IRON, 42)
 rect(img, 3, 3, 12, 12, "#9AA3A8")
@@ -472,29 +460,41 @@ px(img, [(5, 6), (6, 5), (7, 4)], (255, 255, 255, 220))
 px(img, [(7, 0), (8, 0)], "#FFCC11")
 save(img, "item/screen_door")
 
-# 교역소: 가문비나무 통 + 닻 표식, 옆면엔 장부 판
-img = new()
-planks(img, SPRUCE, 43, 0, 0, 15, 15)
-for i in range(16):
-    img.putpixel((i, 0), hx(SPRUCE[3])); img.putpixel((i, 15), hx(SPRUCE[3]))
-    img.putpixel((0, i), hx(SPRUCE[3])); img.putpixel((15, i), hx(SPRUCE[3]))
-anchor = [(7, 3), (8, 3), (7, 4), (8, 4), (5, 5), (6, 5), (7, 5), (8, 5), (9, 5), (10, 5)] + \
-         [(7, y) for y in range(6, 12)] + [(8, y) for y in range(6, 12)] + \
-         [(4, 10), (5, 11), (6, 12), (11, 10), (10, 11), (9, 12), (7, 12), (8, 12)]
-px(img, anchor, IRON[1])
-save(img, "block/trading_post_top")
-img = new()
-planks(img, SPRUCE, 44, 0, 0, 15, 15, horizontal=False)
-for x in range(16):
-    img.putpixel((x, 1), hx(IRON[3])); img.putpixel((x, 14), hx(IRON[3]))
-rect(img, 4, 4, 11, 11, "#E9DDBB")
-for y in (6, 8, 10):
-    px(img, [(x, y) for x in range(5, 11)], "#8C7A55")
-px(img, [(10, 5), (9, 5)], "#8A2A1E")
-save(img, "block/trading_post_side")
-img = new(); planks(img, SPRUCE, 45, 0, 0, 15, 15)
-save(img, "block/trading_post_bottom")
+# 다리 키트: 청사진 위에 그 다리의 옆모습(재료 색)
+def bridge_kit(draw, tag):
+    img = paper("#2E5C9E", "#1E3F70")
+    draw(img)
+    px(img, [(13, 3), (12, 3), (13, 4)], tag)
+    return img
 
+def timber(img):
+    px(img, [(x, 7) for x in range(2, 14)], "#B8945F")          # 상판
+    px(img, [(x, 6) for x in range(2, 14) if x % 2 == 0], "#8A6A3E")  # 난간
+    for x in (3, 8, 12):
+        px(img, [(x, y) for y in range(8, 13)], "#6B4A26")     # 나무 기둥
+    px(img, [(4, 9), (5, 10), (6, 11), (7, 9), (9, 9), (10, 10), (11, 11)], "#8A6A3E")  # 가새
+    px(img, [(x, 12) for x in range(2, 14) if x % 3 == 1], "#5C8ECC")  # 물
+save(bridge_kit(timber, "#55BB44"), "item/timber_bridge_kit")
+
+def stone(img):
+    px(img, [(x, 6) for x in range(2, 14)], "#A9A9A9")
+    px(img, [(x, 5) for x in range(2, 14) if x % 2 == 0], "#8C8C8C")
+    for x in (2, 7, 8, 13):
+        px(img, [(x, y) for y in range(7, 13)], "#8C8C8C")
+    # 아치 두 개
+    px(img, [(3, 7), (4, 7), (5, 7), (6, 7), (3, 8), (6, 8), (9, 7), (10, 7), (11, 7), (12, 7), (9, 8), (12, 8)], "#9A9A9A")
+    px(img, [(x, 12) for x in range(3, 13) if x % 3 == 0], "#5C8ECC")
+save(bridge_kit(stone, "#FFCC11"), "item/stone_bridge_kit")
+
+def copper(img):
+    px(img, [(x, 9) for x in range(2, 14)], "#C46A43")
+    px(img, [(x, 4) for x in range(3, 13)], "#5FA88E")
+    for x in (3, 7, 12):
+        px(img, [(x, y) for y in range(4, 10)], "#D98A5A")
+    px(img, [(4, 8), (5, 7), (6, 6), (6, 5), (8, 5), (9, 6), (10, 7), (11, 8)], "#5FA88E")
+    for x in (3, 12):
+        px(img, [(x, y) for y in range(10, 13)], "#8E4A2E")
+save(bridge_kit(copper, "#39C5BB"), "item/copper_bridge_kit")
 
 # ═══════════════════ 옛 길(3등급) ═══════════════════
 

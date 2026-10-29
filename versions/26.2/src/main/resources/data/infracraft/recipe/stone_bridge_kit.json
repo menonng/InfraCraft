@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "CPC",
+    "BBB",
+    "B B"
+  ],
+  "key": {
+    "C": "minecraft:chiseled_stone_bricks",
+    "P": "minecraft:iron_pickaxe",
+    "B": "minecraft:stone_bricks"
+  },
+  "result": {
+    "id": "infracraft:stone_bridge_kit",
+    "count": 1
+  }
+}

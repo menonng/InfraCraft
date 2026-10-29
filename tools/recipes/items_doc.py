@@ -38,8 +38,6 @@ LOOT_KO = {
 
 # 아이템별 기타 획득처(조합·상자 외)
 OTHER = {
-    "trading_post": "**항구 설계도**를 쓰면 잔교 입구에 설치돼요. 부수면 아이템으로 회수해 옮길 수 있어요.",
-    "cargo_crate": "**교역소**에 그 항구의 특산품을 들고 쓰면 받아요(최대 64개를 담아요).",
 }
 
 CATEGORIES = [
@@ -47,14 +45,17 @@ CATEGORIES = [
     ("철도", ["high_speed_rail", "express_rail", "blaze_rail", "ender_rail_core", "station", "rail_switch", "ticket", "track_layer", "surveyor"]),
     ("지하철", ["tunnel_borer", "subway_shield", "tunnel_lining", "tunnel_light", "platform_edge", "screen_door", "station_elevator", "subway_guide"]),
     ("역사 설계도", ["station_blueprint", "ground_station_blueprint", "harbor_blueprint"]),
+    ("다리 키트", ["timber_bridge_kit", "stone_bridge_kit", "copper_bridge_kit"]),
     ("차량 도면 (Create)", ["metro_car_blueprint", "coach_blueprint"]),
-    ("수운·항구", ["water_current", "boat_lift", "trading_post", "cargo_crate"]),
+    ("수운", ["water_current", "boat_lift"]),
     ("말", ["stable", "whistle", "iron_horseshoe", "diamond_horseshoe"]),
 ]
 
 HIDDEN = ["star_altair", "star_tarazed", "star_alshain", "star_deneb_el_okab", "star_bezek", "star_chesus",
           "star_libertas", "star_phonix", "star_petra", "aquila_core", "astra_obliterator"]
 VANILLA_KO.update({
+    "iron_axe": "철 도끼", "#logs": "원목", "iron_pickaxe": "철 곡괭이", "chiseled_stone_bricks": "조각된 석재 벽돌",
+    "lightning_rod": "피뢰침", "cut_copper": "깎인 구리",
     "diamond_block": "다이아몬드 블록", "end_crystal": "엔드 수정", "beacon": "신호기", "fire_charge": "화염구",
     "blaze_rod": "블레이즈 막대기", "netherite_block": "네더라이트 블록", "gold_block": "금 블록", "totem_of_undying": "불사의 토템",
     "shulker_shell": "셜커 껍데기", "dragon_head": "드래곤 머리", "sculk_catalyst": "스컬크 촉매", "amethyst_cluster": "자수정 군집",
@@ -113,7 +114,7 @@ def main():
     loot = loot_sources()
     lines = ["# 아이템 조합법·획득처", "",
              "InfraCraft 의 모든 아이템은 **조합하거나, 또는 다른 곳에서 얻어요.** 조합할 수 있는 아이템은 조합대 그림을 함께 실었어요.",
-             "조합법이 없는 아이템은 구조물 상자나 교역, 설계도로 얻어요. 게임 안에서는 레시피 책(또는 JEI·EMI)으로도 볼 수 있어요.", "",
+             "조합법이 없는 아이템은 구조물 상자에서 얻어요. 게임 안에서는 레시피 책(또는 JEI·EMI)으로도 볼 수 있어요.", "",
              "| 얻는 법 | 아이템 |", "|---|---|"]
     crafted, found = [], []
     for _, items in CATEGORIES:

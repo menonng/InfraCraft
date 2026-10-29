@@ -33,6 +33,7 @@ MAP = {
     "oak_leaves": (MC, "block/oak_leaves", (72, 181, 24)), "mossy_cobblestone": (MC, "block/mossy_cobblestone"),
     "car_body": (CR, "block/industrial_iron_block"), "andesite_casing": (CR, "block/andesite_casing"),
     "brass_casing": (CR, "block/brass_casing"), "railway_casing": (CR, "block/railway_casing"),
+    "weathered_cut_copper": (MC, "block/weathered_cut_copper"), "weathered_copper_grate": (MC, "block/weathered_copper_grate"),
 }
 
 def load(z, ns, path):

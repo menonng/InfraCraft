@@ -362,65 +362,25 @@ const FEATURES = (() => {
         const r = ctx.createRadialGradient(lx, ly, 1, lx, ly, 30); r.addColorStop(0, 'rgba(255,200,90,0.9)'); r.addColorStop(1, 'rgba(255,200,90,0)');
         ctx.fillStyle = r; ctx.fillRect(lx - 30, ly - 30, 60, 60); ctx.restore(); }
     }
-    // 항구: 물 위 잔교와 교역소
+    // 항구: 물 위 잔교와 계선주
     {
       const iso = new Iso(990, 400, 22), bl = [], g = build(2);
       for (let x = 0; x < 7; x++) for (let z = -4; z <= 1; z++) bl.push({ x, y: -1, z, tex: 'water', alpha: a });
       for (let x = 0; x < 6; x++) for (let z = -2; z <= -1; z++) bl.push({ x, y: 0, z, tex: 'planks', alpha: a * g });
-      bl.push({ x: 0, y: 1, z: -2, tex: { top: 'trading_post_top', side: 'trading_post_side' }, alpha: a * seg(t, 2.8, 3.3) });
+      bl.push({ x: 1, y: 1, z: -2, tex: 'spruce_log', scale: 0.4, alpha: a * seg(t, 2.8, 3.3) });
+      bl.push({ x: 4, y: 1, z: -2, tex: 'spruce_log', scale: 0.4, alpha: a * seg(t, 2.8, 3.3) });
       drawBlocks(ctx, iso, bl);
       const bx = lerp(1060, 1010, easeOut(seg(t, 3.4, 5.4)));
       ctx.save(); ctx.globalAlpha = a * seg(t, 3.4, 3.8); ctx.fillStyle = '#9a6b3f'; roundRect(ctx, bx, 455, 56, 16, 6); ctx.fill(); ctx.restore();
     }
-    const notes = [[230, '높은 승강장 · 안전문 · 승강기'], [640, '지붕 · 벤치 · 등불 · 이정표'], [1050, '잔교 · 계선주 · 교역소']];
+    const notes = [[230, '높은 승강장 · 안전문 · 승강기'], [640, '지붕 · 벤치 · 등불 · 이정표'], [1050, '잔교 · 계선주 · 물속 항구 역']];
     notes.forEach(([x, s2], i) => text(ctx, s2, x, 540, { size: 19, weight: 700, align: 'center', color: C.dim, alpha: a * build(i) }));
     const cap = t < 4.5 ? '설계도 하나로 지하·지상·항구 역사를 짓습니다'
       : '승강장은 선로보다 한 칸 높아 Create 차량과 턱 없이 이어집니다. 항구 설계도는 난파선에서 찾습니다';
     caption(ctx, '07  역사 세 가지', cap, a * seg(t, 0.3, 0.8), C.pink);
   }
 
-  // ── 항구 교역 ──
-  function trade(ctx, t, d) {
-    background(ctx, t, 'rgba(57,197,187,0.09)');
-    const a = inOut(t, 0, d);
-    const iso = new Iso(330, 215, 26);
-    const bl = [];
-    const GRASS = { top: 'grass_top', side: 'grass_side' }, SNOW = { top: 'snow', side: 'dirt' };
-    for (let x = 0; x <= 17; x++) for (let z = -7; z <= 0; z++) {
-      const left = x <= 3, right = x >= 14;
-      const pierL = x >= 4 && x <= 6 && (z === -4 || z === -3);
-      const pierR = x >= 11 && x <= 13 && (z === -4 || z === -3);
-      if (left || right) {
-        const p = pop(t, 0.1 + (left ? x : 17 - x) * 0.05, 0.35);
-        bl.push({ x, y: -1, z, tex: 'dirt', alpha: a * p.alpha, lift: p.lift });
-        bl.push({ x, y: 0, z, tex: left ? GRASS : SNOW, alpha: a * p.alpha, lift: p.lift });
-      } else bl.push({ x, y: -1, z, tex: pierL || pierR ? 'planks' : 'water', alpha: a });
-    }
-    bl.push({ x: 4, y: 0, z: -4, tex: { top: 'trading_post_top', side: 'trading_post_side' }, alpha: a * seg(t, 0.4, 0.8) });
-    bl.push({ x: 13, y: 0, z: -4, tex: { top: 'trading_post_top', side: 'trading_post_side' }, alpha: a * seg(t, 0.4, 0.8) });
-    const sail = easeInOut(seg(t, 2.6, 6.4));
-    const bx = lerp(6.8, 10.2, sail), bz = -2 + Math.sin(sail * Math.PI) * -1.2;
-    bl.push({ x: bx, y: -0.45, z: bz, tex: 'planks', scale: 0.75, alpha: a * seg(t, 2.2, 2.6) });
-    drawBlocks(ctx, iso, bl);
-    if (t > 1.0) { const [cx, cy] = iso.pt(bx + 0.5, 1.2, bz + 0.5); sprite(ctx, 'cargo_crate', cx, cy, 34, a * seg(t, 1.0, 1.4)); }
-    const [lx, ly] = iso.pt(1.5, 1.8, -3.5), [rx, ry] = iso.pt(16, 2.6, -2);
-    text(ctx, '열대우림 항구', lx, ly, { size: 22, weight: 800, align: 'center', alpha: a, shadow: true });
-    text(ctx, '설원 항구', rx, ry, { size: 22, weight: 800, align: 'center', alpha: a, shadow: true });
-    panel(ctx, 960, 100, 280, 112, { alpha: a * seg(t, 2.6, 3.0), accent: C.sky });
-    text(ctx, `항해 ${Math.round(2600 * sail).toLocaleString()}m`, 990, 144, { size: 28, weight: 800, alpha: a * seg(t, 2.6, 3.0) });
-    text(ctx, '200블록 넘게 · 다른 지역', 990, 182, { size: 20, color: C.dim, alpha: a * seg(t, 2.6, 3.0) });
-    const c1 = easeOut(seg(t, 0.6, 1.2));
-    panel(ctx, 100, 580, 520, 56, { alpha: a * c1, accent: C.green });
-    text(ctx, '선적: 코코아 콩 ×64 → 화물 상자', 125, 616, { size: 20, weight: 700, alpha: a * c1 });
-    const c2 = easeOut(seg(t, 6.6, 7.2));
-    panel(ctx, 660, 580, 520, 56, { alpha: a * c2, accent: C.sky });
-    text(ctx, '하역: 얼음 39 · 꽁꽁 언 얼음 38 · 눈덩이 38 (1.8배)', 685, 616, { size: 20, weight: 700, alpha: a * c2 });
-    if (t > 7.6) { const [ex, ey] = iso.pt(13.5, 3.2, -3.5); actionbar(ctx, '먼 항해의 선물: 스니퍼 알', ex, ey, C.pink, a * seg(t, 7.6, 8.0)); }
-    const cap = t < 2.4 ? '교역소에 그 항구의 특산품을 들고 쓰면 화물 상자가 됩니다'
-      : t < 6.6 ? '배를 타고 200블록 넘게 떨어진 다른 지역 항구로 직접 갑니다'
-        : '도착하면 그곳 특산품으로 바뀝니다. 멀수록 많이, 가끔 진귀품도';
-    caption(ctx, '10  항구 교역', cap, a * seg(t, 0.3, 0.8), C.sky);
-  }
+
 
   // ── 규칙과 네더 ──
   function nether(ctx, t, d) {
@@ -482,13 +442,13 @@ const FEATURES = (() => {
     { from: 34, to: 46, ...fromGuide('g_ats') },
     { from: 46, to: 54, draw: network, sfx: () => [...[0.2, 0.32, 0.44, 0.56, 0.68, 0.8, 0.92].map((t) => [t, 'draw', 0.4, 1.0]), [4.2, 'minecart', 0.4, 1.0, 3.4], [7.6, 'bell', 0.5, 1.0]] },
     { from: 54, to: 63, draw: tools, sfx: () => every(0.8, 7.0, 0.3, 'place_stone', 0.25, 1.0, 0.04) },
-    { from: 63, to: 72, draw: stations, sfx: () => [...every(0.8, 2.4, 0.1, 'place_stone', 0.25, 1.0, 0.04), [2.6, 'lantern', 0.5, 1.0], [2.8, 'barrel', 0.5, 1.0], [3.4, 'paddle', 0.4, 1.0]] },
+    { from: 63, to: 72, draw: stations, sfx: () => [...every(0.8, 2.4, 0.1, 'place_stone', 0.25, 1.0, 0.04), [2.6, 'lantern', 0.5, 1.0], [3.4, 'paddle', 0.4, 1.0]] },
     { from: 72, to: 77, draw: horses, sfx: () => every(0.3, 4.6, 0.32, 'gallop', 0.45, 1.0, 0.03) },
     { from: 77, to: 83, draw: water, sfx: () => [[0.2, 'water', 0.4, 1.0, 5.6], [2.0, 'swim', 0.3, 1.0]] },
-    { from: 83, to: 93, draw: trade, sfx: () => [[0.6, 'barrel', 0.5, 1.0], [1.0, 'pop', 0.4, 1.0], ...every(2.6, 6.4, 0.7, 'paddle', 0.45, 1.0, 0.03), [6.6, 'bell', 0.6, 1.0], [6.8, 'orb', 0.5, 1.0], [7.6, 'twinkle', 0.6, 1.0]] },
-    { from: 93, to: 99, draw: nether, sfx: () => [[0.3, 'portal', 0.35, 1.0], [0.6, 'fire', 0.4, 1.0, 4.0]] },
-    { from: 99, to: 107, draw: compat, sfx: () => [[0.4, 'cogs', 0.4, 1.0], [1.0, 'enchant', 0.4, 1.0], [2.0, 'enchant', 0.4, 1.1]] },
-    { from: 107, to: 111, draw: outro, sfx: () => [[0.3, 'note_bell', 0.4, 1.0], [0.6, 'note_bell', 0.4, 1.26], [0.9, 'note_bell', 0.4, 1.5]] },
+    { from: 83, to: 101, ...fromGuide('g_bridge') },
+    { from: 101, to: 107, draw: nether, sfx: () => [[0.3, 'portal', 0.35, 1.0], [0.6, 'fire', 0.4, 1.0, 4.0]] },
+    { from: 107, to: 115, draw: compat, sfx: () => [[0.4, 'cogs', 0.4, 1.0], [1.0, 'enchant', 0.4, 1.0], [2.0, 'enchant', 0.4, 1.1]] },
+    { from: 115, to: 119, draw: outro, sfx: () => [[0.3, 'note_bell', 0.4, 1.0], [0.6, 'note_bell', 0.4, 1.26], [0.9, 'note_bell', 0.4, 1.5]] },
   ];
-  return { total: 111, scenes };
+  return { total: 119, scenes };
 })();

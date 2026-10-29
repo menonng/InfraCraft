@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "ILI",
+    "CCC",
+    "I I"
+  ],
+  "key": {
+    "I": "minecraft:copper_ingot",
+    "L": "minecraft:lightning_rod",
+    "C": "minecraft:cut_copper"
+  },
+  "result": {
+    "id": "infracraft:copper_bridge_kit",
+    "count": 1
+  }
+}

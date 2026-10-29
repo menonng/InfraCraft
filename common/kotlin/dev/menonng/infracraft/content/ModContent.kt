@@ -1,7 +1,6 @@
 package dev.menonng.infracraft.content
 
 import com.mojang.serialization.Codec
-import com.mojang.serialization.codecs.RecordCodecBuilder
 import dev.menonng.infracraft.block.CurrentBlock
 import dev.menonng.infracraft.block.MilestoneBlock
 import dev.menonng.infracraft.block.RailSwitchBlock
@@ -70,9 +69,6 @@ object ModBlocks {
     val STATION_ELEVATOR = Compat.block("station_elevator", Properties.ofFullCopy(Blocks.IRON_BLOCK)) { TickedBlock(it, TickedBlock.ELEVATOR) }
     val SCREEN_DOOR = Compat.block("screen_door", Properties.ofFullCopy(Blocks.IRON_BARS).noOcclusion(), ::ScreenDoorBlock)
 
-    // 항구
-    val TRADING_POST = Compat.block("trading_post", Properties.ofFullCopy(Blocks.BARREL), ::Block)
-
     // 말
     val STABLE = Compat.block("stable", Properties.ofFullCopy(Blocks.HAY_BLOCK), ::Block)
 
@@ -95,7 +91,10 @@ object ModItems {
     val HARBOR_BLUEPRINT = Compat.item("harbor_blueprint", Item.Properties().stacksTo(16))
     val METRO_CAR_BLUEPRINT = Compat.item("metro_car_blueprint", Item.Properties().stacksTo(16))
     val COACH_BLUEPRINT = Compat.item("coach_blueprint", Item.Properties().stacksTo(16))
-    val CARGO_CRATE = Compat.item("cargo_crate", Item.Properties().stacksTo(1))
+    // 다리 키트: 내구도 30, 한 번 놓을 때마다 1
+    val TIMBER_BRIDGE_KIT = Compat.item("timber_bridge_kit", Compat.toolProperties(30))
+    val STONE_BRIDGE_KIT = Compat.item("stone_bridge_kit", Compat.toolProperties(30))
+    val COPPER_BRIDGE_KIT = Compat.item("copper_bridge_kit", Compat.toolProperties(30))
 
     // 히든: 독수리자리 별조각 9개 → 아퀼라 성좌핵 → 아스트라 오브리터레이터(창작 탭에 없음)
     val STAR_SHARDS = Astra.STARS.associate { it.key to Compat.item("star_${it.key}", Astra.shardProperties(it)) }
@@ -109,10 +108,11 @@ object ModItems {
                 ModBlocks.ASPHALT, ModBlocks.ROAD_LINE, ModBlocks.STREET_LAMP, ModBlocks.SIGNPOST,
                 ModBlocks.HIGH_SPEED_RAIL, ModBlocks.EXPRESS_RAIL, ModBlocks.BLAZE_RAIL,
                 ModBlocks.STATION, ModBlocks.RAIL_SWITCH,
-                ModBlocks.WATER_CURRENT, ModBlocks.BOAT_LIFT, ModBlocks.TRADING_POST, ModBlocks.STABLE,
+                ModBlocks.WATER_CURRENT, ModBlocks.BOAT_LIFT, ModBlocks.STABLE,
                 ModBlocks.TUNNEL_LINING, ModBlocks.TUNNEL_LIGHT, ModBlocks.PLATFORM_EDGE, ModBlocks.SCREEN_DOOR, ModBlocks.STATION_ELEVATOR,
+                TIMBER_BRIDGE_KIT, STONE_BRIDGE_KIT, COPPER_BRIDGE_KIT,
                 SUBWAY_SHIELD, STATION_BLUEPRINT, GROUND_STATION_BLUEPRINT, HARBOR_BLUEPRINT,
-                METRO_CAR_BLUEPRINT, COACH_BLUEPRINT, CARGO_CRATE,
+                METRO_CAR_BLUEPRINT, COACH_BLUEPRINT,
                 TICKET, ROAD_PAVER, TRACK_LAYER, TUNNEL_BORER, SURVEYOR, WHISTLE,
                 IRON_HORSESHOE, DIAMOND_HORSESHOE, ENDER_RAIL_CORE,
             )
@@ -122,7 +122,7 @@ object ModItems {
 
 /** 아이템에 붙는 데이터 컴포넌트 */
 object ModComponents {
-    /** 승차권·화물 운송장의 목적지 역 이름 */
+    /** 승차권의 목적지 역 이름 */
     val DESTINATION: DataComponentType<String> = reg("destination", Codec.STRING, ByteBufCodecs.STRING_UTF8)
     /** 도로 포장기·선로 부설기 작동 여부 */
     val ACTIVE: DataComponentType<Boolean> = reg("active", Codec.BOOL, ByteBufCodecs.BOOL)
@@ -130,8 +130,6 @@ object ModComponents {
     val POINT_A: DataComponentType<BlockPos> = reg("point_a", BlockPos.CODEC, BlockPos.STREAM_CODEC)
     /** 호루라기에 묶인 말 */
     val BOUND_ENTITY: DataComponentType<UUID> = reg("bound_entity", UUIDUtil.CODEC, UUIDUtil.STREAM_CODEC)
-    /** 화물 상자에 실린 짐(출발 항구와 물품) */
-    val CARGO: DataComponentType<Cargo> = reg("cargo", Cargo.CODEC, ByteBufCodecs.fromCodec(Cargo.CODEC))
 
     private fun <T : Any> reg(name: String, codec: Codec<T>, stream: StreamCodec<in RegistryFriendlyByteBuf, T>): DataComponentType<T> =
         Registry.register(
@@ -140,27 +138,6 @@ object ModComponents {
         )
 
     fun init() {}
-}
-
-/** 화물 상자 내용: 출발 항구(키·이름·차원·좌표·지역)와 물품 ID·수량 */
-data class Cargo(
-    val harbor: String, val harborName: String, val dim: String, val x: Int, val z: Int,
-    val region: String, val item: String, val count: Int,
-) {
-    companion object {
-        val CODEC: Codec<Cargo> = RecordCodecBuilder.create { i ->
-            i.group(
-                Codec.STRING.fieldOf("harbor").forGetter(Cargo::harbor),
-                Codec.STRING.fieldOf("harbor_name").forGetter(Cargo::harborName),
-                Codec.STRING.fieldOf("dim").forGetter(Cargo::dim),
-                Codec.INT.fieldOf("x").forGetter(Cargo::x),
-                Codec.INT.fieldOf("z").forGetter(Cargo::z),
-                Codec.STRING.fieldOf("region").forGetter(Cargo::region),
-                Codec.STRING.fieldOf("item").forGetter(Cargo::item),
-                Codec.INT.fieldOf("count").forGetter(Cargo::count),
-            ).apply(i, ::Cargo)
-        }
-    }
 }
 
 /** 사용자 통계(통계 화면 > 일반 탭) */
@@ -172,8 +149,7 @@ object ModStats {
     val ROAD_PAVED = stat("road_paved", StatFormatter.DEFAULT)
     val BLOCKS_BORED = stat("blocks_bored", StatFormatter.DEFAULT)
     val HORSES_CALLED = stat("horses_called", StatFormatter.DEFAULT)
-    val CARGO_DELIVERED = stat("cargo_delivered", StatFormatter.DEFAULT)
-    val TRADE_ONE_CM = stat("trade_one_cm", StatFormatter.DISTANCE)
+    val BRIDGE_BLOCKS = stat("bridge_blocks", StatFormatter.DEFAULT)
 
     private fun stat(name: String, formatter: StatFormatter): Id {
         val key = id(name)

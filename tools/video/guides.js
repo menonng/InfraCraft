@@ -323,10 +323,10 @@ const GUIDES = (() => {
     sfx: () => [...every(0.6, 2.0, 0.12, 'place_stone', 0.35, 0.9, 0.04), ...every(2.2, 3.4, 0.12, 'glass', 0.25, 1.2, 0.05), ...every(3.8, 4.6, 0.1, 'place_stone', 0.3, 1.0, 0.04), [5.2, 'spout', 0.6, 1.0], [5.4, 'shimmer', 0.4, 1.2], [6.5, 'cogs', 0.5, 1.0], [7.1, 'cogs', 0.5, 1.1], [8.4, 'confirm', 0.6, 1.0], [10.4, 'train_whistle', 0.6, 1.0], [10.6, 'train', 0.5, 1.0, 3.0]],
   }]);
 
-  // ═══════════════ 10. 항구와 교역 ═══════════════
-  const harMeta = { id: 'g_harbor', title: '항구와 교역', sub: '배를 타고 먼 항구까지, 직접', sprite: 'harbor_blueprint', color: C.sky, tint: 'rgba(57,197,187,0.09)' };
+  // ═══════════════ 10. 항구 ═══════════════
+  const harMeta = { id: 'g_harbor', title: '항구', sub: '배를 타고 먼 물가까지, 직접', sprite: 'harbor_blueprint', color: C.sky, tint: 'rgba(57,197,187,0.09)' };
   const harbor = make(harMeta, [{
-    dur: 14,
+    dur: 13,
     draw(ctx, t, d) {
       background(ctx, t, harMeta.tint);
       const a = inOut(t, 0, d);
@@ -338,21 +338,116 @@ const GUIDES = (() => {
         if (left || right) { bl.push({ x, y: -1, z, tex: 'dirt', alpha: a }); bl.push({ x, y: 0, z, tex: left ? GRASS : SNOW, alpha: a }); if (left && z === -6 && x === 1) bl.push({ x, y: 1, z, tex: 'jungle_leaves', alpha: a }); }
         else { const pp = pierL ? pop(t, 0.4 + (x - 4) * 0.2, 0.3) : { alpha: 1, lift: 0 }; bl.push({ x, y: -1, z, tex: pierL || pierR ? 'planks' : 'water', alpha: a * (pierL ? pp.alpha : 1), lift: pierL ? pp.lift : 0 }); }
       }
-      bl.push({ x: 4, y: 0, z: -4, tex: { top: 'trading_post_top', side: 'trading_post_side' }, alpha: a * seg(t, 1.2, 1.6) });
-      bl.push({ x: 13, y: 0, z: -4, tex: { top: 'trading_post_top', side: 'trading_post_side' }, alpha: a });
-      const sail = easeInOut(seg(t, 4.0, 9.0));
+      // 계선주와 매달린 등불
+      for (const x of [5, 12]) bl.push({ x, y: 0, z: -4, tex: 'spruce_log', scale: 0.4, alpha: a * seg(t, 1.2, 1.6) });
+      const sail = easeInOut(seg(t, 3.0, 8.5));
       const bx = lerp(6.8, 10.2, sail), bz = -2 + Math.sin(sail * Math.PI) * -1.2;
-      boat(bl, bx, -0.45, bz, a * seg(t, 3.6, 4.0));
+      boat(bl, bx, -0.45, bz, a * seg(t, 2.6, 3.0));
       drawBlocks(ctx, iso, bl);
-      if (t > 2.4) { const [cx, cy] = iso.pt(bx + 0.5, 1.2, bz + 0.5); sprite(ctx, 'cargo_crate', cx, cy, 34, a * seg(t, 2.4, 2.8)); }
-      panel(ctx, 960, 100, 280, 112, { alpha: a * seg(t, 4.0, 4.4), accent: C.sky });
-      text(ctx, `항해 ${Math.round(2600 * sail).toLocaleString()}m`, 990, 144, { size: 28, weight: 800, alpha: a * seg(t, 4.0, 4.4) });
-      text(ctx, '열대우림 → 설원', 990, 182, { size: 20, color: C.dim, alpha: a * seg(t, 4.0, 4.4) });
-      if (t > 9.4) { panel(ctx, 660, 580, 520, 56, { alpha: a, accent: C.green }); text(ctx, '코코아 콩 64 → 얼음 39 · 꽁꽁 언 얼음 38 · 눈덩이 38', 685, 616, { size: 19, weight: 700, alpha: a }); }
-      if (t > 11) { const [ex, ey] = iso.pt(13.5, 3.2, -3.5); actionbar(ctx, '먼 항해의 선물: 스니퍼 알', ex, ey, C.pink, a); }
-      caption(ctx, harMeta.title, cap(harMeta, t, [[0, '물가에서 항구 설계도를 쓰면 잔교·계선주·교역소·물속 항구 역이 생깁니다'], [2.4, '교역소에 그 지역 특산품을 들고 쓰면 화물 상자가 됩니다'], [4.0, '배를 타고 200블록 넘게 떨어진 다른 지역 항구로 직접 갑니다'], [9.4, '닿으면 그곳 특산품으로 바뀝니다. 멀수록 많이, 가끔 진귀품도']]), a * seg(t, 0.3, 0.8), C.sky);
+      for (const x of [5, 12]) { const [lx, ly] = iso.pt(x + 0.5, 1.2, -3.5); const g = ctx.createRadialGradient(lx, ly, 1, lx, ly, 30); g.addColorStop(0, 'rgba(255,200,90,0.85)'); g.addColorStop(1, 'rgba(255,200,90,0)'); ctx.save(); ctx.globalAlpha = a * seg(t, 1.6, 2.2); ctx.fillStyle = g; ctx.fillRect(lx - 30, ly - 30, 60, 60); ctx.restore(); }
+      const [lx, ly] = iso.pt(1.5, 1.8, -3.5), [rx, ry] = iso.pt(16, 2.6, -2);
+      text(ctx, '항구 1', lx, ly, { size: 22, weight: 800, align: 'center', alpha: a, shadow: true });
+      text(ctx, '항구 2', rx, ry, { size: 22, weight: 800, align: 'center', alpha: a, shadow: true });
+      panel(ctx, 960, 100, 280, 112, { alpha: a * seg(t, 3.0, 3.4), accent: C.sky });
+      text(ctx, `항해 ${Math.round(1400 * sail).toLocaleString()}m`, 990, 144, { size: 28, weight: 800, alpha: a * seg(t, 3.0, 3.4) });
+      text(ctx, '열대우림 해안 → 설원 해안', 990, 182, { size: 20, color: C.dim, alpha: a * seg(t, 3.0, 3.4) });
+      if (t > 8.8) { const [ex, ey] = iso.pt(13.5, 3.2, -3.5); actionbar(ctx, '항구 2 도착', ex, ey, C.green, a * seg(t, 8.8, 9.2)); }
+      caption(ctx, harMeta.title, cap(harMeta, t, [[0, '물가에서 항구 설계도를 쓰면 잔교·계선주·등불·물속 항구 역이 생깁니다'], [3.0, '보트로 직접 노를 저어 다른 항구로 갑니다. 지름길은 없습니다'], [8.8, '항구도 역입니다. 도착이 기록되고 뱃길이 노선망에 오릅니다']]), a * seg(t, 0.3, 0.8), C.sky);
     },
-    sfx: () => [0.4, 0.6, 0.8].map((t) => [t, 'place_wood', 0.6, 1.0]).concat([[1.2, 'barrel', 0.6, 1.0], [2.4, 'pop', 0.5, 1.0], [2.5, 'clipboard', 0.5, 1.0], [3.6, 'splash', 0.4, 1.0], ...every(4.0, 9.0, 0.7, 'paddle', 0.45, 1.0, 0.03), [9.2, 'bell', 0.6, 1.0], [9.5, 'orb', 0.5, 1.0], [9.7, 'levelup', 0.4, 1.0], [11.0, 'twinkle', 0.6, 1.0]]),
+    sfx: () => [0.4, 0.6, 0.8].map((t) => [t, 'place_wood', 0.6, 1.0]).concat([[1.4, 'lantern', 0.5, 1.0], [2.6, 'splash', 0.4, 1.0], ...every(3.0, 8.5, 0.7, 'paddle', 0.45, 1.0, 0.03), [8.8, 'bell', 0.6, 1.0], [9.0, 'orb', 0.4, 1.0]]),
+  }]);
+
+  // ═══════════════ 10-2. 다리 키트 ═══════════════
+  // 실제 배치와 같은 규칙: 상판 폭 5(o = -2..2), 시작 k=2 ~ 끝 k=15, 강둑은 k ≤ 1, k ≥ 16, 수면 y = -6
+  function bridgeBlocks(kind, t0, t, a) {
+    const bl = [];
+    const S = 2, E = 15, len = E - S + 1;
+    const spacing = { stone: 8, timber: 6, copper: 10 }[kind];
+    const n = Math.floor((len - 1) / spacing);
+    const piers = Array.from({ length: n }, (_, i) => S - 1 + Math.round((i + 1) * (len + 1) / (n + 1)));
+    const at = (k) => pop(t, t0 + (k - S) * 0.13, 0.3);
+    const push = (k, o, y, tex, extra = {}) => { const p = at(k); bl.push({ x: k, y, z: o, tex, alpha: a * p.alpha, lift: p.lift, ...extra }); };
+    const T = { stone: 'stone_bricks', timber: 'planks', copper: 'weathered_cut_copper' }[kind];
+    for (let k = S; k <= E; k++) {
+      const i = (k - S) % 4;
+      for (let o = -2; o <= 2; o++) push(k, o, 0, T);
+      for (const o of [-2, 2]) {
+        if (kind === 'stone') push(k, o, 1, T, { scale: 0.55 });
+        if (kind === 'timber') { push(k, o, 1, (k - S) % 3 === 0 ? 'oak_log' : 'planks', { scale: (k - S) % 3 === 0 ? 0.6 : 0.3 }); push(k, o, -1, 'oak_log'); }
+        if (kind === 'copper') {
+          push(k, o, -1, 'weathered_copper_grate');
+          if (i === 0) for (const y of [1, 2, 3]) push(k, o, y, T);
+          else { push(k, o, 1, T, { scale: 0.3 }); if (i === 2) push(k, o, 2, 'weathered_copper_grate'); push(k, o, 3, T, { scale: 0.7 }); }
+        }
+      }
+      if (kind === 'copper' && i === 0) for (let o = -1; o <= 1; o++) push(k, o, 4, T, { scale: 0.7 });
+    }
+    if (kind === 'stone') {
+      const sup = [S - 1, ...piers, E + 1];
+      for (let j = 0; j + 1 < sup.length; j++) for (let k = sup[j] + 1; k < sup[j + 1]; k++) {
+        const dist = Math.min(k - sup[j], sup[j + 1] - k);
+        const depth = dist === 1 ? 3 : dist === 2 ? 2 : 1;
+        for (let o = -2; o <= 2; o++) for (let y = -1; y >= -depth; y--) {
+          const p = pop(t, t0 + len * 0.13 + 0.3 + dist * 0.12, 0.3);
+          bl.push({ x: k, y, z: o, tex: T, alpha: a * p.alpha, lift: p.lift, scale: dist >= 4 ? 0.98 : 1 });
+        }
+      }
+    }
+    for (const k of piers) {
+      const cols = kind === 'stone' ? [-2, -1, 0, 1, 2] : [-2, 2];
+      for (let y = kind === 'stone' ? -1 : -2; y >= -6; y--) {
+        const p = pop(t, t0 + len * 0.13 + (-y) * 0.08, 0.3);
+        for (const o of cols) bl.push({ x: k, y, z: o, tex: kind === 'timber' ? 'oak_log' : T, alpha: a * p.alpha, lift: p.lift });
+        if (kind !== 'stone' && (y === -2 || y === -6)) for (let o = -1; o <= 1; o++) bl.push({ x: k, y, z: o, tex: kind === 'timber' ? 'oak_log' : 'weathered_copper_grate', alpha: a * p.alpha, lift: p.lift });
+      }
+    }
+    return { bl, piers };
+  }
+
+  const brMeta = { id: 'g_bridge', title: '다리 키트', sub: '들고 바라보면, 놓일 다리가 보입니다', sprite: 'stone_bridge_kit', color: C.yellow, tint: 'rgba(255,204,17,0.07)' };
+  const bridge = make(brMeta, [{
+    dur: 18,
+    draw(ctx, t, d) {
+      background(ctx, t, brMeta.tint);
+      const a = inOut(t, 0, d);
+      const iso = new Iso(420, 170, 26);
+      const bl = [];
+      // 골짜기: 양쪽 강둑(흙 + 풀, 길은 자갈), 바닥엔 강
+      for (const x of [-1, 0, 1, 16, 17, 18]) for (let z = -3; z <= 3; z++) {
+        for (let y = -6; y < 0; y++) bl.push({ x, y, z, tex: 'dirt', alpha: a });
+        bl.push({ x, y: 0, z, tex: Math.abs(z) <= 1 ? 'gravel' : GRASS, alpha: a });
+      }
+      for (let x = 2; x <= 15; x++) for (let z = -3; z <= 3; z++) bl.push({ x, y: -7, z, tex: 'water', alpha: a });
+      const phase = t < 8 ? 'stone' : t < 12.4 ? 'timber' : 'copper';
+      const t0 = { stone: 3.4, timber: 8.6, copper: 13.0 }[phase];
+      const fadeOut = phase === 'stone' ? 1 - seg(t, 7.6, 8.0) : phase === 'timber' ? 1 - seg(t, 12.0, 12.4) : 1;
+      const { bl: br, piers } = bridgeBlocks(phase, t0, t, a * fadeOut);
+      bl.push(...br);
+      drawBlocks(ctx, iso, bl);
+      person(ctx, iso, 0.5, 1, 0.5, a);
+      // 미리보기: 상판 가장자리(하늘색 점)와 기둥 자리(노란 점선)
+      if (t > 0.8 && t < 3.6) {
+        const blink = 0.55 + 0.45 * Math.sin(t * 9);
+        const pa = a * seg(t, 0.8, 1.2) * (1 - seg(t, 3.3, 3.6)) * blink;
+        ctx.save(); ctx.globalAlpha = pa;
+        for (let k = 2; k <= 15; k++) for (const o of [-2, 2]) { const [px, py] = iso.pt(k + 0.5, 1.05, o + 0.5); ctx.fillStyle = C.sky; ctx.fillRect(px - 5, py - 5, 10, 10); }
+        for (const k of piers) for (let y = 0; y >= -6; y -= 1) { const [px, py] = iso.pt(k + 0.5, y + 0.5, 0.5); ctx.fillStyle = C.yellow; ctx.fillRect(px - 5, py - 5, 10, 10); }
+        ctx.restore();
+        actionbar(ctx, '[길에 맞춤] 길이 14 · 기둥 1 · 석재 벽돌 186개 필요(보유 256)', W / 2, 74, C.sky, a * seg(t, 0.9, 1.3) * (1 - seg(t, 3.3, 3.6)));
+      }
+      // 오른쪽 위: 지금 쓰는 키트와 원재료
+      const kit = { stone: ['stone_bridge_kit', '석조 아치교', '원재료: 석재 벽돌 한 종류'], timber: ['timber_bridge_kit', '목조 다리', '원재료: 참나무 판자 한 종류'], copper: ['copper_bridge_kit', '구리 트러스교', '원재료: 녹슨 깎인 구리 한 종류'] }[phase];
+      const ka = a * fadeOut * seg(t, phase === 'stone' ? 0.4 : t0 - 0.4, phase === 'stone' ? 0.8 : t0);
+      panel(ctx, 900, 110, 340, 120, { alpha: ka, accent: C.yellow });
+      sprite(ctx, kit[0], 950, 170, 64, ka);
+      text(ctx, kit[1], 995, 160, { size: 26, weight: 800, alpha: ka });
+      text(ctx, kit[2], 995, 196, { size: 17, color: C.dim, alpha: ka });
+      text(ctx, '내구도 30 · 한 번에 1', 995, 220, { size: 15, color: C.dim, alpha: ka });
+      caption(ctx, brMeta.title, cap(brMeta, t, [[0, '벼랑 끝, 길 위에 서서 건너편을 바라봅니다'], [0.9, '오른손에 들면 놓일 자리와 필요한 재료가 보입니다. 근처 길에 맞춰 자리가 보정됩니다'], [3.4, '우클릭: 발 높이로 상판, 난간, 아치, 그리고 높은 곳엔 교각'], [8.6, '목조 다리: 판자 한 종류로 울타리 난간, 통나무 보와 가대까지'], [13.0, '구리 트러스교: 녹슨 빛 그대로, 머리 위로 문형 보가 지나갑니다']]), a * seg(t, 0.3, 0.8), C.yellow);
+    },
+    sfx: () => [[0.9, 'shimmer', 0.35, 1.3], [1.6, 'click', 0.3, 1.0], ...every(3.4, 5.3, 0.13, 'place_stone', 0.3, 1.0, 0.05), [5.6, 'anvil', 0.3, 1.3],
+      ...every(8.6, 10.5, 0.13, 'place_wood', 0.35, 1.0, 0.05), [10.6, 'anvil', 0.3, 1.3], ...every(13.0, 14.9, 0.13, 'place_stone', 0.3, 1.3, 0.05), [15.0, 'chain', 0.4, 1.0], [15.2, 'anvil', 0.3, 1.3],
+      [6.2, 'step_stone', 0.3, 1.0], [6.6, 'step_stone', 0.3, 1.0], [7.0, 'step_stone', 0.3, 1.0]],
   }]);
 
   // ═══════════════ 11. 물살 · 보트 리프트 ═══════════════
@@ -481,6 +576,6 @@ const GUIDES = (() => {
   }]);
 
   const all = { g_roads: roads, g_rails: rails, g_stations: stations, g_ats: ats, g_network: network, g_shield: shield, g_hall: hall,
-    g_surface: surface, g_cars: cars, g_harbor: harbor, g_water: water, g_horses: horses, g_tools: tools, g_nether: nether, g_enchant: enchant };
+    g_surface: surface, g_cars: cars, g_harbor: harbor, g_bridge: bridge, g_water: water, g_horses: horses, g_tools: tools, g_nether: nether, g_enchant: enchant };
   return all;
 })();

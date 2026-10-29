@@ -20,13 +20,11 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.block.BaseRailBlock
-import net.minecraft.world.level.block.Block
 import java.util.WeakHashMap
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.sqrt
 
-/** 도로 포장기, 선로 부설기, 터널 굴착기, 측량기(교량 건설) */
+/** 도로 포장기, 선로 부설기, 터널 굴착기, 측량기 */
 object Tools {
     private val lastBlock = WeakHashMap<Player, BlockPos>()
 
@@ -162,46 +160,9 @@ object Tools {
         val dz = (pos.z - a.z).toDouble()
         val horiz = sqrt(dx * dx + dz * dz)
         val slope = if (horiz < 0.01) 0.0 else dy / horiz * 100.0
-        val deck = (max(abs(dx), abs(dz)).toInt() + 1) * 3
-        Compat.chat(player, msg("surveyor.result", Palette.SKY, fmt1(horiz), fmt1(dy), fmt1(slope), deck.toString()))
-        if (player.isShiftKeyDown) buildBridge(player, a, pos) else
-            Compat.chat(player, msg("surveyor.hint", Palette.PINK))
+        Compat.chat(player, msg("surveyor.result", Palette.SKY, fmt1(horiz), fmt1(dy), fmt1(slope)))
+        Compat.chat(player, msg("surveyor.hint", Palette.PINK))
         stack.remove(ModComponents.POINT_A)
-    }
-
-    /** A→B 를 잇는 폭 3칸 교량 상판을 왼손의 블록으로 놓는다(높이는 선형 보간). */
-    private fun buildBridge(player: ServerPlayer, a: BlockPos, b: BlockPos) {
-        val level = player.level() as ServerLevel
-        val material = player.offhandItem
-        val block: Block = (material.item as? BlockItem)?.block ?: run {
-            Compat.chat(player, msg("paver.need_material", Palette.ORANGE)); return
-        }
-        val steps = max(abs(b.x - a.x), abs(b.z - a.z))
-        if (steps > Config.c.bridgeMaxLength) {
-            Compat.chat(player, msg("bridge.too_long", Palette.RED, Config.c.bridgeMaxLength.toString()))
-            return
-        }
-        val alongX = abs(b.x - a.x) >= abs(b.z - a.z)
-        var placed = 0
-        for (i in 0..steps) {
-            val t = if (steps == 0) 0.0 else i.toDouble() / steps
-            val cx = Math.round(a.x + (b.x - a.x) * t).toInt()
-            val cy = Math.round(a.y + (b.y - a.y) * t).toInt()
-            val cz = Math.round(a.z + (b.z - a.z) * t).toInt()
-            for (w in -1..1) {
-                val p = if (alongX) BlockPos(cx, cy, cz + w) else BlockPos(cx + w, cy, cz)
-                val s = level.getBlockState(p)
-                if (!(s.isAir || s.canBeReplaced())) continue
-                if (!player.isCreative && material.isEmpty) {
-                    Compat.chat(player, msg("bridge.out_of_material", Palette.ORANGE, placed.toString()))
-                    return
-                }
-                level.setBlock(p, block.defaultBlockState(), 3)
-                if (!player.isCreative) material.shrink(1)
-                placed++
-            }
-        }
-        Compat.chat(player, msg("bridge.done", Palette.GREEN, placed.toString()))
     }
 
     fun clearSurvey(player: Player, stack: ItemStack) {

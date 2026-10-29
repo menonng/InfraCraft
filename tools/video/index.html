@@ -28,18 +28,20 @@
     images[n] = [`assets-real/${n}.png`, `assets/${n}.png`];
   for (const n of ['cobblestone', 'gravel', 'polished_granite', 'bricks', 'oak_log', 'spruce_log', 'lantern', 'glass', 'gold_block',
     'iron_block', 'redstone_block', 'powered_rail_on', 'netherrack', 'obsidian', 'portal', 'soul_sand', 'prismarine', 'hay',
-    'sand', 'snow_block', 'jungle_leaves', 'oak_leaves', 'mossy_cobblestone', 'andesite_casing', 'brass_casing', 'railway_casing'])
+    'sand', 'snow_block', 'jungle_leaves', 'oak_leaves', 'mossy_cobblestone', 'andesite_casing', 'brass_casing', 'railway_casing',
+    'weathered_cut_copper', 'weathered_copper_grate'])
     images[n] = [`assets-real/${n}.png`, `assets/stone.png`];
   for (const n of ['asphalt', 'road_line', 'street_lamp', 'signpost', 'station', 'station_side', 'rail_switch', 'rail_switch_on',
     'water_current_top', 'water_current_side', 'boat_lift_top', 'boat_lift_side', 'stable_top', 'stable_side',
     'high_speed_rail', 'high_speed_rail_on', 'express_rail', 'express_rail_on', 'blaze_rail', 'blaze_rail_on',
     'tunnel_lining', 'tunnel_light', 'platform_edge', 'station_elevator_top', 'station_elevator_side',
-    'screen_door_frame', 'screen_door_glass', 'trading_post_top', 'trading_post_side',
+    'screen_door_frame', 'screen_door_glass',
     'setts', 'brick_paving', 'flagstone', 'milestone', 'milestone_top'])
     images[n] = MOD + 'block/' + n + '.png';
   for (const n of ['ticket', 'road_paver', 'track_layer', 'tunnel_borer', 'surveyor', 'whistle', 'iron_horseshoe',
     'diamond_horseshoe', 'ender_rail_core', 'subway_shield', 'station_blueprint', 'ground_station_blueprint',
-    'harbor_blueprint', 'metro_car_blueprint', 'coach_blueprint', 'cargo_crate', 'screen_door'])
+    'harbor_blueprint', 'metro_car_blueprint', 'coach_blueprint', 'screen_door',
+    'timber_bridge_kit', 'stone_bridge_kit', 'copper_bridge_kit'])
     images[n] = MOD + 'item/' + n + '.png';
   const VIDEOS = { subway: SUBWAY, features: FEATURES, ...GUIDES };
   const video = VIDEOS[new URLSearchParams(location.search).get('video') || 'subway'];

@@ -106,7 +106,7 @@ object Stations {
 
     /**
      * 물가에 서서 물 쪽을 보고 사용한다. 길이 10, 폭 3 의 나무 잔교와 기둥, 한쪽 난간과 등불,
-     * 계선주, 잔교 끝 옆 물속의 항구 역(보트가 그 위에 닿으면 도착), 잔교 입구의 교역소.
+     * 계선주, 잔교 끝 옆 물속의 항구 역(보트가 그 위에 닿으면 도착).
      */
     fun buildHarbor(player: ServerPlayer, hand: InteractionHand) {
         val level = player.level() as ServerLevel
@@ -141,7 +141,6 @@ object Stations {
                 plan.add(p to Blocks.SPRUCE_LOG.defaultBlockState())
             }
             for (h in 1..3) plan.add(at(base, dir, side, k, o, h) to when {
-                o == -1 && h == 1 && k == 1 -> ModBlocks.TRADING_POST.defaultBlockState()
                 o == -1 && h == 1 -> fence
                 o == -1 && h == 2 && k % 4 == 0 -> Blocks.LANTERN.defaultBlockState()
                 o == 1 && h == 1 && (k == 4 || k == 8) -> fence
@@ -154,6 +153,5 @@ object Stations {
         val data = Network.data(level.server)
         val st = Network.registerStation(level, at(base, dir, side, 8, 3, -1), data.uniqueName("항구 ${data.stations.size + 1}"))
         Compat.chat(player, msg("harbor.built", Palette.GREEN, st.name))
-        Compat.chat(player, msg("trade.how", Palette.PINK, TradeRules.MIN_DISTANCE.toString()))
     }
 }

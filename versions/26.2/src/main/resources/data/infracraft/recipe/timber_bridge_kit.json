@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SAS",
+    "PPP",
+    "L L"
+  ],
+  "key": {
+    "S": "minecraft:string",
+    "A": "minecraft:iron_axe",
+    "P": "#minecraft:planks",
+    "L": "#minecraft:logs"
+  },
+  "result": {
+    "id": "infracraft:timber_bridge_kit",
+    "count": 1
+  }
+}

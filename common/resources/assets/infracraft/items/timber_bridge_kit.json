@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "infracraft:item/cargo_crate"
+    "model": "infracraft:item/timber_bridge_kit"
   }
 }

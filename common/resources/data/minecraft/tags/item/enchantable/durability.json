@@ -4,6 +4,9 @@
     "infracraft:road_paver",
     "infracraft:track_layer",
     "infracraft:tunnel_borer",
-    "infracraft:subway_shield"
+    "infracraft:subway_shield",
+    "infracraft:timber_bridge_kit",
+    "infracraft:stone_bridge_kit",
+    "infracraft:copper_bridge_kit"
   ]
 }

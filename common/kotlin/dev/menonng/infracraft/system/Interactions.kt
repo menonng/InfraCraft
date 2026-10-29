@@ -40,6 +40,7 @@ object Interactions {
         return when {
             stack.`is`(ModItems.ROAD_PAVER) || stack.`is`(ModItems.TRACK_LAYER) -> handled(player) { Tools.toggle(it, stack) }
             stack.`is`(ModItems.SUBWAY_SHIELD) -> handled(player) { Subway.shield(it, hand) }
+            Bridges.kind(stack) != null -> handled(player) { Bridges.use(it, hand) }
             stack.`is`(ModItems.ASTRA_OBLITERATOR) -> handled(player) { Astra.cast(it, stack) }
             stack.`is`(ModItems.STATION_BLUEPRINT) -> handled(player) { Subway.buildStation(it, hand) }
             stack.`is`(ModItems.GROUND_STATION_BLUEPRINT) -> handled(player) { Stations.buildGround(it, hand) }
@@ -88,15 +89,12 @@ object Interactions {
 
         if (stack.`is`(ModItems.TUNNEL_BORER)) return handled(player) { Tools.bore(it, hand, pos, hit.direction) }
         if (stack.`is`(ModItems.SUBWAY_SHIELD)) return handled(player) { Subway.shield(it, hand) }
+        if (Bridges.kind(stack) != null) return handled(player) { Bridges.use(it, hand) }
         if (stack.`is`(ModItems.STATION_BLUEPRINT)) return handled(player) { Subway.buildStation(it, hand) }
         if (stack.`is`(ModItems.GROUND_STATION_BLUEPRINT)) return handled(player) { Stations.buildGround(it, hand) }
         if (stack.`is`(ModItems.HARBOR_BLUEPRINT)) return handled(player) { Stations.buildHarbor(it, hand) }
         if (stack.`is`(ModItems.METRO_CAR_BLUEPRINT)) return handled(player) { CreateCars.build(it, hand, CreateCars.Style.METRO) }
         if (stack.`is`(ModItems.COACH_BLUEPRINT)) return handled(player) { CreateCars.build(it, hand, CreateCars.Style.COACH) }
-        // 교역소: 웅크리면 바닐라 동작(옆에 블록 놓기 등)
-        if (state.`is`(ModBlocks.TRADING_POST) && hand == InteractionHand.MAIN_HAND && !player.isShiftKeyDown) {
-            return handled(player) { Trade.useTradingPost(it.level() as ServerLevel, pos, it, stack) }
-        }
         if (stack.`is`(ModItems.SURVEYOR)) return handled(player) { Tools.survey(it, stack, pos) }
 
         // Create 기차 정거장: 빈손 클릭은 Create 역 화면에 맡기고, 승차권일 때만 가로챈다

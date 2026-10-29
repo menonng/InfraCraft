@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "infracraft:item/trading_post"
+    "model": "infracraft:item/stone_bridge_kit"
   }
 }
