@@ -1,0 +1,11 @@
+(FabricLoader/Mixin) Error loading class: me/jellysquid/mods/lithium/common/ai/pathing/PathNodeDefaults (java.lang.ClassNotFoundException: me/jellysquid/mods/lithium/common/ai/pathing/PathNodeDefaults)
+(Minecraft) [STDERR]: java.nio.file.NoSuchFileException: ./config/create_connected/server.json
+(Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+(Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+(Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+(Minecraft) [STDERR]: java.nio.file.NoSuchFileException: ./config/powergrid-server.json
+(Minecraft) [STDERR]: java.nio.file.NoSuchFileException: ./config/powergrid-common.json
+(Minecraft) [STDERR]: java.nio.file.NoSuchFileException: ./config/create/server.json
+(Minecraft) [STDERR]: java.nio.file.NoSuchFileException: ./config/createaddition-common.json
+(Minecraft) [STDERR]: java.nio.file.NoSuchFileException: ./config/createdieselgenerators-common.json
+(Minecraft) [STDERR]: java.nio.file.NoSuchFileException: ./config/createdieselgenerators-server.json

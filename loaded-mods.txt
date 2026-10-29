@@ -1,0 +1,120 @@
+[15:41:17] [main/INFO] (FabricLoader) Loading 73 mods:
+	- alloyed 3.0.12+26.2
+	   \-- folk_sisby_kaleido-config 0.3.3+1.3.2
+	- create 6.0.9-2
+	- create_connected 1.3.3-mc26.2-4
+	- create_hypertube 0.6.0+26.2
+	- createaddition 1.7.2.1+fly-mc26.2
+	   |-- createreiviewer 1.0.2+fly-mc26.2
+	   \-- team_reborn_energy 5.0.0
+	- createdieselgenerators 1.3.15.2+fly-mc26.2
+	   \-- createreiviewer 1.0.2+fly-mc26.2
+	- electroenergetics 1.2.0+fabric.26.2
+	   \-- team_reborn_energy 5.0.0
+	- fabric-advancement-api-v1 1.0.0+58719a3b9e
+	- fabric-api 0.161.0+26.2
+	- fabric-api-base 2.0.4+ece063239e
+	- fabric-api-lookup-api-v1 2.0.18+11e1c9a39e
+	- fabric-biome-api-v1 18.0.6+c7bd5b8e9e
+	- fabric-block-api-v1 3.1.0+53515aab9e
+	- fabric-block-getter-api-v2 2.0.7+ec56b6019e
+	- fabric-command-api-v2 3.1.0+00cb03469e
+	- fabric-content-registries-v0 11.3.2+37b1aa249e
+	- fabric-convention-tags-v2 4.7.1+1f023a9e9e
+	- fabric-crash-report-info-v1 1.0.5+086d547a9e
+	- fabric-creative-tab-api-v1 5.0.15+6468574f9e
+	- fabric-data-attachment-api-v1 2.2.19+515ac5339e
+	- fabric-data-generation-api-v1 25.6.0+c0da0b829e
+	- fabric-debug-api-v1 1.0.2+c792624d9e
+	- fabric-dimensions-v1 5.1.12+515ac5339e
+	- fabric-entity-events-v1 5.0.5+06488ac19e
+	- fabric-events-interaction-v0 5.2.8+515ac5339e
+	- fabric-game-rule-api-v1 4.0.8+46a6d00c9e
+	- fabric-gametest-api-v1 4.0.22+4a7fa0819e
+	- fabric-item-api-v1 14.5.0+c68f6cbe9e
+	- fabric-language-kotlin 1.14.2+kotlin.2.4.21
+	   |-- org_jetbrains_kotlin_kotlin-reflect 2.4.21
+	   |-- org_jetbrains_kotlin_kotlin-stdlib 2.4.21
+	   |-- org_jetbrains_kotlin_kotlin-stdlib-jdk7 2.4.21
+	   |-- org_jetbrains_kotlin_kotlin-stdlib-jdk8 2.4.21
+	   |-- org_jetbrains_kotlinx_atomicfu-jvm 0.33.0
+	   |-- org_jetbrains_kotlinx_kotlinx-coroutines-core-jvm 1.11.0
+	   |-- org_jetbrains_kotlinx_kotlinx-coroutines-jdk8 1.11.0
+	   |-- org_jetbrains_kotlinx_kotlinx-datetime-jvm 0.8.0
+	   |-- org_jetbrains_kotlinx_kotlinx-io-bytestring-jvm 0.9.1
+	   |-- org_jetbrains_kotlinx_kotlinx-io-core-jvm 0.9.1
+	   |-- org_jetbrains_kotlinx_kotlinx-serialization-cbor-jvm 1.11.0
+	   |-- org_jetbrains_kotlinx_kotlinx-serialization-core-jvm 1.11.0
+	   \-- org_jetbrains_kotlinx_kotlinx-serialization-json-jvm 1.11.0
+	- fabric-lifecycle-events-v1 4.1.4+29b6eb019e
+	- fabric-loot-api-v3 3.0.17+06488ac19e
+	- fabric-menu-api-v1 2.0.17+086d547a9e
+	- fabric-message-api-v1 7.0.8+bb2ed3f79e
+	- fabric-networking-api-v1 6.3.4+2989c6a09e
+	- fabric-object-builder-api-v1 24.1.1+6fcd5f039e
+	- fabric-particles-v1 5.0.19+d1756aa99e
+	- fabric-permission-api-v1 1.0.5+e442d8d09e
+	- fabric-recipe-api-v1 9.0.22+11e1c9a39e
+	- fabric-registry-sync-v0 7.1.1+c7bd5b8e9e
+	- fabric-rendering-fluids-v1 6.0.4+06488ac19e
+	- fabric-resource-conditions-api-v1 6.1.0+10e9a28b9e
+	- fabric-resource-loader-v0 3.3.20+4fc5413f9e
+	- fabric-resource-loader-v1 2.0.13+9edec1269e
+	- fabric-serialization-api-v1 2.0.4+11a26f319e
+	- fabric-tag-api-v1 2.1.4+515ac5339e
+	- fabric-transfer-api-v1 8.0.13+11dbb7d79e
+	- fabric-transitive-access-wideners-v1 8.1.4+67c847259e
+	- fabricloader 0.20.1
+	- infracraft 1.0.0-beta.1+mc26.2
+	- java 25
+	- minecraft 26.2
+	- mixinextras 0.5.5
+	- powergrid 0.6.2.2+fly-mc26.2
+	   |-- createreiviewer 1.0.2+fly-mc26.2
+	   |-- org_ejml_ejml-core 0.44.0
+	   |-- org_ejml_ejml-ddense 0.44.0
+	   |-- org_ejml_ejml-dsparse 0.44.0
+	   |-- org_ejml_ejml-simple 0.44.0
+	   \-- team_reborn_energy 5.0.0
+[15:41:17] [main/INFO] (FabricLoader/Mixin) SpongePowered MIXIN Subsystem Version=0.8.7 Source=file:/home/runner/.gradle/caches/modules-2/files-2.1/net.fabricmc/sponge-mixin/0.17.5+mixin.0.8.7/cef8519a91129d0c21fa03bb9378f0e8ca810e5/sponge-mixin-0.17.5+mixin.0.8.7.jar Service=Knot/Fabric Env=SERVER
+[15:41:18] [main/WARN] (FabricLoader/Mixin) Error loading class: me/jellysquid/mods/lithium/common/ai/pathing/PathNodeDefaults (java.lang.ClassNotFoundException: me/jellysquid/mods/lithium/common/ai/pathing/PathNodeDefaults)
+[15:41:18] [main/INFO] (FabricLoader/MixinExtras|Service) Initializing MixinExtras via com.llamalad7.mixinextras.service.MixinExtrasServiceImpl(version=0.5.5).
+[15:41:27] [main/INFO] (infracraft) [InfraCraft] Create 연동 활성화 (com.zurrtum.create)
+[15:41:27] [main/INFO] (infracraft) [InfraCraft] 교통 인프라 모드 로드됨
+[15:41:28] [main/INFO] (Create Fly Recipe Viewer) Create Fly Recipe Viewer loaded
+[15:41:28] [main/INFO] (Create Fly Recipe Viewer) fixSequencedAssemblySync is true in ./config/createreiviewer.json: Create sequenced assembly steps are decoded with the server's recipe serializer ids whenever the server sends them; recipes stay in Create Fly's wire format, so the server and the clients need not use the same value
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: Failed to read config file: /home/runner/work/InfraCraft/InfraCraft/versions/26.2/run/./config/create_connected/server.json
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: java.nio.file.NoSuchFileException: ./config/create_connected/server.json
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixFileSystemProvider.newFileChannel(UnixFileSystemProvider.java:213)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixFileSystemProvider.newByteChannel(UnixFileSystemProvider.java:244)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/java.nio.file.Files.newByteChannel(Files.java:357)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/java.nio.file.Files.newByteChannel(Files.java:399)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/java.nio.file.spi.FileSystemProvider.newInputStream(FileSystemProvider.java:371)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/java.nio.file.Files.newInputStream(Files.java:154)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at knot//org.apache.commons.io.FileUtils.lambda$readFileToString$14(FileUtils.java:2768)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at knot//org.apache.commons.io.IOUtils.toString(IOUtils.java:3204)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at knot//org.apache.commons.io.IOUtils.toString(IOUtils.java:3179)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at knot//org.apache.commons.io.FileUtils.readFileToString(FileUtils.java:2768)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at knot//com.zurrtum.create.catnip.config.Builder.read(Builder.java:136)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at knot//com.zurrtum.create.catnip.config.Builder.<init>(Builder.java:36)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at knot//com.zurrtum.create.catnip.config.Builder.create(Builder.java:49)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at knot//com.zurrtum.create.catnip.config.Builder.create(Builder.java:44)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at knot//com.hlysine.create_connected.config.CCConfigs.register(CCConfigs.java:48)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at knot//com.hlysine.create_connected.CreateConnected.onInitialize(CreateConnected.java:58)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at net.fabricmc.loader.impl.FabricLoaderImpl.invokeEntrypoints(FabricLoaderImpl.java:414)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at net.fabricmc.loader.impl.game.minecraft.Hooks.startServer(Hooks.java:63)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at knot//net.minecraft.server.Main.main(Main.java:114)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at net.fabricmc.loader.impl.game.minecraft.MinecraftGameProvider.launch(MinecraftGameProvider.java:517)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at net.fabricmc.loader.impl.launch.knot.Knot.launch(Knot.java:72)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at net.fabricmc.loader.impl.launch.knot.KnotServer.main(KnotServer.java:23)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at net.fabricmc.devlaunchinjector.Main.main(Main.java:86)
+[15:41:28] [main/INFO] (PowerGrid) Power grid starting, prepare to be electrocuted
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: Failed to read config file: /home/runner/work/InfraCraft/InfraCraft/versions/26.2/run/./config/powergrid-server.json
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: java.nio.file.NoSuchFileException: ./config/powergrid-server.json
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixException.translateToIOException(UnixException.java:92)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:106)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixException.rethrowAsIOException(UnixException.java:111)
+[15:41:28] [main/INFO] (Minecraft) [STDERR]: 	at java.base/sun.nio.fs.UnixFileSystemProvider.newFileChannel(UnixFileSystemProvider.java:213)
